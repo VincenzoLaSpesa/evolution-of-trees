@@ -17,16 +17,16 @@ import java.io.Serializable;
 public class Gene implements Serializable {
 
 	private static final long serialVersionUID = 8793885518667156524L;
-	public static String csvHead = "Att\tPunto\t\tTaglio\tFine";
+	public static String csvHead = "Att\tPunto\tTaglio\tFine\n";
 	//
 	public int attributo;
 	public double punto;
 	public Taglio taglio;
 	/**
-	 * posizione dell'ultimo nodo dell sottoalbero corrente, da un punto di vista strettamente
-	 * OOP non dovrebbe stare qui visto che non si riferisce al singolo gene ma
-	 * all'intera struttura, ma vista l'implementazione del Cromosoma come
-	 * semplice vettore di geni la mantengo qui.
+	 * posizione dell'ultimo nodo dell sottoalbero corrente, da un punto di
+	 * vista strettamente OOP non dovrebbe stare qui visto che non si riferisce
+	 * al singolo gene ma all'intera struttura, ma vista l'implementazione del
+	 * Cromosoma come semplice vettore di geni la mantengo qui.
 	 */
 	public int fine;
 
@@ -43,13 +43,23 @@ public class Gene implements Serializable {
 
 	}
 
+	public Gene clone() {
+		Gene g = new Gene();
+		g.attributo = this.attributo;
+		g.fine = this.fine;
+		g.punto = this.punto;
+		g.taglio = this.taglio;
+		return g;
+
+	}
+
 	/**
 	 * Produce una singola riga per la costruzione di un CSV
 	 * 
 	 * @return
 	 */
 	public String toCsv() {
-		return String.format("%d\t%f\t%d\t%d", attributo, punto,
+		return String.format("%d	%.2f	%d	%d", attributo, punto,
 				taglio.ordinal(), fine);
 	}
 

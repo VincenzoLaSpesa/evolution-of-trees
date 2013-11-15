@@ -3,6 +3,7 @@ package tesi.main;
 import java.io.FileReader;
 import java.io.PrintWriter;
 
+import tesi.controllers.GeneticOperator;
 import tesi.controllers.TreeEvaluator;
 import tesi.models.Cromosoma;
 import tesi.util.ArrayUtil;
@@ -127,8 +128,10 @@ public class Main {
 		te.evaluate();
 		System.out.println(String.format("%f;%d",te.getPrestazioni(),c.cromosoma.size()));
 		System.out.println(ArrayUtil.dump(te.getConfusion()));
+		System.out.println(c.toYaml());
 		
-		
+		Cromosoma c2=GeneticOperator.crossover(c, c, true);
+		System.out.println(c2.toYaml());
 		System.out.println("Done");
 		
 	}
