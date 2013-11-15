@@ -1,4 +1,4 @@
-package tesi.strutture;
+package tesi.models;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -71,8 +71,10 @@ public class Cromosoma implements Serializable  {
 			else 
 				g.taglio=Taglio.Continuo;			
 			cromosoma.add(g);
+			int p=cromosoma.size();
 			parse(sottoalbero.m_sons[0]);
 			parse(sottoalbero.m_sons[1]);
+			cromosoma.elementAt(p-1).fine=cromosoma.size()-1;
 		}
 	};
 	
@@ -91,6 +93,23 @@ public class Cromosoma implements Serializable  {
 		return sb.toString();
 		
 	}
+	
+	/**
+	 * Serializza in un CSV
+	 * @return
+	 */
+	public String toCsv(){
+		StringBuffer sb= new StringBuffer();
+		sb.append(Gene.csvHead);
+		for (Gene g : cromosoma) {
+			sb.append(g.toCsv());
+			sb.append("\n");
+		}
+		
+		return sb.toString();
+		
+	}
+
 	
 	public String toYaml(){
 		Yaml yaml = new Yaml();

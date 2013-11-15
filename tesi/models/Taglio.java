@@ -1,4 +1,4 @@
-package tesi.strutture;
+package tesi.models;
 
 public enum Taglio {
 	Categorico, Continuo;
