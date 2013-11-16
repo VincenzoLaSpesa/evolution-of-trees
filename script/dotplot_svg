@@ -1,0 +1,13 @@
+#!/usr/bin/ruby
+
+#l'input può provenire sia dallo stdin che da un file passato come parametro
+fname=`mktemp`
+linee=readlines
+IO.popen("dot -Tsvg -o #{fname}", "w+") do |pipe|
+#IO.popen("circo -Tsvg -o #{fname}", "w+") do |pipe|
+#IO.popen("fdp -Tsvg -o #{fname}", "w+") do |pipe|
+  pipe.puts linee
+  pipe.close
+end
+`kde-open #{fname}`
+`rm #{fname}`

@@ -1,0 +1,11 @@
+#!/usr/bin/ruby
+
+fname=`mktemp`
+linee=readlines
+#IO.popen("dot >> #{fname}", "w+") do |pipe|
+IO.popen("twopi >> #{fname}", "w+") do |pipe|
+  pipe.puts linee
+  pipe.close
+end
+`dotty #{fname}`
+`rm #{fname}`
