@@ -130,7 +130,7 @@ public class Main {
 		System.out.println(ArrayUtil.dump(te.getConfusion()));
 		System.out.println(c.toYaml());
 		
-		Cromosoma c2=GeneticOperator.crossover(c, c, true);
+		Cromosoma c2=GeneticOperator.crossover(c, c, false);
 		System.out.println(c2.toYaml());
 		System.out.println("Done");
 		

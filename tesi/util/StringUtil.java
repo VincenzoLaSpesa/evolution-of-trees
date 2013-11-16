@@ -4,7 +4,18 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * Raccolta di funzioni utili per lavorare con le stringhe
+ * @author darshan
+ *
+ */
 public class StringUtil {
+	/**
+	 * Legge un file per intero e lo scrive su una stringa
+	 * @param filePath
+	 * @return
+	 * @throws IOException
+	 */
 	public static String readFileAsString(String filePath) throws IOException {
         StringBuffer fileData = new StringBuffer();
         BufferedReader reader = new BufferedReader(

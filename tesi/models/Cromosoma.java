@@ -101,7 +101,7 @@ public class Cromosoma implements Serializable {
 	};
 
 	/**
-	 * Distrugge le informazioni sulla fine dei sottoalberi
+	 * Distrugge le informazioni sulla fine dei sottoalberi, si usa per fini di Debug, non dovrebbe essere usata altrimenti
 	 */
 	@Deprecated
 	public void cripple() {
@@ -118,6 +118,11 @@ public class Cromosoma implements Serializable {
 		
 	}
 	
+	/**
+	 * Funzione interna per la ristrutturazione di un sottoalbero, viene invocata da tesi.models.Cromosoma.ristruttura()
+	 * @param base
+	 * @return
+	 */
 	private int ristruttura(int base) {
 		//System.out.println(base);
 		if (Double.isNaN(cromosoma.elementAt(base).punto)) {
@@ -159,6 +164,10 @@ public class Cromosoma implements Serializable {
 
 	}
 
+	/**
+	 * Serializza in formato Yaml
+	 * @return
+	 */
 	public String toYaml() {
 		Yaml yaml = new Yaml();
 		return yaml.dump(this);

@@ -6,6 +6,14 @@ import tesi.models.Taglio;
 import tesi.util.ArrayUtil;
 import weka.core.Instances;
 
+/**
+ * Costruisce valutazioni degli alberi su interi testset e ne ritorna la matrice
+ * di confusione e la prestazione, dispone anche di funzioni statiche per
+ * valutare singoli cromosomi su singole entry del testset
+ * 
+ * @author darshan
+ * 
+ */
 public class TreeEvaluator {
 
 	/**
@@ -22,11 +30,12 @@ public class TreeEvaluator {
 	 * @return
 	 */
 	public static int evaluate_one(Cromosoma c, double[] istanza) {
-		//System.out.println("    "+Gene.csvHead);
+		// System.out.println("    "+Gene.csvHead);
 		int cursore = 0;
 		boolean flag;
 		Gene g = c.cromosoma.elementAt(cursore);
-		//System.out.println(String.format("%d -> %s - (%f)", cursore , g.toCsv() , istanza[g.attributo]));
+		// System.out.println(String.format("%d -> %s - (%f)", cursore ,
+		// g.toCsv() , istanza[g.attributo]));
 		while (g.fine > 0) {
 			if (g.taglio == Taglio.Continuo) {
 				flag = (istanza[g.attributo] <= g.punto);
@@ -39,16 +48,18 @@ public class TreeEvaluator {
 				cursore = g.fine;
 			}
 			g = c.cromosoma.elementAt(cursore);
-			//System.out.println(String.format("%d -> %s - (%f)", cursore , g.toCsv() , istanza[g.attributo]));
-			
+			// System.out.println(String.format("%d -> %s - (%f)", cursore ,
+			// g.toCsv() , istanza[g.attributo]));
+
 		}
 		return g.attributo;
 	}
 
 	/**
-	 * Valuta l'albero con tesi.controllers.TreeEvaluator.evaluate_one(Cromosoma,
-	 * double[]), paragona la valutazione col valore effettivo, ritorna la
-	 * correttezza della valutazione come valore booleano
+	 * Valuta l'albero con
+	 * tesi.controllers.TreeEvaluator.evaluate_one(Cromosoma, double[]),
+	 * paragona la valutazione col valore effettivo, ritorna la correttezza
+	 * della valutazione come valore booleano
 	 * 
 	 * @param c
 	 * @param istanza
@@ -61,37 +72,37 @@ public class TreeEvaluator {
 	Cromosoma cromosoma;
 	Instances testset;
 	int nclassi;
-	
+
 	int[][] confusion;
-	double prestazioni=-1;
+	double prestazioni = -1;
+
 	public TreeEvaluator(Cromosoma cromosoma, Instances testset, int nclassi) {
 		super();
 		this.cromosoma = cromosoma;
 		this.testset = testset;
 		this.nclassi = nclassi;
-		this.confusion=new int[nclassi][nclassi];
+		this.confusion = new int[nclassi][nclassi];
 	}
 
-	public double evaluate(){
+	public double evaluate() {
 		int nIstanze = testset.numInstances();
 		int responso;
 		int classe;
 		double[] istanza;
-		
-	
-		for(int i=0;i<nIstanze;i++){
-			istanza=testset.instance(i).toDoubleArray();
-			responso=TreeEvaluator.evaluate_one(cromosoma, istanza);
-			classe=(int)istanza[istanza.length-1];
+
+		for (int i = 0; i < nIstanze; i++) {
+			istanza = testset.instance(i).toDoubleArray();
+			responso = TreeEvaluator.evaluate_one(cromosoma, istanza);
+			classe = (int) istanza[istanza.length - 1];
 			confusion[classe][responso]++;
 		}
-		for(int i=0;i<nclassi;i++){
-			prestazioni=prestazioni+confusion[i][i];
+		for (int i = 0; i < nclassi; i++) {
+			prestazioni = prestazioni + confusion[i][i];
 		}
-		prestazioni=(prestazioni+1)/nIstanze; 
-		return prestazioni;		
+		prestazioni = (prestazioni + 1) / nIstanze;
+		return prestazioni;
 	}
-	
+
 	public int[][] getConfusion() {
 		return confusion;
 	}
@@ -100,11 +111,8 @@ public class TreeEvaluator {
 		return ArrayUtil.dump(confusion);
 	}
 
-	
 	public double getPrestazioni() {
 		return prestazioni;
 	}
-	
-	
-	
+
 }
