@@ -1,0 +1,29 @@
+package tesi.util;
+
+import java.util.LinkedList;
+
+public abstract class Memento {
+	public static LinkedList<String> oggetti;
+	public static int limit=15;
+	static {
+		oggetti = new LinkedList<String>();
+
+	}
+
+	public static String ricomponi(int profondita) {
+		StringBuilder sb = new StringBuilder();
+
+		int a = 0;
+		while (a < profondita && !oggetti.isEmpty()) {
+			sb.append(oggetti.pop()).append("\n");
+			a++;
+		}
+		return sb.toString();
+
+	}
+	public static int push(String e){
+		oggetti.push(e);
+		if(oggetti.size()>limit)oggetti.removeLast();
+		return oggetti.size();		
+	}
+}

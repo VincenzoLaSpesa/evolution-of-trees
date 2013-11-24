@@ -9,6 +9,7 @@ import tesi.models.Cromosoma;
 import tesi.util.ArrayUtil;
 import tesi.util.StringUtil;
 import tesi.views.CromosomaDecorator;
+import tesi.views.GAIT_noFC_run;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.ClassifierTree;
@@ -23,8 +24,23 @@ public class Main {
 	 */
 	public static void main(String[] args) throws Exception {
 		//iris();
-		//gait();
-		testaalbero();
+		gait();
+		//testaalbero();
+	}
+	
+	public static void gait() throws Exception{
+		String testset_url="/home/darshan/Desktop/Università/Tesi/matlab_scripts/Datasets/testset_paper.arff";
+		String dataset_url="/home/darshan/Desktop/Università/Tesi/matlab_scripts/Datasets/dataset_paper.arff";
+		FileReader testset_stream= new FileReader(testset_url);
+		FileReader dataset_stream= new FileReader(dataset_url);
+		Instances dataset = new Instances(dataset_stream);
+		Instances testset = new Instances(testset_stream);		
+		dataset.setClassIndex(dataset.numAttributes() - 1);
+		testset.setClassIndex(testset.numAttributes() - 1);
+		int nclassi=dataset.numClasses();
+		GAIT_noFC_run gaitrunner= new GAIT_noFC_run(dataset, testset, nclassi);
+		gaitrunner.run();
+		
 	}
 	
 	public static void iris() throws Exception{
@@ -89,7 +105,7 @@ public class Main {
 		
 	}
 	
-	public static void gait() throws Exception{
+	public static void producipopolazioneinizialegait() throws Exception{
 		//creo l'albero completo del dataset
 		String testset_url="/home/darshan/Desktop/Università/Tesi/matlab_scripts/Datasets/testset_paper.arff";
 		String dataset_url="/home/darshan/Desktop/Università/Tesi/matlab_scripts/Datasets/dataset_paper.arff";

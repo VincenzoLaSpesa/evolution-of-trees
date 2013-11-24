@@ -4,12 +4,13 @@ import java.util.Random;
 
 import tesi.models.Cromosoma;
 import tesi.util.ArrayUtil;
+import tesi.util.Memento;
 
 public abstract class GeneticOperator {
 	private static Random r;
 
 	static {
-		r = new Random();
+		r = new Random(System.currentTimeMillis());
 	}
 
 	/**
@@ -30,59 +31,84 @@ public abstract class GeneticOperator {
 		int len[] = new int[2];
 		int cur1 = 0;
 		int cur2 = 0;
-		final int c1_s = c1.cromosoma.size();   // size è un metodo sincrono, i
-		final int c2_s = c2.cromosoma.size();   // metodi sincroni sono lenti,
+		final int c1_s = c1.cromosoma.size(); // size è un metodo sincrono, i
+		final int c2_s = c2.cromosoma.size(); // metodi sincroni sono lenti,
 												// meglio non chiamarli dentro
 												// un ciclo for
-		
+
 		boolean flag;
 
 		// Genera i due sottoalberi, se il flag scambiafoglia non è true fa in
 		// modo che non siano entrambi foglie
+		int k = 0;
 		do {
-			sottoalbero[0][0] = r.nextInt(c1.cromosoma.size() - 1) + 1;
-			sottoalbero[1][0] = r.nextInt(c2.cromosoma.size() - 1) + 1;
-			sottoalbero[0][1] = c1.cromosoma.elementAt(sottoalbero[0][0]).fine;
-			sottoalbero[1][1] = c2.cromosoma.elementAt(sottoalbero[1][0]).fine;
-			flag = scambiafoglie || sottoalbero[0][1] != 0 || sottoalbero[1][1] != 0;
-		} while (!flag);
+			sottoalbero[0][0] = r.nextInt(c1.cromosoma.size());
+			sottoalbero[1][0] = r.nextInt(c2.cromosoma.size());
+//			sottoalbero[0][1] = c1.cromosoma.elementAt(sottoalbero[0][0]).fine;
+//			sottoalbero[1][1] = c2.cromosoma.elementAt(sottoalbero[1][0]).fine;
+			sottoalbero[0][1] = c1.trovaconfine(sottoalbero[0][0]);
+			sottoalbero[1][1] = c2.trovaconfine(sottoalbero[1][0]);
 
-//		System.out.println(ArrayUtil.dump(sottoalbero));
+			flag = scambiafoglie || sottoalbero[0][1] != 0 || sottoalbero[1][1] != 0;
+			k++;
+
+			/*
+			 * Ci sono alcuni alberi che sono impossibili da accoppiare senza
+			 * scambiare foglie o senza sovrascriture complete ( gli alberi da 3
+			 * elementi per esempio)
+			 */
+			if (k > c1_s * c2_s) {
+				System.out.println("Questi due alberi non sono compatibili");
+				System.out.println(c1.toYaml());
+				System.out.println(c2.toYaml());
+				return c1.clone();
+			}
+		} while (!flag);
+		// System.out.println(ArrayUtil.dump(sottoalbero));
 
 		len[0] = sottoalbero[0][1] - sottoalbero[0][0] + 1;// dimensione del
 															// primo sottoalbero
 		len[1] = sottoalbero[1][1] - sottoalbero[1][0];// dimensione del secondo
 														// sottoalbero
-		System.out.println(ArrayUtil.dump(len));
+		// System.out.println(ArrayUtil.dump(len));
+
 		if (len[0] < 0)
 			len[0] = 1;// era una foglia.
 		if (len[1] < 0)
 			len[1] = 0;// era una foglia.
 
-//		System.out.println(ArrayUtil.dump(len));
+		// System.out.println(ArrayUtil.dump(len));
 		Cromosoma c3 = new Cromosoma();
 
 		for (cur1 = 0; cur1 < sottoalbero[0][0]; cur1++) {
 			c3.cromosoma.add(c1.cromosoma.elementAt(cur1).clone());
-			//System.out.printf("[-  ] %d -> %d (%s)\n", c3.cromosoma.size() - 1, cur1, c3.cromosoma.lastElement());
+			// System.out.printf("[-  ] %d -> %d (%s)\n", c3.cromosoma.size() -
+			// 1, cur1, c3.cromosoma.lastElement());
 		}
-//		System.out.println("-");
+		// System.out.println("-");
 		cur2 = sottoalbero[1][0];
 		while (cur2 <= sottoalbero[1][0] + len[1] && cur2 < c2_s) {
 			c3.cromosoma.add(c2.cromosoma.elementAt(cur2).clone());
-			//System.out.printf("[-- ] %d -> %d (%s)\n", c3.cromosoma.size() - 1, cur2, c3.cromosoma.lastElement());
+			// System.out.printf("[-- ] %d -> %d (%s)\n", c3.cromosoma.size() -
+			// 1, cur2, c3.cromosoma.lastElement());
 			cur2++;
 		}
-//		System.out.println("-");
+		// System.out.println("-");
 		cur1 = sottoalbero[0][0] + len[0];
 		while (cur1 < c1_s) {
 			c3.cromosoma.add(c1.cromosoma.elementAt(cur1).clone());
-			//System.out.printf("[---] %d -> %d (%s)\n", c3.cromosoma.size() - 1, cur1, c3.cromosoma.lastElement());
+			// System.out.printf("[---] %d -> %d (%s)\n", c3.cromosoma.size() -
+			// 1, cur1, c3.cromosoma.lastElement());
 			cur1++;
 
 		}
-//		System.out.println("-");
+		// System.out.println("-");
+		Memento.push(ArrayUtil.dump(sottoalbero));
+		Memento.push(c2.toYaml());
+		Memento.push(c1.toYaml());
 		c3.ristruttura();
+
+
 		return c3;
 	}
 

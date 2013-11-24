@@ -59,8 +59,7 @@ public class Gene implements Serializable {
 	 * @return
 	 */
 	public String toCsv() {
-		return String.format("%d	%.2f	%d	%d", attributo, punto,
-				taglio.ordinal(), fine);
+		return String.format("%d	%.2f	%d	%d", attributo, punto,taglio.ordinal(), fine);
 	}
 
 }

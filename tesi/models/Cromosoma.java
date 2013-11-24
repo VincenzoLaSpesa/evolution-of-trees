@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import org.yaml.snakeyaml.Yaml;
 
+import tesi.util.Memento;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.BinC45Split;
 import weka.classifiers.trees.j48.ClassifierTree;
@@ -23,7 +24,7 @@ public class Cromosoma implements Serializable {
 
 	private static final long serialVersionUID = 346117818222219309L;
 	public Vector<Gene> cromosoma;
-
+	
 	/**
 	 * Deserializza da un weka.classifiers.trees.J48 generato da Weka, l'albero
 	 * deve essere binario.
@@ -56,6 +57,42 @@ public class Cromosoma implements Serializable {
 		return c;
 	}
 
+
+	public Cromosoma() {
+		cromosoma = new Vector<>();
+	};
+
+	@SuppressWarnings("unchecked")
+	public Cromosoma clone(){
+		Cromosoma c= new Cromosoma();
+		c.cromosoma=((Vector<Gene>)this.cromosoma.clone());
+		return c;
+		
+	}
+
+
+	/**
+	 * trova la posizione che delimita il sottoalbero partente da partenza
+	 * @param partenza
+	 * @return
+	 */
+	public int trovaconfine(int partenza){
+		while(cromosoma.elementAt(partenza).fine>0){
+			partenza=cromosoma.elementAt(partenza).fine;
+		}
+		return partenza;
+	}
+
+	/**
+	 * Distrugge le informazioni sulla fine dei sottoalberi, si usa per fini di Debug, non dovrebbe essere usata altrimenti
+	 */
+	@Deprecated
+	public void cripple() {
+		for (Gene g : cromosoma) {
+			g.fine = 0;
+		}
+	}
+
 	/**
 	 * Ricostruisce ricorsivamente un sottoalbero, viene utilizzata dal
 	 * costruttore statico loadFromJ48.
@@ -76,7 +113,7 @@ public class Cromosoma implements Serializable {
 			g.punto = splitter.m_splitPoint;
 
 			if (sottoalbero.m_train.attribute(g.attributo).isNominal())
-				g.taglio = Taglio.Categorico;
+				g.taglio = Taglio.Discreto;
 			else
 				g.taglio = Taglio.Continuo;
 			cromosoma.add(g);
@@ -85,12 +122,8 @@ public class Cromosoma implements Serializable {
 			parse(sottoalbero.m_sons[1]);
 			cromosoma.elementAt(p - 1).fine = cromosoma.size() - 1;
 		}
-	};
-
-	public Cromosoma() {
-		cromosoma = new Vector<>();
 	}
-
+	
 	/**
 	 * Corregge eventuali incoerenze nei puntatori alla fine del sottoalbero
 	 * causati dagli operatori di crossover e mutazione, si suppone che la
@@ -99,52 +132,32 @@ public class Cromosoma implements Serializable {
 	public void ristruttura() {
 		ristruttura(0);
 	};
-
-	/**
-	 * Distrugge le informazioni sulla fine dei sottoalberi, si usa per fini di Debug, non dovrebbe essere usata altrimenti
-	 */
-	@Deprecated
-	public void cripple() {
-		for (Gene g : cromosoma) {
-			g.fine = 0;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public Cromosoma clone(){
-		Cromosoma c= new Cromosoma();
-		c.cromosoma=((Vector<Gene>)this.cromosoma.clone());
-		return c;
-		
-	}
 	
 	/**
 	 * Funzione interna per la ristrutturazione di un sottoalbero, viene invocata da tesi.models.Cromosoma.ristruttura()
+	 * 
 	 * @param base
 	 * @return
 	 */
 	private int ristruttura(int base) {
 		//System.out.println(base);
-		if (Double.isNaN(cromosoma.elementAt(base).punto)) {
+		if(base>=cromosoma.size()){
+			String trace=Thread.currentThread().getStackTrace()[1].toString();
+			System.err.printf("Questo non dovrebbe succedere %s \n",trace);
+			System.err.println(this.toYaml());
+			System.err.println("\n tutto questo bordello è stato creato dal crossover di questi due alberi");
+			System.err.println(Memento.ricomponi(3));
+			
+		}
+		if (Double.isNaN(cromosoma.elementAt(base).punto)) {			
 			return base+1;
 		} else {
+			//if(base+1>=cromosoma.size())return base;
 			int f = ristruttura(base+1);
 			//System.out.printf("\t %d -> %d\n", base,f);
 			cromosoma.elementAt(base).fine = f;
 			return ristruttura(f);			
 		}
-	}
-
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-
-		for (Gene g : cromosoma) {
-			sb.append(g.toString());
-			sb.append("\n");
-		}
-
-		return sb.toString();
-
 	}
 
 	/**
@@ -157,6 +170,18 @@ public class Cromosoma implements Serializable {
 		sb.append(Gene.csvHead);
 		for (Gene g : cromosoma) {
 			sb.append(g.toCsv());
+			sb.append("\n");
+		}
+
+		return sb.toString();
+
+	}
+
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+
+		for (Gene g : cromosoma) {
+			sb.append(g.toString());
 			sb.append("\n");
 		}
 

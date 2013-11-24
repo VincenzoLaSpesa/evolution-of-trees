@@ -11,7 +11,7 @@ public abstract class ArrayUtil {
     public static void vector_fill(int v[], int max) {
         int a;
         int n=v.length;
-        Random r = new Random();
+        Random r = new Random(System.currentTimeMillis());
         for (a = 0; a < n; a++) {
             v[a] = r.nextInt(max);
         }
