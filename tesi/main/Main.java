@@ -8,6 +8,7 @@ import tesi.controllers.TreeEvaluator;
 import tesi.models.Cromosoma;
 import tesi.util.ArrayUtil;
 import tesi.util.StringUtil;
+import tesi.views.CromosomaDecorator;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.ClassifierTree;
@@ -75,6 +76,14 @@ public class Main {
 		writer.println(evaluation.toMatrixString());
 		writer.println(evaluation.correct()/testset.numInstances());
 		writer.close();
+
+		
+		writer = new PrintWriter(nomebase+".dot", "UTF-8");
+		writer.println(j48.graph());
+		writer.close();
+		
+		
+		
 		return String.format("%f;%d",evaluation.correct()/testset.numInstances(),c.cromosoma.size());
 		
 		
@@ -132,7 +141,15 @@ public class Main {
 		
 		Cromosoma c2=GeneticOperator.crossover(c, c, false);
 		System.out.println(c2.toYaml());
+		
+		CromosomaDecorator cd= new CromosomaDecorator(c);
+		cd.caricaColonne(dataset);
+		
+		System.out.println(cd.getGraph().toString());
+
+		
 		System.out.println("Done");
+		
 		
 	}
 }

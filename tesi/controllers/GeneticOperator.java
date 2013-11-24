@@ -5,7 +5,7 @@ import java.util.Random;
 import tesi.models.Cromosoma;
 import tesi.util.ArrayUtil;
 
-public class GeneticOperator {
+public abstract class GeneticOperator {
 	private static Random r;
 
 	static {
