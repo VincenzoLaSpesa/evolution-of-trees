@@ -2,7 +2,7 @@ package tesi.util;
 
 import java.util.LinkedList;
 
-public abstract class Memento {
+public abstract class LastParsedObjects {
 	public static LinkedList<String> oggetti;
 	public static int limit=15;
 	static {

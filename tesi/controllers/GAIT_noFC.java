@@ -18,11 +18,15 @@ import weka.core.Instances;
  */
 public class GAIT_noFC extends Popolazione {
 
+	/**
+	 * Il Numero massimo di elementi nella popolazione
+	 */
 	public int limit;
 
 
-	public GAIT_noFC(Instances testset, int nclassi) {
+	public GAIT_noFC(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi);
+		this.limit=limit;
 	}
 
 	/* (non-Javadoc)
@@ -76,8 +80,8 @@ public class GAIT_noFC extends Popolazione {
 		Iterator<Cromosoma> i = coppie.iterator();
 		int n=coppie.size();
 		while (n>2 ) {
-			Cromosoma c=GeneticOperator.crossover(i.next(), i.next(), false);
-			System.out.print("c");
+			Cromosoma c=GeneticOperators.crossover(i.next(), i.next(), false);
+			//System.out.print("c");
 			n=n-2;			
 			popolazione_nonvalutata.add(c);
 		}		
@@ -98,7 +102,7 @@ public class GAIT_noFC extends Popolazione {
 			f=r.nextFloat();
 			CromosomaMisurato e = entries.next();
 			if(f<=probabilita){
-				c=GeneticOperator.mutate(e.cromosoma, false);
+				c=GeneticOperators.mutate(e.cromosoma, false);
 				popolazione_nonvalutata.add(c);
 			}
 		}	
@@ -129,7 +133,8 @@ public class GAIT_noFC extends Popolazione {
 
 	public Cromosoma GAIT(LinkedList<Cromosoma> popolazione_iniziale){
 		this.popolazione_nonvalutata=popolazione_iniziale;
-		limit=popolazione_nonvalutata.size();
+		//limit=popolazione_nonvalutata.size();
+		//limit=popolazione_nonvalutata.size()*2;
 		get_fitness();
 		for(int i=0;i<10;i++){
 			System.out.printf("Genero la generazione n %d, ci sono %d elementi\n", i, popolazione_valutata.size());

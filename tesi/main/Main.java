@@ -3,13 +3,13 @@ package tesi.main;
 import java.io.FileReader;
 import java.io.PrintWriter;
 
-import tesi.controllers.GeneticOperator;
+import tesi.controllers.GeneticOperators;
 import tesi.controllers.TreeEvaluator;
+import tesi.interfaces.CromosomaDecorator;
+import tesi.interfaces.GAIT_noFC_run;
 import tesi.models.Cromosoma;
 import tesi.util.ArrayUtil;
 import tesi.util.StringUtil;
-import tesi.views.CromosomaDecorator;
-import tesi.views.GAIT_noFC_run;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.ClassifierTree;
@@ -155,7 +155,7 @@ public class Main {
 		System.out.println(ArrayUtil.dump(te.getConfusion()));
 		System.out.println(c.toYaml());
 		
-		Cromosoma c2=GeneticOperator.crossover(c, c, false);
+		Cromosoma c2=GeneticOperators.crossover(c, c, false);
 		System.out.println(c2.toYaml());
 		
 		CromosomaDecorator cd= new CromosomaDecorator(c);

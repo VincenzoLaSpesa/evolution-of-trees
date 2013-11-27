@@ -6,7 +6,6 @@ import java.util.Vector;
 
 import org.yaml.snakeyaml.Yaml;
 
-import tesi.util.Memento;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.BinC45Split;
 import weka.classifiers.trees.j48.ClassifierTree;
@@ -16,6 +15,9 @@ import weka.classifiers.trees.j48.ClassifierTree;
  * linearizzazione avviene con una visita per profondità (DFS). Il vantaggio di
  * questa linearizzazione è che <i> ogni sottoalbero è rappresentato da una
  * stringa contigua</i>
+ * Essendo un classe entity contiene solo i metodi strettamente necessari per 
+ * la sua creazione è per assicurare la coerenza della struttura dati e la sua 
+ * correttezza sintattica ( non semantica )
  * 
  * @author darshan
  * 
@@ -145,8 +147,8 @@ public class Cromosoma implements Serializable {
 			String trace=Thread.currentThread().getStackTrace()[1].toString();
 			System.err.printf("Questo non dovrebbe succedere %s \n",trace);
 			System.err.println(this.toYaml());
-			System.err.println("\n tutto questo bordello è stato creato dal crossover di questi due alberi");
-			System.err.println(Memento.ricomponi(3));
+			//System.err.println("\n tutto questo bordello è stato creato dal crossover di questi due alberi");
+			//System.err.println(LastParsedObjects.ricomponi(3));
 			
 		}
 		if (Double.isNaN(cromosoma.elementAt(base).punto)) {			

@@ -1,4 +1,4 @@
-package tesi.views;
+package tesi.interfaces;
 
 import java.util.LinkedList;
 
@@ -8,8 +8,14 @@ import tesi.models.Cromosoma;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
+/**
+ * Permette di avviare la procedura descritta in GAIT ( variante 1)
+ * @author darshan
+ *
+ */
 public class GAIT_noFC_run {
 	int nclassi;
+	int maxelementi;
 	Instances dataset;
 	Instances testset;
 	LinkedList<Cromosoma> popolazione_iniziale;
@@ -40,7 +46,8 @@ public class GAIT_noFC_run {
 			Cromosoma c= Cromosoma.loadFromJ48(j48);
 			popolazione_iniziale.add(c);
 		}		
-		gait= new GAIT_noFC(testset, nclassi);
+		maxelementi=50*2;
+		gait= new GAIT_noFC(testset, nclassi, maxelementi);
 		esemplare=gait.GAIT(popolazione_iniziale);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
@@ -51,8 +58,6 @@ public class GAIT_noFC_run {
 		System.out.println(cd.getGraph());
 		System.out.println(te.getPrestazioni());
 		System.out.println(te.getConfusionasString());
-		
-		
 	}
 
 }
