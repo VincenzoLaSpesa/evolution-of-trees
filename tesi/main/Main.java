@@ -2,7 +2,12 @@ package tesi.main;
 
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.util.Map;
 
+import com.google.gson.Gson;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import tesi.controllers.GeneticOperators;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
@@ -23,27 +28,107 @@ public class Main {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		//iris();
+        OptionParser parser = new OptionParser();
+        parser.accepts( "gait" ).withOptionalArg();
+        parser.accepts( "trainingset" ).withRequiredArg();
+        parser.accepts( "settings" ).withRequiredArg();
+        parser.accepts( "testset" ).withRequiredArg();
+        parser.accepts( "scoringset" ).withRequiredArg();
+        //
+        parser.accepts( "iris" );
+        parser.accepts( "gaitDefault" );
+        parser.accepts( "testaalbero" );
+        
+        OptionSet options = parser.parse( args );
+        if(options.has("gait")){
+        	//	--gait --trainingset=<trainingsetpath> --testset=<testsetpath>  --scoringset=<scoringsetpath> --nclassi=<nclassi>
+        	//	--gait --settings=<JsonSettingsPath>
+            if(options.hasArgument( "trainingset" ) && options.hasArgument( "testset" ) && options.hasArgument( "scoringset" ) && options.hasArgument( "nclassi" ))
+            {
+            	String trainingset=(String)options.valueOf( "trainingset" );
+            	String testset=(String)options.valueOf( "testset" );
+            	String scoringset=(String)options.valueOf( "scoringset" );
+            	//
+            	System.out.printf("trainingset -> '%s'\n", trainingset);
+            	System.out.printf("testset -> '%s'\n", testset);
+            	System.out.printf("scoringset -> '%s'\n", scoringset);
+            	//
+            	gait(trainingset, testset,scoringset);
+            	return;
+            	
+            }
+            if(options.hasArgument( "settings" ))
+            {
+            	String settings_content=(String)options.valueOf( "settings" );
+            	System.out.printf("setting -> '%s'\n", settings_content);
+            	System.out.printf("settings info\n");
+            	settings_content=StringUtil.readFileAsString(settings_content);
+            	System.out.println(settings_content);            	
+            	gait(settings_content);
+            	return;
+            	
+            }
+            System.err.println("Le sintassi possibili di gait sono:");
+            System.err.println(" --gait --trainingset=<trainingsetpath> --testset=<testsetpath>  --scoringset=<scoringsetpath> --nclassi=<nclassi>");
+            System.err.println("\t oppure");
+            System.err.println(" --gait --settings=<JsonSettingsPath>");
+            return;        	
+        }
+        
+        if(options.has("iris")){
+        	iris(); return;        	
+        }
+        if(options.has("gaitDefault")){
+        	gait(); return;        	
+        }
+        if(options.has("testaalbero")){
+        	testaalbero(); return;        	
+        }
+
+		System.err.println("Non è stato fornito nessu argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait con le impostazioni di default");
 		gait();
-		//testaalbero();
+	}
+	
+
+	public static void gait(String trainingset_url,String testset_url,String scoringset_url) throws Exception{
+		FileReader testset_stream= new FileReader(testset_url);
+		FileReader trainingset_stream= new FileReader(trainingset_url);
+		FileReader scoringset_stream= new FileReader(scoringset_url);
+		//
+		Instances trainingset = new Instances(trainingset_stream);
+		Instances testset = new Instances(testset_stream);
+		Instances scoringset = new Instances(scoringset_stream);
+		//
+		trainingset.setClassIndex(trainingset.numAttributes() - 1);
+		testset.setClassIndex(testset.numAttributes() - 1);
+		scoringset.setClassIndex(scoringset.numAttributes() - 1);
+		//
+		int nclassi=trainingset.numClasses();
+		GAIT_noFC_run gaitrunner= new GAIT_noFC_run(trainingset, testset, scoringset,nclassi);
+		gaitrunner.run();		
 	}
 	
 	public static void gait() throws Exception{
-		String testset_url="/home/darshan/Desktop/Università/Tesi/matlab_scripts/Datasets/testset_paper.arff";
-		String dataset_url="/home/darshan/Desktop/Università/Tesi/matlab_scripts/Datasets/dataset_paper.arff";
-		FileReader testset_stream= new FileReader(testset_url);
-		FileReader dataset_stream= new FileReader(dataset_url);
-		Instances dataset = new Instances(dataset_stream);
-		Instances testset = new Instances(testset_stream);		
-		dataset.setClassIndex(dataset.numAttributes() - 1);
-		testset.setClassIndex(testset.numAttributes() - 1);
-		int nclassi=dataset.numClasses();
-		GAIT_noFC_run gaitrunner= new GAIT_noFC_run(dataset, testset, nclassi);
-		gaitrunner.run();
+		String testset="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/testset.arff";
+		String trainingset="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/trainingset.arff";
+		String scoringset="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/scoringset.arff";
 		
+		gait(trainingset, testset,scoringset);
 	}
 	
+	public static void gait(String settings_content) throws Exception{
+		Gson gson = new Gson();
+		@SuppressWarnings("unchecked")
+		Map<String, String> map = gson.fromJson(settings_content, Map.class);   
+		String training_url=map.get("trainingset");
+		String testset_url=map.get("testset");
+		String scoringset_url=map.get("scoringset");
+		gait(training_url, testset_url, scoringset_url);
+	}
+	
+	
 	public static void iris() throws Exception{
+		System.out.println("Genero un albero J48 sull'dataset iris.");
 		String dataset_url="/home/darshan/Desktop/Università/Tesi/weka-3-6-10/data/iris_numeric.arff";
 		FileReader dataset_stream= new FileReader(dataset_url);
 		Instances dataset = new Instances(dataset_stream);
@@ -134,6 +219,7 @@ public class Main {
 	}
 	
 	public static void testaalbero() throws Exception{
+		System.out.println("Avvio le routine per testare la struttura dati del Cromosoma.");
 		//creo l'albero completo del dataset
 		String testset_url="/home/darshan/Desktop/Università/Tesi/matlab_scripts/Datasets/testset_paper.arff";
 		String dataset_url="/home/darshan/Desktop/Università/Tesi/matlab_scripts/Datasets/dataset_paper.arff";

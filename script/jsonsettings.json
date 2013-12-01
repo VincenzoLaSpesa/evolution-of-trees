@@ -1,0 +1,5 @@
+{
+  "testset":"/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/testset.arff",
+  "trainingset":"/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/trainingset.arff",
+  "scoringset":"/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/scoringset.arff"
+}
