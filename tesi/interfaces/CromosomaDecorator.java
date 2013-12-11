@@ -44,10 +44,15 @@ public class CromosomaDecorator {
 		}
 	}
 
+	/**
+	 * Esporta in formato dot, con i nomi corretti per le caratteristiche
+	 * @return
+	 */
 	public StringBuilder getGraph() {
 		int n = 0;
 		StringBuilder sb = new StringBuilder();
-		sb.append(String.format("digraph %s_%d {\n", cromosoma.getClass().getName(), cromosoma.hashCode()));
+		String nome=cromosoma.getClass().getName().replace('.', '_');
+		sb.append(String.format("digraph %s__%d {\n", nome, cromosoma.hashCode()));
 		for (Gene g : cromosoma.cromosoma) {
 			if (Double.isNaN(g.punto)) {
 				sb.append(String.format("N%d [label=\"%d\" shape=box style=filled ]\n", n, g.attributo));
@@ -61,5 +66,28 @@ public class CromosomaDecorator {
 		sb.append("}");
 		return sb;
 	};
+	
+	/**
+	 * Esporta in formato dot
+	 * @return
+	 */
+	public StringBuilder getGraph_numerico() {
+		int n = 0;
+		StringBuilder sb = new StringBuilder();
+		String nome=cromosoma.getClass().getName().replace('.', '_');
+		sb.append(String.format("digraph %s_numeric_%d {\n", nome, cromosoma.hashCode()));
+		for (Gene g : cromosoma.cromosoma) {
+			if (Double.isNaN(g.punto)) {
+				sb.append(String.format("N%d [label=\"%d\" shape=box style=filled ]\n", n, g.attributo));
+			} else {
+				sb.append(String.format("N%d [label=\"%s\" ]\n", n, g.attributo));
+				sb.append(String.format("N%d -> N%d [label=\"%s %.2f\" ]\n", n, n + 1,separatori[g.taglio.ordinal()][0], g.punto));
+				sb.append(String.format("N%d -> N%d [label=\"%s %.2f\" ]\n", n, g.fine,	separatori[g.taglio.ordinal()][1], g.punto));
+			}
+			n++;
+		}
+		sb.append("}");
+		return sb;
+	};	
 
 }

@@ -1,13 +1,19 @@
-package tesi.models;
+package tesi.controllers;
 
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.TreeSet;
 
-import tesi.controllers.TreeEvaluator;
+import tesi.models.Cromosoma;
+import tesi.models.CromosomaMisurato;
 import weka.core.Instances;
 
-public abstract class Popolazione {
+/**
+ * Classe astratta che viene estesa per implementare gli algoritmi evolutivi
+ * @author darshan
+ *
+ */
+public abstract class Ecosistema {
 
 
 	protected static Random r;
@@ -24,7 +30,7 @@ public abstract class Popolazione {
 	protected Instances testset;
 	protected int nclassi;
 
-	public Popolazione(Instances testset, int nclassi) {
+	public Ecosistema(Instances testset, int nclassi) {
 		super();
 		popolazione_nonvalutata = new LinkedList<>();
 		popolazione_valutata = new TreeSet<>();

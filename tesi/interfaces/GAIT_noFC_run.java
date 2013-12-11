@@ -53,6 +53,9 @@ public class GAIT_noFC_run {
 	 * Le partizioni vengono utilizzate insieme allo scoringset per generare 50 alberi con J48 <br>
 	 * I 50 alberi vengono evoluti per 10 generazioni calcolandone il fitness sullo scoringset<br>
 	 * L'albero migliore dopo 10 generazioni viene valutato usando il testset.
+	 * <br><strong>
+	 * La funzione si aspetta un dataset sufficentemente grande per poter creare gli alberi, 
+	 * questo significa almeno 50*60=3000 record</strong>
 	 * @throws Exception
 	 */
 	public void run() throws Exception{
@@ -63,6 +66,7 @@ public class GAIT_noFC_run {
 		trainingset.setClassIndex(trainingset.numAttributes() - 1);
 		testset.setClassIndex(testset.numAttributes() - 1);
 		for(int i=0; i<50 ; i++){
+			//				new Instances(dataset,primoelemento,numeroelementi)
 			Instances data= new Instances(trainingset, i*60, 60);
 			data.setClassIndex(trainingset.numAttributes() - 1);
 			J48 j48 = new J48();
@@ -70,7 +74,10 @@ public class GAIT_noFC_run {
 			j48.buildClassifier(data);	
 			Cromosoma c= Cromosoma.loadFromJ48(j48);
 			popolazione_iniziale.add(c);
-		}		
+		}
+		J48 j48 = new J48();
+		System.out.println("La popolazione iniziale è generata con J48, un porting in Java di C4.5");
+		System.out.println(j48.getTechnicalInformation().toBibTex()+"\n");
 		gait= new GAIT_noFC(scoringset, nclassi, maxelementi);
 		esemplare=gait.GAIT(popolazione_iniziale);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
@@ -80,11 +87,11 @@ public class GAIT_noFC_run {
 		System.out.println("L'esemplare migliore dopo 10 generazioni è il seguente:");
 		System.out.println(esemplare.toYaml());
 		System.out.println(cd.getGraph());
+		//System.out.println(cd.getGraph_numerico());
 		System.out.println("le prestazioni dell'esemplare migliore calcolate sul testset sono:");
 		System.out.printf("p=\t%f\n",te.getPrestazioni());
 		System.out.println(te.getConfusionasString());
 		//
-		J48 j48 = new J48();
 		j48.setBinarySplits(true);
 		j48.buildClassifier(trainingset);	
 		Cromosoma whole= Cromosoma.loadFromJ48(j48);
