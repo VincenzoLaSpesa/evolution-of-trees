@@ -2,25 +2,27 @@ package tesi.interfaces;
 
 import java.util.LinkedList;
 
-import tesi.controllers.GAIT_noFC;
+import tesi.controllers.GAIT_noFC_generic;
 import tesi.controllers.TreeEvaluator;
 import tesi.models.Cromosoma;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
 /**
- * Permette di avviare la procedura descritta in GAIT ( variante 1)
+ * Permette di avviare la procedura descritta in GAIT ( variante 1),
+ * <i> la classe è deprecata perchè può essere implementata attraverso AlgoritmoEvolutivoCustom </i>
  * @author darshan
  *
  */
-public class GAIT_noFC_run {
+@Deprecated
+public class GAIT_noFC_run implements Runnable{
 	int nclassi;
 	static int maxelementi=50;
 	Instances trainingset;
 	Instances testset;
 	Instances scoringset;
 	LinkedList<Cromosoma> popolazione_iniziale;
-	GAIT_noFC gait;
+	GAIT_noFC_generic gait;
 	Cromosoma esemplare;
 	CromosomaDecorator cd;
 	TreeEvaluator te;
@@ -58,7 +60,7 @@ public class GAIT_noFC_run {
 	 * questo significa almeno 50*60=3000 record</strong>
 	 * @throws Exception
 	 */
-	public void run() throws Exception{
+	public void begin() throws Exception{
 		System.out.printf("Il training set è composto da \t%d elementi\n",trainingset.numInstances());
 		System.out.printf("Il test set è composto da \t%d elementi\n",testset.numInstances());
 		System.out.printf("Lo scoring set è composto da \t%d elementi\n",scoringset.numInstances());
@@ -78,7 +80,7 @@ public class GAIT_noFC_run {
 		J48 j48 = new J48();
 		System.out.println("La popolazione iniziale è generata con J48, un porting in Java di C4.5");
 		System.out.println(j48.getTechnicalInformation().toBibTex()+"\n");
-		gait= new GAIT_noFC(scoringset, nclassi, maxelementi);
+		gait= new GAIT_noFC_generic(scoringset, nclassi, maxelementi);
 		esemplare=gait.GAIT(popolazione_iniziale);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
@@ -90,7 +92,7 @@ public class GAIT_noFC_run {
 		//System.out.println(cd.getGraph_numerico());
 		System.out.println("le prestazioni dell'esemplare migliore calcolate sul testset sono:");
 		System.out.printf("p=\t%f\n",te.getPrestazioni());
-		System.out.println(te.getConfusionasString());
+		System.out.println(te.getConfusionasFloatString());
 		//
 		j48.setBinarySplits(true);
 		j48.buildClassifier(trainingset);	
@@ -99,7 +101,21 @@ public class GAIT_noFC_run {
 		te.evaluate();
 		System.out.println("Le prestazioni dell'albero generato sull'intero trainingset e calcolate sul testset (wholetraining) sono:");
 		System.out.printf("%f\n",te.getPrestazioni());
-		System.out.println(te.getConfusionasString());
+		System.out.println(te.getConfusionasFloatString());
+		
+	}
+
+	/**
+	 * Wrapper senza eccezioni a begin(),mi serve per implementare l'interfaccia runnable.
+	 */
+	@Override
+	public void run() {
+		try {
+			begin();
+		} catch (Exception e) {			
+			System.err.println(e.getMessage());
+			e.printStackTrace();			
+		}
 		
 	}
 }

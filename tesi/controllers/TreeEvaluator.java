@@ -16,6 +16,16 @@ import weka.core.Instances;
  */
 public class TreeEvaluator {
 
+	Cromosoma cromosoma;
+	Instances testset;
+	int nclassi;
+
+	int[][] confusion;
+	double[][] confusion_f;
+
+	double prestazioni = 0;
+
+	
 	/**
 	 * Valuta il Cromosoma sull'istanza, supponendo che tutte le caratteristiche
 	 * dell'istanza siano numeri reali e che l'ultima contenga la classe di
@@ -69,19 +79,13 @@ public class TreeEvaluator {
 		return evaluate_one(c, istanza) == istanza[istanza.length - 1];
 	}
 
-	Cromosoma cromosoma;
-	Instances testset;
-	int nclassi;
-
-	int[][] confusion;
-	double prestazioni = -1;
-
 	public TreeEvaluator(Cromosoma cromosoma, Instances testset, int nclassi) {
 		super();
 		this.cromosoma = cromosoma;
 		this.testset = testset;
 		this.nclassi = nclassi;
 		this.confusion = new int[nclassi][nclassi];
+		this.confusion_f= new double[nclassi][nclassi];
 	}
 
 	public double evaluate() {
@@ -89,6 +93,7 @@ public class TreeEvaluator {
 		int responso;
 		int classe;
 		double[] istanza;
+		double[] sommarighe=new double[nclassi];
 
 		for (int i = 0; i < nIstanze; i++) {
 			istanza = testset.instance(i).toDoubleArray();
@@ -96,10 +101,22 @@ public class TreeEvaluator {
 			classe = (int) istanza[istanza.length - 1];
 			confusion[classe][responso]++;
 		}
+		
+		
 		for (int i = 0; i < nclassi; i++) {
 			prestazioni = prestazioni + confusion[i][i];
 		}
-		prestazioni = (prestazioni + 1) / nIstanze;
+		
+		for (int r = 0; r < nclassi; r++) {
+			for (int c = 0; c < nclassi; c++) {
+				sommarighe[r]+=confusion[r][c];
+			}
+			for (int c = 0; c < nclassi; c++) {
+				confusion_f[r][c]= confusion[r][c]/sommarighe[r];
+			}
+		}
+		
+		prestazioni = prestazioni  / nIstanze;
 		return prestazioni;
 	}
 
@@ -107,9 +124,18 @@ public class TreeEvaluator {
 		return confusion;
 	}
 
+	public double[][] getConfusion_f() {
+		return confusion_f;
+	}
+
 	public String getConfusionasString() {
 		return ArrayUtil.dump(confusion);
 	}
+	
+	public String getConfusionasFloatString() {
+		return ArrayUtil.dump(confusion_f);
+	}
+	
 
 	public double getPrestazioni() {
 		return prestazioni;

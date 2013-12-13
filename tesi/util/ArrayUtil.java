@@ -126,16 +126,17 @@ public abstract class ArrayUtil {
     public static String dump(double[][] elementi) {
         int i, k, n, s;
         StringBuilder e = new StringBuilder();
-        //String coso;
+        String coso;
         if (elementi.length > 0) {
             e.append("[ \n");
 
             for (i = 0; i < elementi.length; i++) {
                 e.append("[ ");
                 for (k = 0; k < elementi[i].length; k++) {
-                    s = (int) Math.log10(elementi[i][k] + 1)+1;
-                    e.append(elementi[i][k]);
-                    for (n = (5 - s); n > 0; n--) {
+                	coso=String.format("%.5f", elementi[i][k]);
+                	s = coso.length();
+                    e.append(coso);
+                    for (n = (10 - s); n > 0; n--) {
                         e.append(" ");
                     }
                     //e.append(",");

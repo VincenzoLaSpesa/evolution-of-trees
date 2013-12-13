@@ -19,14 +19,16 @@ import weka.core.Instances;
  * @author darshan
  * 
  */
-public class GAIT_noFC extends Ecosistema {
+public class GAIT_noFC_generic extends Ecosistema {
 
 	/**
 	 * Il Numero massimo di elementi nella popolazione
 	 */
 	public int limit;
+	
+	public static double mutation_rate=0.01;
 
-	public GAIT_noFC(Instances testset, int nclassi, int limit) {
+	public GAIT_noFC_generic(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi);
 		this.limit = limit;
 	}
@@ -128,7 +130,7 @@ public class GAIT_noFC extends Ecosistema {
 		double f, m;
 		crossover();
 		f = get_fitness();
-		mutate(0.01);
+		mutate(mutation_rate);
 		get_fitness();
 		m = estrai_migliore();
 		System.out.printf("\t La prestazione dei nuovi individui è %f\n\t la massima %f\n", f, m);

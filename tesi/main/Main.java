@@ -105,7 +105,7 @@ public class Main {
 		//
 		int nclassi=trainingset.numClasses();
 		GAIT_noFC_run gaitrunner= new GAIT_noFC_run(trainingset, testset, scoringset,nclassi);
-		gaitrunner.run();		
+		gaitrunner.begin();		
 	}
 	
 	public static void gait() throws Exception{
