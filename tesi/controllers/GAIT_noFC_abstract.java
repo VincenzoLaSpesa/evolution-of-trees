@@ -1,6 +1,3 @@
-/**
- * 
- */
 package tesi.controllers;
 
 import java.util.Collections;
@@ -16,10 +13,11 @@ import weka.core.Instances;
  * ( ci possono essere nell'albero due vincoli che non possono essere 
  * soddisfatti contemporaneamente o vincoli che non aggiungono informazione 
  * perchè soddisfatti sicuramente)
+ * <b> la funzione di fitness non è definita<b>
  * @author darshan
  * 
  */
-public class GAIT_noFC_generic extends Ecosistema {
+public abstract class GAIT_noFC_abstract extends Ecosistema {
 
 	/**
 	 * Il Numero massimo di elementi nella popolazione
@@ -28,18 +26,12 @@ public class GAIT_noFC_generic extends Ecosistema {
 	
 	public static double mutation_rate=0.01;
 
-	public GAIT_noFC_generic(Instances testset, int nclassi, int limit) {
+	public GAIT_noFC_abstract(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi);
 		this.limit = limit;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see tesi.models.Popolazione#get_fitness()
-	 */
-	@Override
-	public double get_fitness() {
+	protected double simple_fitness() {
 
 		TreeEvaluator te;
 		Iterator<Cromosoma> i = popolazione_nonvalutata.iterator();
@@ -165,3 +157,4 @@ public class GAIT_noFC_generic extends Ecosistema {
 	}
 
 }
+

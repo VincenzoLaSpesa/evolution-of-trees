@@ -17,7 +17,9 @@ import weka.classifiers.trees.j48.ClassifierTree;
  * stringa contigua</i>
  * Essendo un classe entity contiene solo i metodi strettamente necessari per 
  * la sua creazione è per assicurare la coerenza della struttura dati e la sua 
- * correttezza sintattica ( non semantica )
+ * correttezza sintattica ( non semantica ).
+ * inoltre <b>non contiene la funzione per calcolare la fitness<b> essendo essa 
+ * dipendente anche da informazioni che non sono interne al cromosoma ( la popolazione).
  * 
  * @author darshan
  * 
@@ -72,7 +74,18 @@ public class Cromosoma implements Serializable {
 		
 	}
 
-
+	/**
+	 * Ritorna la complessità dell'albero, 
+	 * la complessità è definita come il numero di nodi decisionali 
+	 * che corrispondono ai nodi interni dell'albero.<br>
+	 * trattandosi di un albero binario {e=i+1 ; N=e+i} -> i=(N-1)/2
+	 * @return
+	 */
+	public int getComplessita(){
+		return (cromosoma.size()-1)/2;
+	}
+	
+	
 	/**
 	 * trova la posizione che delimita il sottoalbero partente da partenza
 	 * @param partenza

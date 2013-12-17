@@ -3,11 +3,10 @@
  */
 package tesi.interfaces;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 
-import tesi.controllers.GAIT_noFC_generic;
+import tesi.controllers.GAIT_noFC_simple;
 import tesi.controllers.TreeEvaluator;
 import tesi.models.Cromosoma;
 import weka.classifiers.trees.J48;
@@ -16,13 +15,13 @@ import weka.core.Instances;
 /**
  * Permette di avviare una versione generalizzata della procedura descritta in GAIT ( variante 1).
  * @author darshan
- *
+ * TODO: Testare questa classe!
  */
 public class AlgoritmoEvolutivoCustom implements Runnable {
 	int numerogenerazioni;
 	int popolazione_iniziale_size;
 	int datasetsize;
-	HashMap<String, String> risultati_classificazione;
+	//HashMap<String, String> risultati_classificazione;
 	double percentualetrainingset;
 	double percentualetestset;
 	double percentualescoringset;
@@ -34,7 +33,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 
 	int nclassi;
 	LinkedList<Cromosoma> popolazione_iniziale;
-	GAIT_noFC_generic gait;
+	GAIT_noFC_simple gait;
 	Cromosoma esemplare;
 	CromosomaDecorator cd;
 	TreeEvaluator te;
@@ -100,7 +99,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		J48 j48 = new J48();
 		System.out.println("La popolazione iniziale è generata con J48, un porting in Java di C4.5");
 		System.out.println(j48.getTechnicalInformation().toBibTex()+"\n");
-		gait= new GAIT_noFC_generic(scoringset, nclassi, this.popolazione_iniziale_size);
+		gait= new GAIT_noFC_simple(scoringset, nclassi, this.popolazione_iniziale_size);
 		esemplare=gait.GAIT(popolazione_iniziale);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
