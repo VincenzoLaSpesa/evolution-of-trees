@@ -1,14 +1,16 @@
 /**
  * 
  */
-package tesi.interfaces;
+package tesi.interfaces.launchers;
 
 import java.util.LinkedList;
-import java.util.Random;
 
+import tesi.controllers.GAIT_noFC_abstract;
 import tesi.controllers.GAIT_noFC_simple;
 import tesi.controllers.TreeEvaluator;
+import tesi.interfaces.CromosomaDecorator;
 import tesi.models.Cromosoma;
+import tesi.util.SingletonGenerator;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
@@ -33,27 +35,26 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 
 	int nclassi;
 	LinkedList<Cromosoma> popolazione_iniziale;
-	GAIT_noFC_simple gait;
+	protected GAIT_noFC_abstract gait;
 	Cromosoma esemplare;
 	CromosomaDecorator cd;
 	TreeEvaluator te;
-	
-	
 
 	public AlgoritmoEvolutivoCustom(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi,
-			float percentualetrainingset, float percentualetestset, float percentualescoringset) {
+			double percentualetrainingset, double percentualetestset, double percentualescoringset) {
 		super();
-		init(dataset, numerogenerazioni,nclassi, popolazione_iniziale, percentualetrainingset, percentualetestset,
+		init(dataset, numerogenerazioni, popolazione_iniziale,nclassi, percentualetrainingset, percentualetestset,
 				percentualescoringset);
 	}
 
 	public AlgoritmoEvolutivoCustom(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi) {
 		super();
-		init(dataset, numerogenerazioni, popolazione_iniziale,nclassi, 0.42, 0.30, 0.28);
+		init(dataset, numerogenerazioni, popolazione_iniziale,nclassi, 0.5454545454,0.1818181818,0.2727272727);
 	}
 
 	protected void init(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi,
 			double percentualetrainingset, double percentualetestset, double percentualescoringset) {
+		this.popolazione_iniziale= new LinkedList<Cromosoma>();
 		this.numerogenerazioni = numerogenerazioni;
 		this.popolazione_iniziale_size = popolazione_iniziale;
 		this.percentualetrainingset = percentualetrainingset;
@@ -69,11 +70,11 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		
 		dataset.setClassIndex(dataset.numAttributes() - 1);
 
-		dataset.randomize(new Random());
+		dataset.randomize(SingletonGenerator.r);		
 		
-		trainingset=new Instances(dataset, 0, (int) (datasetsize*this.percentualetrainingset));
-		scoringset=new Instances(dataset, 1+(int) (datasetsize*this.percentualetrainingset), (int) (datasetsize*this.percentualescoringset));
-		testset=new Instances(dataset, 1+(int) (datasetsize*this.percentualetrainingset+percentualescoringset), (int) (datasetsize*this.percentualetestset));
+		trainingset=new Instances(dataset, 0, (int)Math.round(datasetsize*this.percentualetrainingset));
+		scoringset=new Instances(dataset, 1+(int)Math.round(datasetsize*this.percentualetrainingset), (int)Math.round(datasetsize*this.percentualescoringset));
+		testset=new Instances(dataset, 1+(int)Math.round(datasetsize*this.percentualetrainingset+percentualescoringset), (int)Math.round(datasetsize*this.percentualetestset));
 		trainingset.setClassIndex(dataset.numAttributes() - 1);
 		scoringset.setClassIndex(dataset.numAttributes() - 1);
 		testset.setClassIndex(dataset.numAttributes() - 1);
@@ -100,14 +101,15 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		System.out.println("La popolazione iniziale è generata con J48, un porting in Java di C4.5");
 		System.out.println(j48.getTechnicalInformation().toBibTex()+"\n");
 		gait= new GAIT_noFC_simple(scoringset, nclassi, this.popolazione_iniziale_size);
-		esemplare=gait.GAIT(popolazione_iniziale);
+		esemplare=gait.GAIT(popolazione_iniziale, numerogenerazioni);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
 		cd=new CromosomaDecorator(esemplare);
 		cd.caricaColonne(trainingset);
 		System.out.println("L'esemplare migliore dopo n generazioni è il seguente:");
-		System.out.println(esemplare.toYaml());
 		System.out.println(cd.getGraph());
+		System.out.println(esemplare.toYaml());
+		System.out.printf("e ha peso: %.1f \n", esemplare.getComplessita());
 		//System.out.println(cd.getGraph_numerico());
 		System.out.println("le prestazioni dell'esemplare migliore calcolate sul testset sono:");
 		System.out.printf("p=\t%f\n",te.getPrestazioni());
@@ -135,6 +137,40 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 			System.err.println(e.getMessage());
 			e.printStackTrace();			
 		}
+		
+	}
+
+	public void begin_compact() throws Exception {
+		double prestazioni1;
+		double prestazioni2;
+		double peso;
+		trainingset.setClassIndex(trainingset.numAttributes() - 1);
+		testset.setClassIndex(testset.numAttributes() - 1);
+		for(int i=0; i<popolazione_iniziale_size ; i++){
+			Instances data= new Instances(trainingset, i*campioni_per_albero, campioni_per_albero);
+			data.setClassIndex(trainingset.numAttributes() - 1);
+			J48 j48 = new J48();
+			j48.setBinarySplits(true);
+			j48.buildClassifier(data);	
+			Cromosoma c= Cromosoma.loadFromJ48(j48);
+			popolazione_iniziale.add(c);
+		}
+		J48 j48 = new J48();
+		gait= new GAIT_noFC_simple(scoringset, nclassi, this.popolazione_iniziale_size);
+		esemplare=gait.GAIT(popolazione_iniziale, numerogenerazioni);
+		te= new TreeEvaluator(esemplare, testset, nclassi);
+		te.evaluate();
+		prestazioni1=te.getPrestazioni();
+		peso=esemplare.getComplessita();
+		j48.setBinarySplits(true);
+		j48.buildClassifier(trainingset);	
+		Cromosoma whole= Cromosoma.loadFromJ48(j48);
+		te= new TreeEvaluator(whole, testset, nclassi);
+		te.evaluate();
+		prestazioni2=te.getPrestazioni();
+		
+		System.out.printf("§§\t%f\t%f\t%.1f\n",prestazioni1,prestazioni2, peso);
+		
 		
 	}
 }

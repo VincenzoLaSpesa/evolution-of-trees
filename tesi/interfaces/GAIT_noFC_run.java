@@ -81,7 +81,7 @@ public class GAIT_noFC_run implements Runnable{
 		System.out.println("La popolazione iniziale è generata con J48, un porting in Java di C4.5");
 		System.out.println(j48.getTechnicalInformation().toBibTex()+"\n");
 		gait= new GAIT_noFC_simple(scoringset, nclassi, maxelementi);
-		esemplare=gait.GAIT(popolazione_iniziale);
+		esemplare=gait.GAIT(popolazione_iniziale,10);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
 		cd=new CromosomaDecorator(esemplare);
@@ -89,6 +89,7 @@ public class GAIT_noFC_run implements Runnable{
 		System.out.println("L'esemplare migliore dopo 10 generazioni è il seguente:");
 		System.out.println(esemplare.toYaml());
 		System.out.println(cd.getGraph());
+		System.out.printf("e ha peso: %.1f \n", esemplare.getComplessita());
 		//System.out.println(cd.getGraph_numerico());
 		System.out.println("le prestazioni dell'esemplare migliore calcolate sul testset sono:");
 		System.out.printf("p=\t%f\n",te.getPrestazioni());

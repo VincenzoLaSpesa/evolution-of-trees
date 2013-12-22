@@ -1,7 +1,6 @@
 package tesi.controllers;
 
 import java.util.LinkedList;
-import java.util.Random;
 import java.util.TreeSet;
 
 import tesi.models.Cromosoma;
@@ -13,15 +12,7 @@ import weka.core.Instances;
  * @author darshan
  *
  */
-public abstract class Ecosistema {
-
-
-	protected static Random r;
-
-	static {
-		r = new Random(System.currentTimeMillis());
-	}	
-	
+public abstract class Ecosistema {	
 	protected TreeSet<CromosomaMisurato> popolazione_valutata;
 	protected LinkedList<Cromosoma> popolazione_nonvalutata;
 	public double bestfitness = -1;

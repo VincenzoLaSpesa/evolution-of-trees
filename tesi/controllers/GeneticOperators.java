@@ -1,8 +1,7 @@
 package tesi.controllers;
 
-import java.util.Random;
-
 import tesi.models.Cromosoma;
+import tesi.util.SingletonGenerator;
 
 /**
  * Classe statica che contiene le implementazioni degli operatori genetici
@@ -10,11 +9,6 @@ import tesi.models.Cromosoma;
  *
  */
 public abstract class GeneticOperators {
-	private static Random r;
-
-	static {
-		r = new Random(System.currentTimeMillis());
-	}
 
 	/**
 	 * Esegue il Crossover tra due segmenti specifici passati come parametro, 
@@ -111,8 +105,8 @@ public abstract class GeneticOperators {
 		// modo che non siano entrambi foglie
 		int k = 0;
 		do {
-			sottoalbero[0][0] = r.nextInt(c1.cromosoma.size());
-			sottoalbero[1][0] = r.nextInt(c2.cromosoma.size());
+			sottoalbero[0][0] = SingletonGenerator.r.nextInt(c1.cromosoma.size());
+			sottoalbero[1][0] = SingletonGenerator.r.nextInt(c2.cromosoma.size());
 			sottoalbero[0][1] = c1.trovaconfine(sottoalbero[0][0]);
 			sottoalbero[1][1] = c2.trovaconfine(sottoalbero[1][0]);
 

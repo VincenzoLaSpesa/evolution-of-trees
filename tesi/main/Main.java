@@ -4,14 +4,14 @@ import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import com.google.gson.Gson;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import tesi.controllers.GeneticOperators;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
 import tesi.interfaces.GAIT_noFC_run;
+import tesi.interfaces.launchers.AlgoritmoEvolutivoCustom;
+import tesi.interfaces.launchers.AlgoritmoEvolutivoCustomMultiobiettivo;
 import tesi.models.Cromosoma;
 import tesi.util.ArrayUtil;
 import tesi.util.StringUtil;
@@ -20,6 +20,8 @@ import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.ClassifierTree;
 import weka.core.Instances;
 import weka.core.Range;
+
+import com.google.gson.Gson;
 
 public class Main {
 
@@ -30,10 +32,15 @@ public class Main {
 	public static void main(String[] args) throws Exception {
         OptionParser parser = new OptionParser();
         parser.accepts( "gait" ).withOptionalArg();
+        parser.accepts( "gait-multi" ).withOptionalArg();
         parser.accepts( "trainingset" ).withRequiredArg();
         parser.accepts( "settings" ).withRequiredArg();
         parser.accepts( "testset" ).withRequiredArg();
         parser.accepts( "scoringset" ).withRequiredArg();
+        parser.accepts( "dataset" ).withRequiredArg();
+        parser.accepts( "generazioni" ).withRequiredArg();
+        parser.accepts( "popolazione" ).withRequiredArg();
+
         //
         parser.accepts( "iris" );
         parser.accepts( "gaitDefault" );
@@ -75,6 +82,46 @@ public class Main {
             return;        	
         }
         
+        if(options.has("gait-multi")){
+        	//	--gait --trainingset=<trainingsetpath> --testset=<testsetpath>  --scoringset=<scoringsetpath> --nclassi=<nclassi>
+        	//	--gait --settings=<JsonSettingsPath>
+            if(options.hasArgument( "dataset" ) && options.hasArgument( "generazioni" ))
+            {
+            	String dataset=(String)options.valueOf( "dataset" );
+            	int generazioni=Integer.parseInt((String) options.valueOf( "generazioni" ));
+            	//
+            	System.out.printf("dataset -> '%s'\n", dataset);
+            	System.out.printf("generazioni -> %d\n", generazioni);
+            	//
+            	gait_multi(dataset, generazioni);
+            	return;
+            	
+            }
+            if(options.hasArgument( "settings" ))
+            {
+            	String settings_content=(String)options.valueOf( "settings" );
+            	System.out.printf("setting -> '%s'\n", settings_content);
+            	System.out.printf("settings info\n");
+            	settings_content=StringUtil.readFileAsString(settings_content);
+            	System.out.println(settings_content);            	
+            	gait_multi(settings_content);
+            	return;
+            	
+            }
+            System.err.println("Le sintassi possibili di gait sono:");
+            System.err.println(" --gait --trainingset=<trainingsetpath> --testset=<testsetpath>  --scoringset=<scoringsetpath> --nclassi=<nclassi>");
+            System.err.println("\t oppure");
+            System.err.println(" --gait --settings=<JsonSettingsPath>");
+            System.err.println("\nLe sintassi possibili di gait_multi sono:");
+            System.err.println(" --gait-multi --dataset=<datasetpath> --generazioni=<numerogenerazioni>");
+            System.err.println("\t oppure");
+            System.err.println(" --gait-multi --settings=<JsonSettingsPath>");
+
+            return;        	
+        }
+
+        
+        
         if(options.has("iris")){
         	iris(); return;        	
         }
@@ -85,10 +132,71 @@ public class Main {
         	testaalbero(); return;        	
         }
 
-		System.err.println("Non è stato fornito nessu argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait con le impostazioni di default");
-		gait();
+		System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait con le impostazioni di default");
+		gait_complete();
+		
+		//System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait-multi con le impostazioni di default");
+		//gait_multi();
 	}
 	
+
+	public static void gait_complete(String settings_content) throws Exception{
+		Gson gson = new Gson();
+		@SuppressWarnings("unchecked")
+		Map<String, String> map = gson.fromJson(settings_content, Map.class);   
+		String dataset_url=map.get("dataset");
+		int generazioni=Integer.parseInt(map.get("generazioni"));
+		gait_complete(dataset_url, generazioni);
+	}	
+
+public static void gait_complete() throws Exception {
+	//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/smalldataset.arff";
+	//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/uniquedataset.arff";
+	String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff";
+
+	int generazioni=10;
+	gait_complete(dataset_url, generazioni);
+
+}
+
+public static void gait_complete(String dataset_url, int generazioni)throws Exception {
+	FileReader dataset_stream= new FileReader(dataset_url);
+	Instances dataset = new Instances(dataset_stream);
+	dataset.setClassIndex(dataset.numAttributes() - 1);
+	int nclassi=dataset.numClasses();
+	AlgoritmoEvolutivoCustom gaitrunner= new AlgoritmoEvolutivoCustom(dataset, generazioni, 50,nclassi,0.5454545454,0.1818181818,0.2727272727);
+	gaitrunner.begin_compact();	
+}	
+	
+	
+	public static void gait_multi(String settings_content) throws Exception{
+			Gson gson = new Gson();
+			@SuppressWarnings("unchecked")
+			Map<String, String> map = gson.fromJson(settings_content, Map.class);   
+			String dataset_url=map.get("dataset");
+			int generazioni=Integer.parseInt(map.get("generazioni"));
+			gait_multi(dataset_url, generazioni);
+		}	
+	
+	public static void gait_multi() throws Exception {
+		//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/smalldataset.arff";
+		String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
+//		String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff"
+		int generazioni=25;
+		gait_multi(dataset_url, generazioni);
+
+	}
+
+	public static void gait_multi(String dataset_url, int generazioni)throws Exception {
+		FileReader dataset_stream= new FileReader(dataset_url);
+		Instances dataset = new Instances(dataset_stream);
+		dataset.setClassIndex(dataset.numAttributes() - 1);
+		int nclassi=dataset.numClasses();
+		//														AlgoritmoEvolutivoCustomMultiobiettivo(Instances dataset, int numerogenerazioni, int popolazione_iniziale,int nclassi, float percentualetrainingset, float percentualetestset, float percentualescoringset)
+		AlgoritmoEvolutivoCustomMultiobiettivo gaitrunner= new AlgoritmoEvolutivoCustomMultiobiettivo(dataset, generazioni, 50,nclassi,0.5454545454,0.1818181818,0.2727272727);
+		gaitrunner.begin();	
+	}
+
 
 	public static void gait(String trainingset_url,String testset_url,String scoringset_url) throws Exception{
 		FileReader testset_stream= new FileReader(testset_url);

@@ -81,7 +81,8 @@ public class Cromosoma implements Serializable {
 	 * trattandosi di un albero binario {e=i+1 ; N=e+i} -> i=(N-1)/2
 	 * @return
 	 */
-	public int getComplessita(){
+	public double getComplessita(){
+		//System.out.println((cromosoma.size()-1)/2);
 		return (cromosoma.size()-1)/2;
 	}
 	

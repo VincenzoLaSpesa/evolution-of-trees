@@ -6,6 +6,7 @@ import java.util.LinkedList;
 
 import tesi.models.Cromosoma;
 import tesi.models.CromosomaMisurato;
+import tesi.util.SingletonGenerator;
 import weka.core.Instances;
 
 /**
@@ -24,13 +25,63 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	 */
 	public int limit;
 	
+	/**
+	 * Per come è definito gait scelgo i cromosomi da crossare linearmente rispetto al fitness, questo va bene de il fitness è in [0 1], in caso contrario possono verificarsi cose strane, con il fattore riscalo il fitness in modo da rientrare nel range corretto
+	 */
+	public double fattorediscalatura=1;
+	
 	public static double mutation_rate=0.01;
 
+	public double calcola_fitness_multiobiettivo(double prestazioni, Cromosoma c){
+		System.out.println("Questa funzione andrebbe ridefinita, altrimenti si comporta come una funzione di fitness semplice");
+		return prestazioni;
+	}
+	
+	/**
+	 * Una funzione di fitness multiobiettivo che tiene conto delle prestazioni del'albero e della sua lunghezza, <br>
+	 * è definita come:
+	 * <tt> p * 1/(alpha+beta*len) </tt><br>
+	 * Essendo p definita in [0 1] e len definita in [1 n] la funzione stessa è definita in [0 1].<br>
+	 * I parametri alpha e beta permettono di modificare il peso della lunghezza dell'albero
+	 * @param prestazioni
+	 * @param c
+	 * @param alpha
+	 * @param beta
+	 * @return
+	 */
+	public static double calcola_fitness_multiobiettivo_semplice(double prestazioni, Cromosoma c, double alpha, double beta){
+		return prestazioni * 1/(alpha+beta*c.getComplessita());
+	}
+
+	/**
+	 * Una funzione di fitness multiobiettivo che tiene conto delle prestazioni del'albero e della sua lunghezza, <br>
+	 * è definita come:
+	 * <tt> alpha * p + beta / len </tt><br>
+	 * <b> non <b> è limitata in [0 1]
+	 * @param prestazioni
+	 * @param c
+	 * @param alpha
+	 * @param beta
+	 * @return
+	 */
+	public static double calcola_fitness_multiobiettivo_additiva(double prestazioni, Cromosoma c, double alpha, double beta,double gamma){
+		double p = prestazioni * alpha + (Math.sqrt(beta/(gamma+c.getComplessita())));
+		//System.out.println(p);
+		return p;
+	}
+
+	
+	
 	public GAIT_noFC_abstract(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi);
 		this.limit = limit;
 	}
 
+		
+	/**
+	 * Implementa un fitness semplice, va utilizzata in get_fitness() che qui è astratta
+	 * @return
+	 */
 	protected double simple_fitness() {
 
 		TreeEvaluator te;
@@ -47,7 +98,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 			i.remove();
 			media += te.prestazioni;
 			if (Double.isNaN(media)) {
-				System.out.println("trap!");
+				System.err.println("no no no, questo non dovrebbe succedere!");
 
 			}
 			a++;
@@ -56,13 +107,50 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		media = media / a;
 		return media;
 	}
+	
+	/**
+	 * Implementa un fitness multiobiettivo, va utilizzata in get_fitness() che qui è astratta, 
+	 * si basa su calcola_fitness_multiobiettivo(double prestazioni, Cromosoma c) che va ridefinita.
+	 * ( è una funzione simil-astratta che viene definita solo per poter istanziare semplicemente una classe 
+	 * che lavora di fitness semplice e non la usa ) 
+	 * @return
+	 */
+	protected double multiobjective_fitness() {
+
+		TreeEvaluator te;
+		Iterator<Cromosoma> i = popolazione_nonvalutata.iterator();
+		double media = 0;
+		double a = 1;
+		double fitness;
+		while (i.hasNext()) {
+
+			Cromosoma c = i.next();
+			te = new TreeEvaluator(c, testset, nclassi);
+			te.evaluate();
+			fitness=calcola_fitness_multiobiettivo(te.prestazioni, c);
+			CromosomaMisurato cm = new CromosomaMisurato(fitness, c);
+			popolazione_valutata.add(cm);
+			i.remove();
+			media += te.prestazioni;
+			if (Double.isNaN(media)) {
+				System.err.println("no no no, questo non dovrebbe succedere!");
+
+			}
+			a++;
+			// System.out.printf("\t%d:\t%f\n",a,te.prestazioni);
+		}
+		media = media / a;
+		return media;
+	}	
 
 	/**
 	 * In GAIT la probabilità di crossover dipende unicamente dal fitness, si
 	 * genera un numero [0 1] e se è minore del valore di fitness ( che è sempre
 	 * [0 1]) l'elemento viene scelto, questo significa che vengono estratti n
 	 * elementi che verranno poi ordinati a caso formando n/2 coppie di elementi
-	 * che creeranno n/2 figli
+	 * che creeranno n/2 figli.
+	 * 
+	 * In realtà uso un <b>fattorediscalatura</b> per riscalare i valori della fitness, se il fattore è 1 è identico al GAIT originale
 	 */
 	public void crossover() {
 		float f;
@@ -70,14 +158,14 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		// estraggo le coppie
 		Iterator<CromosomaMisurato> entries = popolazione_valutata.iterator();
 		while (entries.hasNext()) {
-			f = r.nextFloat();
+			f = SingletonGenerator.r.nextFloat();
 			CromosomaMisurato e = entries.next();
-			if (f < e.prestazioni) {
+			if (e.prestazioni >= f*fattorediscalatura) {
 				coppie.add(e.cromosoma);
 			}
 		}
 		// le mischio
-		Collections.shuffle(coppie, r);
+		Collections.shuffle(coppie, SingletonGenerator.r);
 		// le faccio accoppiare
 		Iterator<Cromosoma> i = coppie.iterator();
 		int n = coppie.size();
@@ -102,7 +190,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		//
 		Iterator<CromosomaMisurato> entries = popolazione_valutata.iterator();
 		while (entries.hasNext()) {
-			f = r.nextFloat();
+			f = SingletonGenerator.r.nextFloat();
 			CromosomaMisurato e = entries.next();
 			if (f <= probabilita) {
 				c = GeneticOperators.mutate(e.cromosoma, false);
@@ -133,14 +221,21 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 
 	}
 
-	public Cromosoma GAIT(LinkedList<Cromosoma> popolazione_iniziale) {
+	/**
+	 * Evolve popolazione_iniziale per popolazione_iniziale generazioni e ritorna il cromosoma migliore 
+	 * @param popolazione_iniziale
+	 * @param numerogenerazioni
+	 * @return
+	 */
+	public Cromosoma GAIT(LinkedList<Cromosoma> popolazione_iniziale, int numerogenerazioni) {
 		this.popolazione_nonvalutata = popolazione_iniziale;
 		// limit=popolazione_nonvalutata.size();
 		// limit=popolazione_nonvalutata.size()*2;
 		get_fitness();
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < numerogenerazioni; i++) {
 			System.out.printf("Genero la generazione n %d, ci sono %d elementi\n", i, popolazione_valutata.size());
 			evolvi();
+			this.fattorediscalatura=bestfitness;
 			System.out.println("OK");
 		}
 		return bestcromosoma;
