@@ -2,9 +2,11 @@ package tesi.controllers;
 
 import java.util.LinkedList;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 import tesi.models.Cromosoma;
 import tesi.models.CromosomaMisurato;
+import tesi.util.GlobalLogger;
 import weka.core.Instances;
 
 /**
@@ -12,21 +14,27 @@ import weka.core.Instances;
  * @author darshan
  *
  */
-public abstract class Ecosistema {	
-	protected TreeSet<CromosomaMisurato> popolazione_valutata;
-	protected LinkedList<Cromosoma> popolazione_nonvalutata;
+public abstract class Ecosistema {
 	public double bestfitness = -1;
 	public Cromosoma bestcromosoma;
 	public TreeEvaluator te;
 	protected Instances testset;
 	protected int nclassi;
-
+	protected final Logger logger;
+	protected TreeSet<CromosomaMisurato> popolazione_valutata;
+	protected LinkedList<Cromosoma> popolazione_nonvalutata;
+	
 	public Ecosistema(Instances testset, int nclassi) {
 		super();
 		popolazione_nonvalutata = new LinkedList<>();
 		popolazione_valutata = new TreeSet<>();
 		this.testset=testset;
 		this.nclassi=nclassi;
+		String path=this.getClass().getName();
+		logger= Logger.getLogger(path);
+		logger.setLevel(GlobalLogger.level);
+		logger.addHandler(GlobalLogger.console);
+		logger.fine(String.format("Logger inizializzato per: %s", path));
 	}
 
 	public int add(Cromosoma c) {

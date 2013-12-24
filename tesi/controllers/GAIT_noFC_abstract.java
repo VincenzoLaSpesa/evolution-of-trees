@@ -6,6 +6,7 @@ import java.util.LinkedList;
 
 import tesi.models.Cromosoma;
 import tesi.models.CromosomaMisurato;
+import tesi.util.GlobalLogger;
 import tesi.util.SingletonGenerator;
 import weka.core.Instances;
 
@@ -33,7 +34,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	public static double mutation_rate=0.01;
 
 	public double calcola_fitness_multiobiettivo(double prestazioni, Cromosoma c){
-		System.out.println("Questa funzione andrebbe ridefinita, altrimenti si comporta come una funzione di fitness semplice");
+		logger.warning("Questa funzione andrebbe ridefinita, altrimenti si comporta come una funzione di fitness semplice");
 		return prestazioni;
 	}
 	
@@ -50,6 +51,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	 * @return
 	 */
 	public static double calcola_fitness_multiobiettivo_semplice(double prestazioni, Cromosoma c, double alpha, double beta){
+	
 		return prestazioni * 1/(alpha+beta*c.getComplessita());
 	}
 
@@ -66,7 +68,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	 */
 	public static double calcola_fitness_multiobiettivo_additiva(double prestazioni, Cromosoma c, double alpha, double beta,double gamma){
 		double p = prestazioni * alpha + (Math.sqrt(beta/(gamma+c.getComplessita())));
-		//System.out.println(p);
+		System.out.printf("%f + %f\n",prestazioni * alpha,(Math.sqrt(beta/(gamma+c.getComplessita()))));
 		return p;
 	}
 
@@ -98,8 +100,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 			i.remove();
 			media += te.prestazioni;
 			if (Double.isNaN(media)) {
-				System.err.println("no no no, questo non dovrebbe succedere!");
-
+				logger.warning("no no no, questo non dovrebbe succedere!");
 			}
 			a++;
 			// System.out.printf("\t%d:\t%f\n",a,te.prestazioni);
@@ -133,8 +134,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 			i.remove();
 			media += te.prestazioni;
 			if (Double.isNaN(media)) {
-				System.err.println("no no no, questo non dovrebbe succedere!");
-
+				logger.warning("no no no, questo non dovrebbe succedere!");
 			}
 			a++;
 			// System.out.printf("\t%d:\t%f\n",a,te.prestazioni);
@@ -174,7 +174,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 			n = n - 2;
 			popolazione_nonvalutata.add(c);
 		}
-		System.out.println("");
+		logger.fine(".");
 
 	}
 
@@ -213,9 +213,9 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		mutate(mutation_rate);
 		get_fitness();
 		m = estrai_migliore();
-		System.out.printf("\t La prestazione dei nuovi individui è %f\n\t la massima %f\n", f, m);
-		System.out.printf("\t Ci sono %d = %d + %d elementi attivi\n", popolazione_nonvalutata.size()
-				+ popolazione_valutata.size(), popolazione_valutata.size(), popolazione_nonvalutata.size());
+		logger.fine(String.format("\t La prestazione dei nuovi individui è %f\n\t la massima %f\n", f, m));
+		logger.fine(String.format("\t Ci sono %d = %d + %d elementi attivi\n", popolazione_nonvalutata.size()
+				+ popolazione_valutata.size(), popolazione_valutata.size(), popolazione_nonvalutata.size()));
 		trimtosize(limit);
 		return m;
 
@@ -233,10 +233,10 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		// limit=popolazione_nonvalutata.size()*2;
 		get_fitness();
 		for (int i = 0; i < numerogenerazioni; i++) {
-			System.out.printf("Genero la generazione n %d, ci sono %d elementi\n", i, popolazione_valutata.size());
+			logger.fine(String.format("Genero la generazione n %d, ci sono %d elementi\n", i, popolazione_valutata.size()));
 			evolvi();
 			this.fattorediscalatura=bestfitness;
-			System.out.println("OK");
+			logger.fine(String.format("OK"));
 		}
 		return bestcromosoma;
 	}

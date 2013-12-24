@@ -4,12 +4,15 @@
 package tesi.interfaces.launchers;
 
 import java.util.LinkedList;
+import java.util.logging.Logger;
 
 import tesi.controllers.GAIT_noFC_abstract;
 import tesi.controllers.GAIT_noFC_simple;
+import tesi.controllers.GeneticOperators;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
 import tesi.models.Cromosoma;
+import tesi.util.GlobalLogger;
 import tesi.util.SingletonGenerator;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
@@ -39,6 +42,18 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 	Cromosoma esemplare;
 	CromosomaDecorator cd;
 	TreeEvaluator te;
+	
+	static final Logger logger;
+	
+	static{
+		String path=GeneticOperators.class.getName();
+		logger= Logger.getLogger(path);
+		logger.setLevel(GlobalLogger.level);
+		//logger.addHandler(GlobalLogger.console);
+		logger.fine(String.format("Logger inizializzato per: %s", path));
+		
+	}
+	
 
 	public AlgoritmoEvolutivoCustom(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi,
 			double percentualetrainingset, double percentualetestset, double percentualescoringset) {
@@ -82,10 +97,17 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 	}
 
 	public void begin() throws Exception{
-		System.out.printf("Il training set è composto da \t%d elementi\n",trainingset.numInstances());
-		System.out.printf("Il test set è composto da \t%d elementi\n",testset.numInstances());
-		System.out.printf("Lo scoring set è composto da \t%d elementi\n",scoringset.numInstances());
-		System.out.printf("Evolvo per %d generazioni con una popolazione fissa di %d elementi\n\n",this.numerogenerazioni, this.popolazione_iniziale_size);
+		double prestazioni1;
+		double prestazioni2;
+		double peso_gait;
+		double peso_J48w;
+
+		StringBuilder sb= new StringBuilder();
+		sb.append(String.format("Il training set è composto da \t%d elementi\n",trainingset.numInstances()));
+		sb.append(String.format("Il test set è composto da \t%d elementi\n",testset.numInstances()));
+		sb.append(String.format("Lo scoring set è composto da \t%d elementi\n",scoringset.numInstances()));
+		sb.append(String.format("Evolvo per %d generazioni con una popolazione fissa di %d elementi\n\n",this.numerogenerazioni, this.popolazione_iniziale_size));
+		logger.info(sb.toString());
 		trainingset.setClassIndex(trainingset.numAttributes() - 1);
 		testset.setClassIndex(testset.numAttributes() - 1);
 		for(int i=0; i<popolazione_iniziale_size ; i++){
@@ -98,32 +120,44 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 			popolazione_iniziale.add(c);
 		}
 		J48 j48 = new J48();
-		System.out.println("La popolazione iniziale è generata con J48, un porting in Java di C4.5");
-		System.out.println(j48.getTechnicalInformation().toBibTex()+"\n");
+		sb= new StringBuilder();
+		sb.append(String.format("La popolazione iniziale è generata con J48, un porting in Java di C4.5"));
+		sb.append(String.format(j48.getTechnicalInformation().toBibTex()+"\n"));
+		logger.info(sb.toString());
 		gait= new GAIT_noFC_simple(scoringset, nclassi, this.popolazione_iniziale_size);
 		esemplare=gait.GAIT(popolazione_iniziale, numerogenerazioni);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
+		prestazioni1=te.getPrestazioni();
+		peso_gait=esemplare.getComplessita();
 		cd=new CromosomaDecorator(esemplare);
 		cd.caricaColonne(trainingset);
-		System.out.println("L'esemplare migliore dopo n generazioni è il seguente:");
-		System.out.println(cd.getGraph());
-		System.out.println(esemplare.toYaml());
-		System.out.printf("e ha peso: %.1f \n", esemplare.getComplessita());
-		//System.out.println(cd.getGraph_numerico());
-		System.out.println("le prestazioni dell'esemplare migliore calcolate sul testset sono:");
-		System.out.printf("p=\t%f\n",te.getPrestazioni());
-		System.out.println(te.getConfusionasFloatString());
+		sb= new StringBuilder();
+		sb.append("L'esemplare migliore dopo n generazioni è il seguente:\n");		
+		sb.append(cd.getGraph());
+		sb.append("\n");
+		sb.append(esemplare.toYaml());
+		sb.append(String.format("\ne ha peso: %.1f \n", peso_gait));
+		sb.append("le prestazioni dell'esemplare migliore calcolate sul testset sono:");
+		sb.append(String.format("p=\t%f\n",prestazioni1));
+		sb.append(te.getConfusionasFloatString());
+		sb.append("\n");
+		logger.info(sb.toString());
 		//
 		j48.setBinarySplits(true);
 		j48.buildClassifier(trainingset);	
 		Cromosoma whole= Cromosoma.loadFromJ48(j48);
 		te= new TreeEvaluator(whole, testset, nclassi);
 		te.evaluate();
-		System.out.println("Le prestazioni dell'albero generato sull'intero trainingset e calcolate sul testset (wholetraining) sono:");
-		System.out.printf("%f\n",te.getPrestazioni());
-		System.out.println(te.getConfusionasFloatString());
-		
+		sb= new StringBuilder();
+		sb.append("Le prestazioni dell'albero generato sull'intero trainingset e calcolate sul testset (wholetraining) sono:");
+		prestazioni2=te.getPrestazioni();
+		peso_J48w=whole.getComplessita();
+		sb.append(String.format("%f\n",prestazioni2));
+		sb.append("\n");
+		sb.append(te.getConfusionasFloatString());
+		logger.info(sb.toString());		
+		System.out.printf("§§\t%f\t%f\t%.1f\t%.1f\n",prestazioni1,prestazioni2, peso_gait,peso_J48w);
 	}
 
 	/**
@@ -140,6 +174,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		
 	}
 
+	@Deprecated
 	public void begin_compact() throws Exception {
 		double prestazioni1;
 		double prestazioni2;

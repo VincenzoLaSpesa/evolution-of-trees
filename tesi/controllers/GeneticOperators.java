@@ -1,6 +1,9 @@
 package tesi.controllers;
 
+import java.util.logging.Logger;
+
 import tesi.models.Cromosoma;
+import tesi.util.GlobalLogger;
 import tesi.util.SingletonGenerator;
 
 /**
@@ -10,6 +13,17 @@ import tesi.util.SingletonGenerator;
  */
 public abstract class GeneticOperators {
 
+	static final Logger logger;
+	
+	static{
+		String path=GeneticOperators.class.getName();
+		logger= Logger.getLogger(path);
+		logger.setLevel(GlobalLogger.level);
+		//logger.addHandler(GlobalLogger.console);
+		logger.fine(String.format("Logger inizializzato per: %s", path));
+		
+	}
+	
 	/**
 	 * Esegue il Crossover tra due segmenti specifici passati come parametro, 
 	 * non viene fatto controllo sulla coerenza dei segmenti, 
@@ -119,9 +133,9 @@ public abstract class GeneticOperators {
 			 * elementi per esempio)
 			 */
 			if (k > c1_s * c2_s) {
-				System.out.println("Questi due alberi non sono compatibili");
-				System.out.println(c1.toYaml());
-				System.out.println(c2.toYaml());
+				logger.info("Questi due alberi non sono compatibili");				
+				logger.info(c1.toYaml());
+				logger.info(c2.toYaml());
 				return c1.clone();
 			}
 		} while (!flag);
