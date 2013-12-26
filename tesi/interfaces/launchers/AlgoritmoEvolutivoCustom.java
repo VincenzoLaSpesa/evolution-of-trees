@@ -12,8 +12,9 @@ import tesi.controllers.GeneticOperators;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
 import tesi.models.Cromosoma;
-import tesi.util.GlobalLogger;
+import tesi.models.Dataset;
 import tesi.util.SingletonGenerator;
+import tesi.util.logging.GlobalLogger;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
@@ -57,16 +58,35 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 
 	public AlgoritmoEvolutivoCustom(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi,
 			double percentualetrainingset, double percentualetestset, double percentualescoringset) {
-		super();
 		init(dataset, numerogenerazioni, popolazione_iniziale,nclassi, percentualetrainingset, percentualetestset,
 				percentualescoringset);
 	}
 
 	public AlgoritmoEvolutivoCustom(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi) {
-		super();
 		init(dataset, numerogenerazioni, popolazione_iniziale,nclassi, 0.5454545454,0.1818181818,0.2727272727);
 	}
 
+	public AlgoritmoEvolutivoCustom(Dataset d,int numerogenerazioni, int popolazione_iniziale) {
+		init(d, numerogenerazioni, popolazione_iniziale);
+	}
+
+	
+	protected void init(Dataset d, int numerogenerazioni, int popolazione_iniziale) {
+		this.popolazione_iniziale= new LinkedList<Cromosoma>();
+		this.numerogenerazioni = numerogenerazioni;
+		this.popolazione_iniziale_size = popolazione_iniziale;
+		this.percentualetrainingset = d.percentualetrainingset;
+		this.percentualetestset = d.percentualetestset;
+		this.percentualescoringset = d.percentualescoringset;
+		this.datasetsize=d.datasetsize;
+		this.nclassi=d.nclassi;
+		this.trainingset=d.trainingset;
+		this.scoringset=d.scoringset;
+		this.testset=d.testset;
+		campioni_per_albero=(int) (datasetsize*percentualetrainingset/popolazione_iniziale);
+	}
+	
+	@Deprecated
 	protected void init(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi,
 			double percentualetrainingset, double percentualetestset, double percentualescoringset) {
 		this.popolazione_iniziale= new LinkedList<Cromosoma>();
@@ -81,7 +101,6 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 			System.err.println("Parte del dataset non verrà utilizzato con le percentuali correnti.");
 			System.err.println(Thread.currentThread().getStackTrace()[0].toString());
 		}
-		campioni_per_albero=(int) (datasetsize*percentualetrainingset/popolazione_iniziale);
 		
 		dataset.setClassIndex(dataset.numAttributes() - 1);
 
@@ -93,6 +112,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		trainingset.setClassIndex(dataset.numAttributes() - 1);
 		scoringset.setClassIndex(dataset.numAttributes() - 1);
 		testset.setClassIndex(dataset.numAttributes() - 1);
+		campioni_per_albero=(int) (datasetsize*percentualetrainingset/popolazione_iniziale);
 
 	}
 

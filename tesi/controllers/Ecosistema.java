@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import tesi.models.Cromosoma;
 import tesi.models.CromosomaMisurato;
-import tesi.util.GlobalLogger;
+import tesi.util.logging.GlobalLogger;
 import weka.core.Instances;
 
 /**

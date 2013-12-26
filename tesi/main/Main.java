@@ -13,9 +13,11 @@ import tesi.interfaces.GAIT_noFC_run;
 import tesi.interfaces.launchers.AlgoritmoEvolutivoCustom;
 import tesi.interfaces.launchers.AlgoritmoEvolutivoCustomMultiobiettivo;
 import tesi.models.Cromosoma;
+import tesi.models.Dataset;
 import tesi.util.ArrayUtil;
-import tesi.util.GlobalLogger;
 import tesi.util.StringUtil;
+import tesi.util.logging.FloatStream;
+import tesi.util.logging.GlobalLogger;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.ClassifierTree;
@@ -135,10 +137,10 @@ public class Main {
         }
 
 		//System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait con le impostazioni di default");
-		//gait_complete();
+        gait_complete_benchmark();
 		
-		System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait-multi con le impostazioni di default");
-		gait_multi_benchmark();
+		//System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait-multi con le impostazioni di default");
+		//gait_multi_benchmark();
 	}
 	
 
@@ -153,7 +155,7 @@ public class Main {
 
 public static void gait_complete() throws Exception {
 	//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/smalldataset.arff";
-	String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/uniquedataset.arff";
+	String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
 	//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff";
 
 	int generazioni=10;
@@ -163,14 +165,29 @@ public static void gait_complete() throws Exception {
 
 public static void gait_complete_benchmark() throws Exception {
 	//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/smalldataset.arff";
-	String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/uniquedataset.arff";
+	String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
 	//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff";
-
-	int generazioni=10;
-	for(int a=0; a<100;a++)gait_complete(dataset_url, generazioni);
+	FileReader dataset_stream= new FileReader(dataset_url);
+	Instances dataset = new Instances(dataset_stream);
+	int generazioni=25;
+	Dataset d;
+	for(int a=0; a<100;a++){
+		d= new Dataset(dataset, 0.5454545454,0.1818181818,0.2727272727);
+		gait_complete(d, generazioni);
+		/*
+		 * TODO: Codice per la misurazione dei dati parziali.
+		 */
+	}
 
 }
 
+public static void gait_complete(Dataset d, int generazioni)throws Exception {
+	AlgoritmoEvolutivoCustom gaitrunner= new AlgoritmoEvolutivoCustom(d, generazioni, 50);
+	gaitrunner.begin();
+}	
+
+
+@Deprecated
 public static void gait_complete(String dataset_url, int generazioni)throws Exception {
 	FileReader dataset_stream= new FileReader(dataset_url);
 	Instances dataset = new Instances(dataset_stream);
@@ -207,8 +224,12 @@ public static void gait_complete(String dataset_url, int generazioni)throws Exce
 		String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
 		//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff"
 		int generazioni=25;
-		for(int a=0; a<100;a++)gait_multi(dataset_url, generazioni);
-
+		for(int a=0; a<100;a++){
+			//FloatStream.createColumn(""+a);
+			//FloatStream.setColonna_corrente(""+a);
+			gait_multi(dataset_url, generazioni);
+		}
+		System.out.println(FloatStream.ricomponi().toString());
 	}	
 
 	public static void gait_multi(String dataset_url, int generazioni)throws Exception {

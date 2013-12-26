@@ -6,8 +6,8 @@ import java.util.LinkedList;
 
 import tesi.models.Cromosoma;
 import tesi.models.CromosomaMisurato;
-import tesi.util.GlobalLogger;
 import tesi.util.SingletonGenerator;
+import tesi.util.logging.FloatStream;
 import weka.core.Instances;
 
 /**
@@ -68,7 +68,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	 */
 	public static double calcola_fitness_multiobiettivo_additiva(double prestazioni, Cromosoma c, double alpha, double beta,double gamma){
 		double p = prestazioni * alpha + (Math.sqrt(beta/(gamma+c.getComplessita())));
-		System.out.printf("%f + %f\n",prestazioni * alpha,(Math.sqrt(beta/(gamma+c.getComplessita()))));
+		//System.out.printf("%f + %f\n",prestazioni * alpha,(Math.sqrt(beta/(gamma+c.getComplessita()))));
 		return p;
 	}
 
@@ -213,13 +213,15 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		mutate(mutation_rate);
 		get_fitness();
 		m = estrai_migliore();
-		logger.fine(String.format("\t La prestazione dei nuovi individui è %f\n\t la massima %f\n", f, m));
+		logger.fine(String.format("\t Il Fitness dei nuovi individui è %f\n\t il massimo %f\n", f, m));
 		logger.fine(String.format("\t Ci sono %d = %d + %d elementi attivi\n", popolazione_nonvalutata.size()
 				+ popolazione_valutata.size(), popolazione_valutata.size(), popolazione_nonvalutata.size()));
 		trimtosize(limit);
+		
 		return m;
 
 	}
+	
 
 	/**
 	 * Evolve popolazione_iniziale per popolazione_iniziale generazioni e ritorna il cromosoma migliore 

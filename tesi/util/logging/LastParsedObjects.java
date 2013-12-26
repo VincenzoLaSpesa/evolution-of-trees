@@ -1,4 +1,4 @@
-package tesi.util;
+package tesi.util.logging;
 
 import java.util.LinkedList;
 

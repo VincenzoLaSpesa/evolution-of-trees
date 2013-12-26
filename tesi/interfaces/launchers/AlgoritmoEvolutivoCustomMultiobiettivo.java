@@ -7,6 +7,7 @@ import tesi.controllers.GAIT_noFC_multiobiettivo;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
 import tesi.models.Cromosoma;
+import tesi.models.Dataset;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
@@ -22,6 +23,9 @@ public class AlgoritmoEvolutivoCustomMultiobiettivo extends AlgoritmoEvolutivoCu
 		super(dataset, numerogenerazioni, popolazione_iniziale, nclassi);
 	}
 
+	public AlgoritmoEvolutivoCustomMultiobiettivo(Dataset d, int numerogenerazioni, int popolazione_iniziale){
+		super(d, numerogenerazioni, popolazione_iniziale);
+	}
 	public AlgoritmoEvolutivoCustomMultiobiettivo(Instances dataset, int numerogenerazioni, int popolazione_iniziale,
 			int nclassi, double percentualetrainingset, double percentualetestset, double percentualescoringset) {
 		super(dataset, numerogenerazioni, popolazione_iniziale, nclassi, percentualetrainingset, percentualetestset,

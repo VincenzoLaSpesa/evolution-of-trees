@@ -3,8 +3,8 @@ package tesi.controllers;
 import java.util.logging.Logger;
 
 import tesi.models.Cromosoma;
-import tesi.util.GlobalLogger;
 import tesi.util.SingletonGenerator;
+import tesi.util.logging.GlobalLogger;
 
 /**
  * Classe statica che contiene le implementazioni degli operatori genetici
