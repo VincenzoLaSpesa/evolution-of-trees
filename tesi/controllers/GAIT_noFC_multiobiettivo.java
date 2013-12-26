@@ -36,6 +36,8 @@ public class GAIT_noFC_multiobiettivo extends GAIT_noFC_abstract {
 	 */
 	@Override
 	public double calcola_fitness_multiobiettivo(double prestazioni, Cromosoma c) {
-		return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,2,5);
+		//return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,2,5);
+		return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,1,15,0.5);
+		//return calcola_fitness_multiobiettivo_lineare(prestazioni, c,50,2);
 	}
 }

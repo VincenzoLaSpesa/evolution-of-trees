@@ -80,7 +80,6 @@ public class TreeEvaluator {
 	}
 
 	public TreeEvaluator(Cromosoma cromosoma, Instances testset, int nclassi) {
-		super();
 		this.cromosoma = cromosoma;
 		this.testset = testset;
 		this.nclassi = nclassi;

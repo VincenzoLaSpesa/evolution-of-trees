@@ -14,6 +14,7 @@ import tesi.interfaces.launchers.AlgoritmoEvolutivoCustom;
 import tesi.interfaces.launchers.AlgoritmoEvolutivoCustomMultiobiettivo;
 import tesi.models.Cromosoma;
 import tesi.models.Dataset;
+import tesi.models.Singletons;
 import tesi.util.ArrayUtil;
 import tesi.util.StringUtil;
 import tesi.util.logging.FloatStream;
@@ -137,10 +138,10 @@ public class Main {
         }
 
 		//System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait con le impostazioni di default");
-        gait_complete_benchmark();
+        //gait_complete_benchmark();
 		
 		//System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait-multi con le impostazioni di default");
-		//gait_multi_benchmark();
+		gait_multi_benchmark();
 	}
 	
 
@@ -169,20 +170,32 @@ public static void gait_complete_benchmark() throws Exception {
 	//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff";
 	FileReader dataset_stream= new FileReader(dataset_url);
 	Instances dataset = new Instances(dataset_stream);
-	int generazioni=25;
+	int generazioni=100;
 	Dataset d;
-	for(int a=0; a<100;a++){
+	for(int a=0; a<25;a++){
+		String nomecolonna="istanza_"+a;
 		d= new Dataset(dataset, 0.5454545454,0.1818181818,0.2727272727);
+		Singletons.cromosomastream.createColumn(nomecolonna);
+		Singletons.cromosomastream.setColonna_corrente(nomecolonna);
+		Singletons.pesistream.createColumn(nomecolonna);
+		Singletons.pesistream.setColonna_corrente(nomecolonna);
 		gait_complete(d, generazioni);
-		/*
-		 * TODO: Codice per la misurazione dei dati parziali.
-		 */
+		FloatStream ft=Singletons.cromosomastream.calcola(d.testset, d.nclassi); 
+		Singletons.floatstream.merge(ft);
+		Singletons.cromosomastream.deleteColumn(nomecolonna);
 	}
+	System.out.println(Singletons.floatstream.ricomponi().toString());
+	System.out.println(Singletons.pesistream.ricomponi().toString());
 
 }
 
 public static void gait_complete(Dataset d, int generazioni)throws Exception {
 	AlgoritmoEvolutivoCustom gaitrunner= new AlgoritmoEvolutivoCustom(d, generazioni, 50);
+	gaitrunner.begin();
+}	
+
+public static void gait_multi(Dataset d, int generazioni)throws Exception {
+	AlgoritmoEvolutivoCustomMultiobiettivo gaitrunner= new AlgoritmoEvolutivoCustomMultiobiettivo(d, generazioni, 50);
 	gaitrunner.begin();
 }	
 
@@ -222,14 +235,26 @@ public static void gait_complete(String dataset_url, int generazioni)throws Exce
 	public static void gait_multi_benchmark() throws Exception {
 		//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/smalldataset.arff";
 		String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
-		//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff"
+		//String dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff";
+		FileReader dataset_stream= new FileReader(dataset_url);
+		Instances dataset = new Instances(dataset_stream);
 		int generazioni=25;
+		Dataset d;
 		for(int a=0; a<100;a++){
-			//FloatStream.createColumn(""+a);
-			//FloatStream.setColonna_corrente(""+a);
-			gait_multi(dataset_url, generazioni);
+			String nomecolonna="istanza_"+a;
+			d= new Dataset(dataset, 0.5454545454,0.1818181818,0.2727272727);
+			Singletons.cromosomastream.createColumn(nomecolonna);
+			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
+			Singletons.pesistream.createColumn(nomecolonna);
+			Singletons.pesistream.setColonna_corrente(nomecolonna);			
+			gait_multi(d, generazioni);
+			//FloatStream ft=Singletons.cromosomastream.calcola(d.testset, d.nclassi); 
+			//Singletons.floatstream.merge(ft);
+			Singletons.cromosomastream.deleteColumn(nomecolonna);
 		}
-		System.out.println(FloatStream.ricomponi().toString());
+		System.out.println(Singletons.floatstream.ricomponi().toString());	
+		System.out.println(Singletons.pesistream.ricomponi().toString());
+		
 	}	
 
 	public static void gait_multi(String dataset_url, int generazioni)throws Exception {

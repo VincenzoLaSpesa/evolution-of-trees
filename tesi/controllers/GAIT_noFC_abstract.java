@@ -6,6 +6,7 @@ import java.util.LinkedList;
 
 import tesi.models.Cromosoma;
 import tesi.models.CromosomaMisurato;
+import tesi.models.Singletons;
 import tesi.util.SingletonGenerator;
 import tesi.util.logging.FloatStream;
 import weka.core.Instances;
@@ -66,10 +67,27 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	 * @param beta
 	 * @return
 	 */
-	public static double calcola_fitness_multiobiettivo_additiva(double prestazioni, Cromosoma c, double alpha, double beta,double gamma){
-		double p = prestazioni * alpha + (Math.sqrt(beta/(gamma+c.getComplessita())));
+	public static double calcola_fitness_multiobiettivo_additiva(double prestazioni, Cromosoma c, double alpha, double beta,double gamma, double epsilon){		
+		double p = Math.pow(prestazioni, epsilon) * alpha + (Math.sqrt(beta/(gamma+c.getComplessita())));
 		//System.out.printf("%f + %f\n",prestazioni * alpha,(Math.sqrt(beta/(gamma+c.getComplessita()))));
 		return p;
+	}
+
+	/**
+	 * Una funzione di fitness multiobiettivo che tiene conto delle prestazioni del'albero e della sua lunghezza, <br>
+	 * è definita come:
+	 * <tt> p * 1/(alpha+beta*len) </tt><br>
+	 * Essendo p definita in [0 1] e len definita in [1 n] la funzione stessa è definita in [0 1].<br>
+	 * I parametri alpha e beta permettono di modificare il peso della lunghezza dell'albero
+	 * @param prestazioni
+	 * @param c
+	 * @param alpha
+	 * @param beta
+	 * @return
+	 */
+	public static double calcola_fitness_multiobiettivo_lineare(double prestazioni, Cromosoma c, double alpha, double beta){
+	
+		return prestazioni * alpha  - beta*c.getComplessita();
 	}
 
 	
@@ -213,6 +231,8 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		mutate(mutation_rate);
 		get_fitness();
 		m = estrai_migliore();
+		Singletons.cromosomastream.append(this.bestcromosoma);
+		Singletons.pesistream.append(this.bestcromosoma.getComplessita());
 		logger.fine(String.format("\t Il Fitness dei nuovi individui è %f\n\t il massimo %f\n", f, m));
 		logger.fine(String.format("\t Ci sono %d = %d + %d elementi attivi\n", popolazione_nonvalutata.size()
 				+ popolazione_valutata.size(), popolazione_valutata.size(), popolazione_nonvalutata.size()));

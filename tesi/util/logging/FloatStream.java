@@ -4,24 +4,29 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeMap;
 
+import tesi.controllers.TreeEvaluator;
+import tesi.models.Cromosoma;
+
 /**
- * Permette di accumulare delle liste di float e poi di stamparle in un file csv, 
- * è concepito come un ogetto singleton accessibile dall'intera applicazione
  * @author darshan
  *	TODO: testare questa classe tesi.util.FloatStream
  */
-public abstract class FloatStream {
+public class FloatStream {
 		public static int limit = 1024;
-		protected static TreeMap<String, LinkedList<Double>> Colonne;
-		protected static String colonna_corrente;
+		protected TreeMap<String, LinkedList<Double>> Colonne;
+		protected String colonna_corrente;
 		
-		static {
+		public FloatStream() {
 			colonna_corrente="default";
 			Colonne=new TreeMap<String, LinkedList<Double>>();
 			createColumn("default");
 		}
 
-		public static StringBuilder ricomponi() {
+		/**
+		 * Converte la struttura in una stringa che rappresenta i dati in formato CSV <br><b>DISTRUGGE I DATI</b>
+		 * @return
+		 */
+		public StringBuilder ricomponi() {
 			StringBuilder sb = new StringBuilder();
 			Set<String> kset=Colonne.keySet();
 			Double v;
@@ -35,7 +40,7 @@ public abstract class FloatStream {
 			do{
 				a=0;
 				for(String k : kset){
-					v=Colonne.get(k).pollLast();
+					v=Colonne.get(k).pollFirst();
 					if(v!=null){
 						a++;
 						sb.append(v).append("\t");
@@ -46,25 +51,42 @@ public abstract class FloatStream {
 			return sb;
 
 		}
+		
+		/**
+		 * Aggiunge gli elementi di ft nell'oggetto corrente, le colonne <b>VENGONO SOVRASCRITTE</B>
+		 * @param ft
+		 */
+		public void merge(FloatStream ft){
+			Set<String> kset = ft.Colonne.keySet();
+			// i dati
+			for (String k : kset) {
+				this.createColumn(k);
+				this.setColonna_corrente(k);
+				LinkedList<Double> L = ft.Colonne.get(k);
+				for (Double d : L) {
+					this.append(d);
+				}
+			}
+		};
 
-		public static int push(Double e) {
-			Colonne.get(colonna_corrente).push(e);
+		public int append(Double e) {
+			Colonne.get(colonna_corrente).add(e);
 			if (Colonne.get(colonna_corrente).size() > limit)
-				Colonne.get(colonna_corrente).removeLast();
+				Colonne.get(colonna_corrente).removeFirst();
 			return Colonne.get(colonna_corrente).size();
 		}
 		
-		public static int pushDefault(Double e) {
-			Colonne.get("default").push(e);
+		public int appendDefault(Double e) {
+			Colonne.get("default").add(e);
 			if (Colonne.get("default").size() > limit)
-				Colonne.get("default").removeLast();
+				Colonne.get("default").removeFirst();
 			return Colonne.get("default").size();
 		}
 
-		public static int push(String colonna,Double e) {
-			Colonne.get(colonna).push(e);
+		public int append(String colonna,Double e) {
+			Colonne.get(colonna).add(e);
 			if (Colonne.get(colonna).size() > limit)
-				Colonne.get(colonna).removeLast();
+				Colonne.get(colonna).removeFirst();
 			return Colonne.get(colonna).size();
 		}
 
@@ -73,17 +95,21 @@ public abstract class FloatStream {
 		 * @param k
 		 * @return
 		 */
-		public static int createColumn(String k){
+		public int createColumn(String k){
 			Colonne.put(k, new LinkedList<Double>());
 			return Colonne.size();
 		}
 
-		public static String getColonna_corrente() {
+		public String getColonna_corrente() {
 			return colonna_corrente;
 		}
 
-		public static void setColonna_corrente(String colonna_corrente) {
-			FloatStream.colonna_corrente = colonna_corrente;
+		public void setColonna_corrente(String colonna_corrente) {
+			this.colonna_corrente = colonna_corrente;
+		}
+
+		public void deleteColumn(String k){
+			this.Colonne.remove(k);
 		}
 		
 }
