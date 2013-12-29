@@ -38,18 +38,24 @@ public class Main {
         OptionParser parser = new OptionParser();
         parser.accepts( "gait" ).withOptionalArg();
         parser.accepts( "gait-multi" ).withOptionalArg();
-        parser.accepts( "trainingset" ).withRequiredArg();
-        parser.accepts( "settings" ).withRequiredArg();
-        parser.accepts( "testset" ).withRequiredArg();
-        parser.accepts( "scoringset" ).withRequiredArg();
-        parser.accepts( "dataset" ).withRequiredArg();
-        parser.accepts( "generazioni" ).withRequiredArg();
-        parser.accepts( "popolazione" ).withRequiredArg();
+        parser.accepts( "trainingset","specifica la path del trainingset" ).withRequiredArg();
+        parser.accepts( "settings","carica i settaggi da un file json" ).withRequiredArg();
+        parser.accepts( "testset","specifica la path del testset" ).withRequiredArg();
+        parser.accepts( "scoringset","specifica la path dello scoringset" ).withRequiredArg();
+        parser.accepts( "dataset","specifica la path del dataset unico" ).withRequiredArg();
+        parser.accepts( "generazioni","numero di generazioni" ).withRequiredArg();
+        parser.accepts( "popolazione","popolazione iniziale" ).withRequiredArg();
 
         //
-        parser.accepts( "iris" );
-        parser.accepts( "gaitDefault" );
-        parser.accepts( "testaalbero" );
+        parser.accepts( "iris","Avvia i test su Iris con le impostazioni di default" );
+        parser.accepts( "gaitDefault","Avvia i test su Gait con le impostazioni di default" );
+        parser.accepts( "gaitMultiDefault","Avvia i test su GaitMulti con le impostazioni di default" );
+        parser.accepts( "testaalbero","Avvia i test sulla creazione/serializzazione degli alberi" );
+        
+        parser.accepts( "gaitCompleteBenchmark","Avvia il benchmark su gait con le impostazioni di default utilizzando il dataset per intero" );
+        parser.accepts( "gaitMultiBenchmark","Avvia il benchmark su GaitMulti con le impostazioni di default" );
+
+        
         
         OptionSet options = parser.parse( args );
         if(options.has("gait")){
@@ -113,14 +119,7 @@ public class Main {
             	return;
             	
             }
-            System.err.println("Le sintassi possibili di gait sono:");
-            System.err.println(" --gait --trainingset=<trainingsetpath> --testset=<testsetpath>  --scoringset=<scoringsetpath> --nclassi=<nclassi>");
-            System.err.println("\t oppure");
-            System.err.println(" --gait --settings=<JsonSettingsPath>");
-            System.err.println("\nLe sintassi possibili di gait_multi sono:");
-            System.err.println(" --gait-multi --dataset=<datasetpath> --generazioni=<numerogenerazioni>");
-            System.err.println("\t oppure");
-            System.err.println(" --gait-multi --settings=<JsonSettingsPath>");
+
 
             return;        	
         }
@@ -136,12 +135,32 @@ public class Main {
         if(options.has("testaalbero")){
         	testaalbero(); return;        	
         }
-
-		//System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait con le impostazioni di default");
+        if(options.has("gaitMultiBenchmark")){
+        	gait_multi_benchmark(); return;        	
+        }
+        if(options.has("gaitCompleteBenchmark")){
+        	gait_complete_benchmark(); return;        	
+        }
+        
+        
+      
+        System.out.println("Le sintassi possibili di gait sono:");
+        System.out.println(" --gait --trainingset=<trainingsetpath> --testset=<testsetpath>  --scoringset=<scoringsetpath> --nclassi=<nclassi>");
+        System.out.println("\t oppure");
+        System.out.println(" --gait --settings=<JsonSettingsPath>");
+        
+        System.out.println("\nLe sintassi possibili di gait_multi sono:");
+        System.out.println(" --gait-multi --dataset=<datasetpath> --generazioni=<numerogenerazioni>");
+        System.out.println("\t oppure");
+        System.out.println(" --gait-multi --settings=<JsonSettingsPath>");
+        System.out.println("\nAltri comandi possibili sono:");
+        parser.printHelpOn(System.out);
+        
+        //System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait con le impostazioni di default");
         //gait_complete_benchmark();
 		
 		//System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait-multi con le impostazioni di default");
-		gait_multi_benchmark();
+		
 	}
 	
 

@@ -28,6 +28,9 @@ public class Cromosoma implements Serializable {
 
 	private static final long serialVersionUID = 346117818222219309L;
 	public Vector<Gene> cromosoma;
+	public int altezza=-1;
+	public double peso=-1;
+	public double fattore_di_sbilanciamento;
 	
 	/**
 	 * Deserializza da un weka.classifiers.trees.J48 generato da Weka, l'albero
@@ -44,7 +47,7 @@ public class Cromosoma implements Serializable {
 		}
 		ClassifierTree tree = j48.getTree();
 		Cromosoma c = new Cromosoma();
-		c.parse(tree);
+		c.parse(tree,0);
 		return c;
 	}
 
@@ -116,14 +119,15 @@ public class Cromosoma implements Serializable {
 	 * @param sottoalbero
 	 * @throws Exception
 	 */
-	private void parse(ClassifierTree sottoalbero) throws Exception {
+	private void parse(ClassifierTree sottoalbero, int l) throws Exception {
 		Gene g = new Gene();
 		if (sottoalbero.m_isLeaf) {// foglia
 			g.attributo = Integer.parseInt(sottoalbero.m_localModel.dumpLabel(
 					0, sottoalbero.m_train).split(" ")[0]);
 			g.punto = Float.NaN;
 			cromosoma.add(g);
-		} else {// ramo
+			if(l>altezza)altezza=l;
+		} else {// nodo
 			BinC45Split splitter = (BinC45Split) sottoalbero.m_localModel;
 			g.attributo = splitter.attIndex();
 			g.punto = splitter.m_splitPoint;
@@ -134,9 +138,13 @@ public class Cromosoma implements Serializable {
 				g.taglio = Taglio.Continuo;
 			cromosoma.add(g);
 			int p = cromosoma.size();
-			parse(sottoalbero.m_sons[0]);
-			parse(sottoalbero.m_sons[1]);
+			parse(sottoalbero.m_sons[0],l+1);
+			parse(sottoalbero.m_sons[1],l+1);
 			cromosoma.elementAt(p - 1).fine = cromosoma.size() - 1;
+		}
+		if(l==0){
+			peso=getComplessita();
+			fattore_di_sbilanciamento=altezza/(Math.log(cromosoma.size())/0.6931471803);
 		}
 	}
 	
@@ -146,7 +154,10 @@ public class Cromosoma implements Serializable {
 	 * mutazione non alteri la struttura interna delle foglie
 	 */
 	public void ristruttura() {
-		ristruttura(0);
+		ristruttura(0,1);
+		peso=getComplessita();
+		fattore_di_sbilanciamento=altezza/(Math.log(cromosoma.size())/0.6931471803);
+
 	};
 	
 	/**
@@ -155,7 +166,7 @@ public class Cromosoma implements Serializable {
 	 * @param base
 	 * @return
 	 */
-	private int ristruttura(int base) {
+	private int ristruttura(int base, int l) {
 		//System.out.println(base);
 		if(base>=cromosoma.size()){
 			String trace=Thread.currentThread().getStackTrace()[1].toString();
@@ -166,13 +177,14 @@ public class Cromosoma implements Serializable {
 			
 		}
 		if (Double.isNaN(cromosoma.elementAt(base).punto)) {			
+			if(l>altezza)altezza=l;
 			return base+1;
 		} else {
 			//if(base+1>=cromosoma.size())return base;
-			int f = ristruttura(base+1);
+			int f = ristruttura(base+1,l+1);
 			//System.out.printf("\t %d -> %d\n", base,f);
 			cromosoma.elementAt(base).fine = f;
-			return ristruttura(f);			
+			return ristruttura(f,l+1);			
 		}
 	}
 
