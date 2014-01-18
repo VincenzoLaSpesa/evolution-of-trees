@@ -29,7 +29,7 @@ public class Cromosoma implements Serializable {
 	private static final long serialVersionUID = 346117818222219309L;
 	public Vector<Gene> cromosoma;
 	public int altezza=-1;
-	public double peso=-1;
+	protected double peso=-1;
 	public double fattore_di_sbilanciamento;
 	
 	/**
@@ -79,14 +79,13 @@ public class Cromosoma implements Serializable {
 
 	/**
 	 * Ritorna la complessità dell'albero, 
-	 * la complessità è definita come il numero di nodi decisionali 
-	 * che corrispondono ai nodi interni dell'albero.<br>
-	 * trattandosi di un albero binario {e=i+1 ; N=e+i} -> i=(N-1)/2
+	 * la complessità è definita come l'altezza massima dell'albero
 	 * @return
 	 */
 	public double getComplessita(){
 		//System.out.println((cromosoma.size()-1)/2);
-		return (cromosoma.size()-1)/2;
+		return this.altezza;
+		//return (cromosoma.size()-1)/2;
 	}
 	
 	
@@ -144,6 +143,7 @@ public class Cromosoma implements Serializable {
 		}
 		if(l==0){
 			peso=getComplessita();
+			//0.6931471803=ln(2)
 			fattore_di_sbilanciamento=altezza/(Math.log(cromosoma.size())/0.6931471803);
 		}
 	}

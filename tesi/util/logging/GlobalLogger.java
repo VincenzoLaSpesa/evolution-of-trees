@@ -4,6 +4,11 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Contiene i settaggi globali per il Logger, ad essere sincero non so se venga utilizzato
+ * @author darshan
+ *
+ */
 public abstract class GlobalLogger {
 
 	  public static Logger logger;

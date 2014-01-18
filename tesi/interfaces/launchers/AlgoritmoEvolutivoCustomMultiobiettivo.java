@@ -14,7 +14,6 @@ import weka.core.Instances;
 /**
  * Permette di avviare una variante generalizzata della procedura descritta in GAIT ( variante 1) adattata per usare una funzione di fitness multiobiettivo.
  * @author darshan
- * TODO: Testare questa classe!
  */
 public class AlgoritmoEvolutivoCustomMultiobiettivo extends AlgoritmoEvolutivoCustom {
 

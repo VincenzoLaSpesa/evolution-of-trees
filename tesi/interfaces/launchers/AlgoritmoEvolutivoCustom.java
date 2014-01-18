@@ -21,7 +21,6 @@ import weka.core.Instances;
 /**
  * Permette di avviare una versione generalizzata della procedura descritta in GAIT ( variante 1).
  * @author darshan
- * TODO: Testare questa classe!
  */
 public class AlgoritmoEvolutivoCustom implements Runnable {
 	int numerogenerazioni;
@@ -116,9 +115,13 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 
 	}
 
+	/**
+	 * Avvia la classificazione
+	 * @throws Exception
+	 */
 	public void begin() throws Exception{
-		double prestazioni1;
-		double prestazioni2;
+		double prestazioni_gait;		
+		double prestazioni_j48;
 		double peso_gait;
 		double peso_J48w;
 
@@ -148,7 +151,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		esemplare=gait.GAIT(popolazione_iniziale, numerogenerazioni);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
-		prestazioni1=te.getPrestazioni();
+		prestazioni_gait=te.getPrestazioni();
 		peso_gait=esemplare.getComplessita();
 		cd=new CromosomaDecorator(esemplare);
 		cd.caricaColonne(trainingset);
@@ -159,7 +162,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		sb.append(esemplare.toYaml());
 		sb.append(String.format("\ne ha peso: %.1f \n", peso_gait));
 		sb.append("le prestazioni dell'esemplare migliore calcolate sul testset sono:");
-		sb.append(String.format("p=\t%f\n",prestazioni1));
+		sb.append(String.format("p=\t%f\n",prestazioni_gait));
 		sb.append(te.getConfusionasFloatString());
 		sb.append("\n");
 		logger.info(sb.toString());
@@ -171,13 +174,13 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		te.evaluate();
 		sb= new StringBuilder();
 		sb.append("Le prestazioni dell'albero generato sull'intero trainingset e calcolate sul testset (wholetraining) sono:");
-		prestazioni2=te.getPrestazioni();
+		prestazioni_j48=te.getPrestazioni();
 		peso_J48w=whole.getComplessita();
-		sb.append(String.format("%f\n",prestazioni2));
+		sb.append(String.format("%f\n",prestazioni_j48));
 		sb.append("\n");
 		sb.append(te.getConfusionasFloatString());
 		logger.info(sb.toString());		
-		System.out.printf("§§\t%f\t%f\t%.1f\t%.1f\n",prestazioni1,prestazioni2, peso_gait,peso_J48w);
+		System.out.printf("§§\t%f\t%f\t%.1f\t%.1f\n",prestazioni_gait,prestazioni_j48, peso_gait,peso_J48w);
 	}
 
 	/**

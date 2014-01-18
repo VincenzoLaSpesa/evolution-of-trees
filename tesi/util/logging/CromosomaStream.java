@@ -9,8 +9,7 @@ import tesi.models.Cromosoma;
 import weka.core.Instances;
 
 /**
- * Permette di accumulare dei cromosomi per valutarli in seguito, è concepito
- * come un ogetto singleton accessibile dall'intera applicazione
+ * Permette di accumulare dei cromosomi per valutarli in seguito
  * 
  * @author darshan
  */

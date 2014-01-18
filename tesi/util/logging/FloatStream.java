@@ -4,12 +4,9 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeMap;
 
-import tesi.controllers.TreeEvaluator;
-import tesi.models.Cromosoma;
-
 /**
+ * Permette di accumulare dei float da varie parti del codice per poi poterli recuperare in un altro punto
  * @author darshan
- *	TODO: testare questa classe tesi.util.FloatStream
  */
 public class FloatStream {
 		public static int limit = 1024;
