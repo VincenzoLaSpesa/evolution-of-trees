@@ -8,7 +8,12 @@ import java.util.Random;
  */
 public abstract class ArrayUtil {
 
-    public static void vector_fill(int v[], int max) {
+    /**
+     * Riempie un vettore di numeri casuali interi compresi tra 0 e max
+     * @param v
+     * @param max
+     */
+	public static void vector_fill(int v[], int max) {
         int a;
         int n=v.length;
         Random r = new Random(System.currentTimeMillis());
@@ -17,7 +22,7 @@ public abstract class ArrayUtil {
         }
     }
 
-    public static void vector_fill_sbilanciata(int v[], int max) {
+	public static void vector_fill_sbilanciata(int v[], int max) {
         int a;
         int n=v.length;
         Random r = new Random();

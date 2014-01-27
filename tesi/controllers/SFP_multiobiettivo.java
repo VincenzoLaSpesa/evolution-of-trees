@@ -1,0 +1,21 @@
+package tesi.controllers;
+
+import weka.core.Instances;
+
+public class SFP_multiobiettivo extends GAIT_noFC_multiobiettivo {
+
+	public SFP_multiobiettivo(Instances testset, int nclassi, int limit) {
+		super(testset, nclassi, limit);
+	}
+
+	@Override
+	/**
+	 * definisce il crossover come crossover_spf();
+	 * @see tesi.controllers.GAIT_noFC_abstract.crossover_spf();
+	 */
+	public void crossover() {
+		crossover_spf(crossover_rate);
+	}
+	
+	
+}

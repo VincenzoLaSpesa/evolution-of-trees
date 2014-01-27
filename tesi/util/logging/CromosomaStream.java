@@ -24,6 +24,13 @@ public class CromosomaStream {
 		createColumn("default");
 	}
 
+	/**
+	 * Valuta i cromosomi accumulati sul testset e produce un FloatStream
+	 * @param testset
+	 * @param nclassi
+	 * @see FloatStream
+	 * @return
+	 */
 	public FloatStream calcola(Instances testset, int nclassi) {
 		FloatStream ft = new FloatStream();
 		Set<String> kset = Colonne.keySet();

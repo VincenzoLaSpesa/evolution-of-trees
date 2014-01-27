@@ -19,14 +19,22 @@ public class GAIT_noFC_simple extends GAIT_noFC_abstract {
 		super(testset, nclassi,limit);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see tesi.models.Popolazione#get_fitness()
+	/**
+	 * Definisce get_fitness() come simple_fitness();
+	 * @see tesi.controllers.GAIT_noFC_abstract.simple_fitness()
 	 */
 	@Override
 	public double get_fitness() {
 		return simple_fitness();
+	}
+
+	@Override
+	/**
+	 * definisce il crossover come crossover_etilist();
+	 * @see tesi.controllers.GAIT_noFC_abstract.crossover_etilist();
+	 */
+	public void crossover() {
+		crossover_etilist();
 	}
 
 }

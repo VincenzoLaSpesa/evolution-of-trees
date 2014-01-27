@@ -29,7 +29,7 @@ public class Cromosoma implements Serializable {
 	private static final long serialVersionUID = 346117818222219309L;
 	public Vector<Gene> cromosoma;
 	public int altezza=-1;
-	protected double peso=-1;
+	//protected double peso=-1;
 	public double fattore_di_sbilanciamento;
 	
 	/**
@@ -84,11 +84,16 @@ public class Cromosoma implements Serializable {
 	 */
 	public double getComplessita(){
 		//System.out.println((cromosoma.size()-1)/2);
+		if(altezza<0){
+			if(cromosoma.size()<4)altezza=1; else {
+				String trace=Thread.currentThread().getStackTrace()[1].toString();
+				System.err.printf("Questo non dovrebbe succedere %s \n",trace);
+				System.err.println(this.toYaml());
+			};
+		}
 		return this.altezza;
 		//return (cromosoma.size()-1)/2;
 	}
-	
-	
 	/**
 	 * trova la posizione che delimita il sottoalbero partente da partenza
 	 * @param partenza
@@ -142,7 +147,7 @@ public class Cromosoma implements Serializable {
 			cromosoma.elementAt(p - 1).fine = cromosoma.size() - 1;
 		}
 		if(l==0){
-			peso=getComplessita();
+			altezza=(int) getComplessita();
 			//0.6931471803=ln(2)
 			fattore_di_sbilanciamento=altezza/(Math.log(cromosoma.size())/0.6931471803);
 		}
@@ -155,7 +160,8 @@ public class Cromosoma implements Serializable {
 	 */
 	public void ristruttura() {
 		ristruttura(0,1);
-		peso=getComplessita();
+		altezza=(int) getComplessita();
+		//0.6931471803=ln(2)
 		fattore_di_sbilanciamento=altezza/(Math.log(cromosoma.size())/0.6931471803);
 
 	};

@@ -1,9 +1,6 @@
-/**
- * 
- */
 package tesi.interfaces.launchers;
 
-import tesi.controllers.GAIT_noFC_multiobiettivo;
+import tesi.controllers.Torneo_multiobietivo;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
 import tesi.models.Cromosoma;
@@ -11,26 +8,11 @@ import tesi.models.Dataset;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
-/**
- * Permette di avviare una variante generalizzata della procedura descritta in GAIT ( variante 1) adattata per usare una funzione di fitness multiobiettivo.
- * @author darshan
- */
-public class AlgoritmoEvolutivoCustomMultiobiettivo extends AlgoritmoEvolutivoCustom {
+public class AlgoritmoEvolutivoCustomTorneoMutante extends AlgoritmoEvolutivoCustom {
 
-	public AlgoritmoEvolutivoCustomMultiobiettivo(Instances dataset, int numerogenerazioni, int popolazione_iniziale,
-			int nclassi) {
-		super(dataset, numerogenerazioni, popolazione_iniziale, nclassi);
-	}
-
-	public AlgoritmoEvolutivoCustomMultiobiettivo(Dataset d, int numerogenerazioni, int popolazione_iniziale){
+	public AlgoritmoEvolutivoCustomTorneoMutante(Dataset d, int numerogenerazioni, int popolazione_iniziale) {
 		super(d, numerogenerazioni, popolazione_iniziale);
 	}
-	public AlgoritmoEvolutivoCustomMultiobiettivo(Instances dataset, int numerogenerazioni, int popolazione_iniziale,
-			int nclassi, double percentualetrainingset, double percentualetestset, double percentualescoringset) {
-		super(dataset, numerogenerazioni, popolazione_iniziale, nclassi, percentualetrainingset, percentualetestset,
-				percentualescoringset);
-	}
-
 	public void begin() throws Exception{
 		double prestazioni1;
 		double prestazioni2;
@@ -59,8 +41,8 @@ public class AlgoritmoEvolutivoCustomMultiobiettivo extends AlgoritmoEvolutivoCu
 		sb.append(String.format("La popolazione iniziale è generata con J48, un porting in Java di C4.5"));
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex()+"\n"));
 		logger.info(sb.toString());
-		ecosistema= new GAIT_noFC_multiobiettivo(scoringset, nclassi, this.popolazione_iniziale_size);
-		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,false);
+		ecosistema= new Torneo_multiobietivo(scoringset, nclassi, this.popolazione_iniziale_size);
+		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,true);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
 		cd=new CromosomaDecorator(esemplare);
@@ -93,7 +75,8 @@ public class AlgoritmoEvolutivoCustomMultiobiettivo extends AlgoritmoEvolutivoCu
 		sb.append(te.getConfusionasFloatString());
 		logger.info(sb.toString());		
 		System.out.printf("§§\t%f\t%f\t%.1f\n",prestazioni1,prestazioni2, peso);
-	}
+	}	
+
 	
-	
+
 }
