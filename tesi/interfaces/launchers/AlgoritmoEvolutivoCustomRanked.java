@@ -10,8 +10,8 @@ import weka.core.Instances;
 
 public class AlgoritmoEvolutivoCustomRanked extends AlgoritmoEvolutivoCustom {
 
-	public AlgoritmoEvolutivoCustomRanked(Dataset d, int numerogenerazioni, int popolazione_iniziale) {
-		super(d, numerogenerazioni, popolazione_iniziale);
+	public AlgoritmoEvolutivoCustomRanked(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante) {
+		super(d, numerogenerazioni, popolazione_iniziale,mutante);
 	}
 	
 	public void begin() throws Exception{
@@ -43,7 +43,7 @@ public class AlgoritmoEvolutivoCustomRanked extends AlgoritmoEvolutivoCustom {
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex()+"\n"));
 		logger.info(sb.toString());
 		ecosistema= new Ranked_multiobiettivo(scoringset, nclassi, this.popolazione_iniziale_size);
-		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,false);
+		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,mutante);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
 		cd=new CromosomaDecorator(esemplare);

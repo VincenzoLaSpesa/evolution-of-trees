@@ -6,8 +6,8 @@ import java.util.LinkedList;
 
 import tesi.models.Cromosoma;
 import tesi.models.CromosomaMisurato;
-import tesi.models.Singletons;
 import tesi.util.SingletonGenerator;
+import tesi.util.logging.Singletons;
 import weka.core.Instances;
 
 /**
@@ -72,11 +72,10 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	 * @param beta
 	 * @return
 	 */
-	public static double calcola_fitness_multiobiettivo_additiva(double prestazioni, Cromosoma c, double alpha,
-			double beta, double gamma, double epsilon) {
-		double p = Math.pow(prestazioni, epsilon) * alpha + (Math.sqrt(beta / (gamma + c.getComplessita())));
-		// System.out.printf("%f + %f\n",prestazioni *
-		// alpha,(Math.sqrt(beta/(gamma+c.getComplessita()))));
+	public static double calcola_fitness_multiobiettivo_nonlineare(double prestazioni, Cromosoma c, double alpha,
+			double beta, double gamma) {
+		double p = prestazioni * alpha + beta*(Math.sqrt(1 / (gamma + c.getComplessita())));
+		//double p = Math.pow(prestazioni, epsilon) * alpha + (Math.sqrt(beta / (gamma + c.getComplessita())));
 		return p;
 	}
 
@@ -216,7 +215,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	/**
 	 * Estrae elementi dalla popolazione_valutata, li muta e li sposta in
 	 * popolazione_nonvalutata, non è il modo corretto di effettuare una
-	 * mutazione.
+	 * mutazione. Crea dei nuovi elementi
 	 * 
 	 * 
 	 * @param probabilita
@@ -244,8 +243,8 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	 * 
 	 * @param probabilita
 	 */
-	@Override
-	public void mutate(double probabilita) {
+	@Deprecated
+	public void mutate_sons(double probabilita) {
 		float f;
 		Cromosoma c;
 		//
@@ -260,6 +259,47 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 				// the accepted safe way to modify a collection during iteration
 				entries.remove();
 			}
+			popolazione_nonvalutata.addAll(buffer);
+		}
+
+	}
+
+	/**
+	 * Estrae elementi, li muta, E LI SOSTITUISCE
+	 * 
+	 * @param probabilita
+	 */
+	@Override
+	public void mutate(double probabilita) {
+		float f;
+		Cromosoma c;
+		Cromosoma e;
+		CromosomaMisurato cm;
+		//
+		Iterator<Cromosoma> entries = popolazione_nonvalutata.iterator();
+		LinkedList<Cromosoma> buffer = new LinkedList<>();
+		while (entries.hasNext()) {
+			f = SingletonGenerator.r.nextFloat();
+			e = entries.next();
+			if (f <= probabilita) {
+				c = GeneticOperators.mutate(e, false);
+				buffer.add(c);
+				// the accepted safe way to modify a collection during iteration
+				entries.remove();
+			}
+		}
+		//
+		Iterator<CromosomaMisurato> entries2 = popolazione_valutata.iterator();
+		while (entries.hasNext()) {
+			f = SingletonGenerator.r.nextFloat();
+			cm = entries2.next();
+			if (f <= probabilita) {
+				c = GeneticOperators.mutate(cm.cromosoma, false);
+				buffer.add(c);
+				// the accepted safe way to modify a collection during iteration
+				entries.remove();
+			}
+
 			popolazione_nonvalutata.addAll(buffer);
 		}
 

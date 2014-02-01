@@ -23,6 +23,7 @@ import weka.core.Instances;
  * @author darshan
  */
 public class AlgoritmoEvolutivoCustom implements Runnable {
+	public boolean mutante=false;
 	int numerogenerazioni;
 	int popolazione_iniziale_size;
 	int datasetsize;
@@ -55,22 +56,24 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 	}
 	
 
+	@Deprecated
 	public AlgoritmoEvolutivoCustom(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi,
 			double percentualetrainingset, double percentualetestset, double percentualescoringset) {
 		init(dataset, numerogenerazioni, popolazione_iniziale,nclassi, percentualetrainingset, percentualetestset,
 				percentualescoringset);
 	}
 
+	@Deprecated
 	public AlgoritmoEvolutivoCustom(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi) {
 		init(dataset, numerogenerazioni, popolazione_iniziale,nclassi, 0.5454545454,0.1818181818,0.2727272727);
 	}
 
-	public AlgoritmoEvolutivoCustom(Dataset d,int numerogenerazioni, int popolazione_iniziale) {
-		init(d, numerogenerazioni, popolazione_iniziale);
+	public AlgoritmoEvolutivoCustom(Dataset d,int numerogenerazioni, int popolazione_iniziale, boolean mutante) {
+		init(d, numerogenerazioni, popolazione_iniziale,mutante);
 	}
 
 	
-	protected void init(Dataset d, int numerogenerazioni, int popolazione_iniziale) {
+	protected void init(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante) {
 		this.popolazione_iniziale= new LinkedList<Cromosoma>();
 		this.numerogenerazioni = numerogenerazioni;
 		this.popolazione_iniziale_size = popolazione_iniziale;
@@ -82,6 +85,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		this.trainingset=d.trainingset;
 		this.scoringset=d.scoringset;
 		this.testset=d.testset;
+		this.mutante=mutante;
 		campioni_per_albero=(int) (datasetsize*percentualetrainingset/popolazione_iniziale);
 	}
 	
@@ -148,7 +152,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex()+"\n"));
 		logger.info(sb.toString());
 		ecosistema= new GAIT_noFC_simple(scoringset, nclassi, this.popolazione_iniziale_size);
-		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,false);
+		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,mutante);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
 		prestazioni_gait=te.getPrestazioni();
@@ -215,7 +219,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		}
 		J48 j48 = new J48();
 		ecosistema= new GAIT_noFC_simple(scoringset, nclassi, this.popolazione_iniziale_size);
-		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,false);
+		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,mutante);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
 		prestazioni1=te.getPrestazioni();

@@ -17,14 +17,18 @@ import weka.core.Instances;
  */
 public class AlgoritmoEvolutivoCustomMultiobiettivo extends AlgoritmoEvolutivoCustom {
 
+	@Deprecated
 	public AlgoritmoEvolutivoCustomMultiobiettivo(Instances dataset, int numerogenerazioni, int popolazione_iniziale,
 			int nclassi) {
 		super(dataset, numerogenerazioni, popolazione_iniziale, nclassi);
 	}
 
-	public AlgoritmoEvolutivoCustomMultiobiettivo(Dataset d, int numerogenerazioni, int popolazione_iniziale){
-		super(d, numerogenerazioni, popolazione_iniziale);
+	
+	public AlgoritmoEvolutivoCustomMultiobiettivo(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante){
+		super(d, numerogenerazioni, popolazione_iniziale, mutante);
 	}
+	
+	@Deprecated
 	public AlgoritmoEvolutivoCustomMultiobiettivo(Instances dataset, int numerogenerazioni, int popolazione_iniziale,
 			int nclassi, double percentualetrainingset, double percentualetestset, double percentualescoringset) {
 		super(dataset, numerogenerazioni, popolazione_iniziale, nclassi, percentualetrainingset, percentualetestset,
@@ -60,7 +64,7 @@ public class AlgoritmoEvolutivoCustomMultiobiettivo extends AlgoritmoEvolutivoCu
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex()+"\n"));
 		logger.info(sb.toString());
 		ecosistema= new GAIT_noFC_multiobiettivo(scoringset, nclassi, this.popolazione_iniziale_size);
-		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,false);
+		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,mutante);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
 		cd=new CromosomaDecorator(esemplare);

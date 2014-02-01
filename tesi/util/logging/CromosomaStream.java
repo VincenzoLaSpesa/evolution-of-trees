@@ -17,6 +17,7 @@ public class CromosomaStream {
 	public static int limit = 1024;
 	protected TreeMap<String, LinkedList<Cromosoma>> Colonne;
 	protected String colonna_corrente;
+	public boolean active=true;
 
 	public CromosomaStream() {
 		colonna_corrente = "default";
@@ -48,6 +49,7 @@ public class CromosomaStream {
 	}
 
 	public int append(Cromosoma e) {
+		if(!active)return -1;
 		Colonne.get(colonna_corrente).add(e.clone());
 		if (Colonne.get(colonna_corrente).size() > limit)
 			Colonne.get(colonna_corrente).removeFirst();
@@ -55,6 +57,7 @@ public class CromosomaStream {
 	}
 
 	public int appendDefault(Cromosoma e) {
+		if(!active)return -1;
 		Colonne.get("default").add(e.clone());
 		if (Colonne.get("default").size() > limit)
 			Colonne.get("default").removeFirst();
@@ -62,6 +65,7 @@ public class CromosomaStream {
 	}
 
 	public int append(String colonna, Cromosoma e) {
+		if(!active)return -1;
 		Colonne.get(colonna).add(e.clone());
 		if (Colonne.get(colonna).size() > limit)
 			Colonne.get(colonna).removeFirst();

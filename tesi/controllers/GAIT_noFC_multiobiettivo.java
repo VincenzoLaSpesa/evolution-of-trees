@@ -22,9 +22,33 @@ public class GAIT_noFC_multiobiettivo extends GAIT_noFC_abstract {
 	 * @param limit
 	 * 		Il limite massimo della popolazione
 	 */
+	
+	public double alpha;
+	public double beta;
+	public double gamma;
+	
 	public GAIT_noFC_multiobiettivo(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi, limit);
+		alpha=5;
+		beta=1;
+		gamma=15;		
 	}
+	
+	
+
+	public GAIT_noFC_multiobiettivo(Instances testset, int nclassi, int limit, double alpha, double beta, double gamma) {
+		super(testset, nclassi, limit);
+		this.alpha = alpha;
+		this.beta = beta;
+		this.gamma = gamma;
+	}
+
+	public void reimpostaparametri(double alpha, double beta, double gamma) {
+		this.alpha = alpha;
+		this.beta = beta;
+		this.gamma = gamma;
+	}
+
 
 	@Override
 	public double get_fitness() {
@@ -37,10 +61,11 @@ public class GAIT_noFC_multiobiettivo extends GAIT_noFC_abstract {
 	 */
 	@Override
 	public double calcola_fitness_multiobiettivo(double prestazioni, Cromosoma c) {
+		return calcola_fitness_multiobiettivo_nonlineare(prestazioni, c, alpha, beta , gamma);
 		//return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,2,5);
-		//return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,1,15,0.5);//<--
+		//return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,1,15,0.5);
 		//return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,2,5,0.5);
-		return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,1,15,1);
+		//return calcola_fitness_multiobiettivo_nonlineare(prestazioni, c,5,1,15,1);// <-- migliore
 		//return calcola_fitness_multiobiettivo_lineare(prestazioni, c,50,2);
 	}
 

@@ -9,14 +9,18 @@ import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
 public class AlgoritmoEvolutivoCustomSPF extends AlgoritmoEvolutivoCustom {
+	
+	@Deprecated
 	public AlgoritmoEvolutivoCustomSPF (Instances dataset, int numerogenerazioni, int popolazione_iniziale,
 			int nclassi) {
 		super(dataset, numerogenerazioni, popolazione_iniziale, nclassi);
 	}
 
-	public AlgoritmoEvolutivoCustomSPF (Dataset d, int numerogenerazioni, int popolazione_iniziale){
-		super(d, numerogenerazioni, popolazione_iniziale);
+	public AlgoritmoEvolutivoCustomSPF (Dataset d, int numerogenerazioni, int popolazione_iniziale,boolean mutante){
+		super(d, numerogenerazioni, popolazione_iniziale,mutante);
 	}
+	
+	@Deprecated
 	public AlgoritmoEvolutivoCustomSPF (Instances dataset, int numerogenerazioni, int popolazione_iniziale,
 			int nclassi, double percentualetrainingset, double percentualetestset, double percentualescoringset) {
 		super(dataset, numerogenerazioni, popolazione_iniziale, nclassi, percentualetrainingset, percentualetestset,
@@ -52,7 +56,7 @@ public class AlgoritmoEvolutivoCustomSPF extends AlgoritmoEvolutivoCustom {
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex()+"\n"));
 		logger.info(sb.toString());
 		ecosistema= new SFP_multiobiettivo(scoringset, nclassi, this.popolazione_iniziale_size);
-		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,false);
+		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,mutante);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
 		cd=new CromosomaDecorator(esemplare);

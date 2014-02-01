@@ -18,12 +18,12 @@ import tesi.interfaces.launchers.GAIT_noFC_run;
 import tesi.interfaces.launchers.J48Wholetraining;
 import tesi.models.Cromosoma;
 import tesi.models.Dataset;
-import tesi.models.Singletons;
 import tesi.util.ArrayUtil;
 import tesi.util.StringUtil;
 import tesi.util.SysUtil;
 import tesi.util.logging.FloatStream;
 import tesi.util.logging.GlobalLogger;
+import tesi.util.logging.Singletons;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.ClassifierTree;
@@ -63,9 +63,17 @@ public class Main {
 				"gaitCompleteBenchmark",
 				"Avvia il benchmark su gait con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni");
 		parser.accepts(
+				"gaitCompleteMutanteBenchmark",
+				"Avvia il benchmark su gait con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni, il mutation rate viene incrementato linearmente durante le generazioni di stallo");
+		
+		parser.accepts(
 				"gaitMultiBenchmark", 
 				"Avvia il benchmark su GaitMulti con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni");
-		
+
+		parser.accepts(
+				"gaitMultiMutanteBenchmark", 
+				"Avvia il benchmark su GaitMulti con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni, il mutation rate viene incrementato linearmente durante le generazioni di stallo");
+				
 		parser.accepts(
 				"SfpMultiBenchmark", 
 				"Avvia il benchmark su SfpMulti con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni");
@@ -74,10 +82,13 @@ public class Main {
 				"RankedMultiBenchmark", 
 				"Avvia il benchmark su RankedMulti con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni");		
 		
-		parser.accepts(
+		/*parser.accepts(
 				"TorneoMultiBenchmark", 
 				"Avvia il benchmark su RankedMulti con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni");		
-		
+		*/
+		parser.accepts(
+				"TorneoMultiMutanteBenchmark", 
+				"Avvia il benchmark su RankedMulti con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni, il mutation rate viene incrementato linearmente durante le generazioni di stallo");		
 		
 		
 		parser.accepts("WholeTrainingBenchmark3000", "Calcola 100 alberi j48 su trainingset di 3000 elementi");
@@ -98,6 +109,7 @@ public class Main {
 				System.out.printf("testset -> '%s'\n", testset);
 				System.out.printf("scoringset -> '%s'\n", scoringset);
 				//
+				Singletons.cromosomastream.active=false;
 				gait(trainingset, testset, scoringset);
 				return;
 
@@ -108,6 +120,7 @@ public class Main {
 				System.out.printf("settings info\n");
 				settings_content = StringUtil.readFileAsString(settings_content);
 				System.out.println(settings_content);
+				Singletons.cromosomastream.active=false;
 				gait(settings_content);
 				return;
 
@@ -124,6 +137,7 @@ public class Main {
 			// --gait --trainingset=<trainingsetpath> --testset=<testsetpath>
 			// --scoringset=<scoringsetpath> --nclassi=<nclassi>
 			// --gait --settings=<JsonSettingsPath>
+			Singletons.cromosomastream.active=false;
 			if (options.hasArgument("dataset") && options.hasArgument("generazioni")) {
 				dataset_url = (String) options.valueOf("dataset");
 				int generazioni = Integer.parseInt((String) options.valueOf("generazioni"));
@@ -150,18 +164,22 @@ public class Main {
 		}
 
 		if (options.has("iris")) {
+			Singletons.cromosomastream.active=false;
 			iris();
 			return;
 		}
 		if (options.has("gaitDefault")) {
+			Singletons.cromosomastream.active=false;
 			gait();
 			return;
 		}
 		if (options.has("testaalbero")) {
+			Singletons.cromosomastream.active=false;
 			testaalbero();
 			return;
 		}
 		if (options.has("gaitMultiBenchmark")) {
+			Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -170,7 +188,19 @@ public class Main {
 			gait_multi_benchmark(generazioni);
 			return;
 		}
+		if (options.has("gaitMultiMutanteBenchmark")) {
+			Singletons.cromosomastream.active=true;
+			Integer generazioni = 25;
+			if (options.hasArgument("generazioni")) {
+				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
+			}
+			System.out.printf("§§\tPrestGAIT\tPrestWhole\tHGait\tHWhole\n");
+			gait_multi_mutante_benchmark(generazioni);
+			return;
+		}
+
 		if (options.has("gaitCompleteBenchmark")) {
+			Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -179,8 +209,21 @@ public class Main {
 			gait_complete_benchmark(generazioni);
 			return;
 		}
+		if (options.has("gaitCompleteMutanteBenchmark")) {
+			Singletons.cromosomastream.active=true;
+			Integer generazioni = 25;
+			if (options.hasArgument("generazioni")) {
+				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
+			}
+			System.out.printf("§§\tPrestGAIT\tPrestWhole\tHGait\tHWhole\n");
+			gait_complete_mutante_benchmark(generazioni);
+			return;
+		}		
+		
+		
 		
 		if (options.has("SfpMultiBenchmark")) {
+			Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -191,6 +234,7 @@ public class Main {
 		}		
 		
 		if (options.has("RankedMultiBenchmark")) {
+			Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -200,7 +244,8 @@ public class Main {
 			return;
 		}		
 		
-		if (options.has("TorneoMultiBenchmark")) {
+		if (options.has("TorneoMultiMutanteBenchmark")) {
+			Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -215,12 +260,14 @@ public class Main {
 
 		
 		if (options.has("gaitComplete")) {
+			Singletons.cromosomastream.active=false;
 			GlobalLogger.init_verbose();
 			gait_complete();
 			return;
 		}
 
 		if (options.has("WholeTrainingBenchmark3000")) {
+			Singletons.cromosomastream.active=false;
 			WholeTrainingBenchmark(100);
 			return;
 		}
@@ -239,16 +286,17 @@ public class Main {
 		parser.printHelpOn(System.out);
 
 		System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait con le impostazioni di default");
-		gait_multi_benchmark(100);
+		//gait_multi_benchmark(100);
 		//sfp_Multi_Benchmark(25);
 		//gait_complete_benchmark(100);
 		//ranked_Multi_Benchmark(100);
-		//torneo_Multi_Benchmark(100);
+		torneo_Multi_Benchmark(100);
 		// System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait-multi con le impostazioni di default");
 
 	}
 
 	private static void torneo_Multi_Benchmark(Integer generazioni) throws Exception {
+		
 		System.out.flush();
 		System.out.println(SysUtil.getMethodName(1));
 		
@@ -263,7 +311,7 @@ public class Main {
 			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 			Singletons.pesistream.createColumn(nomecolonna);
 			Singletons.pesistream.setColonna_corrente(nomecolonna);
-			torneo_multi(d, generazioni);
+			torneo_multi_mutante(d, generazioni);
 			FloatStream ft=Singletons.cromosomastream.calcola(d.testset, d.nclassi);
 			Singletons.floatstream.merge(ft);
 			Singletons.cromosomastream.deleteColumn(nomecolonna);
@@ -273,6 +321,7 @@ public class Main {
 	}
 
 	private static void ranked_Multi_Benchmark(Integer generazioni) throws Exception {
+		
 		FileReader dataset_stream = new FileReader(Main.dataset_url);
 		Instances dataset = new Instances(dataset_stream);
 		//int generazioni = 25;
@@ -295,15 +344,15 @@ public class Main {
 
 
 	/**
-	 * Esegue per 100 volte {@link #sfp_multi(Dataset, int) sfp_multi(Dataset
-	 * d, int generazioni)} dal dataset completo, per ogni run evolve per 25
+	 * Esegue per 100 volte {@link #sfp_multi(Dataset, int,boolean) sfp_multi(Dataset
+	 * d, int generazioni, boolean mutante)} dal dataset completo, per ogni run evolve per 25
 	 * generazioni. produce in output due csv: uno con l'evoluzione delle
 	 * prestazioni e uno con l'evoluzione dei pesi
-	 * @see sfp_multi(Dataset, int)
+	 * @see sfp_multi(Dataset, int,boolean)
 	 * @throws Exception
 	 */
 	public static void sfp_Multi_Benchmark(Integer generazioni) throws Exception {
-
+			
 			FileReader dataset_stream = new FileReader(Main.dataset_url);
 			Instances dataset = new Instances(dataset_stream);
 			//int generazioni = 25;
@@ -315,7 +364,7 @@ public class Main {
 				Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 				Singletons.pesistream.createColumn(nomecolonna);
 				Singletons.pesistream.setColonna_corrente(nomecolonna);
-				sfp_multi(d, generazioni);
+				sfp_multi(d, generazioni,false);
 				FloatStream ft=Singletons.cromosomastream.calcola(d.testset, d.nclassi);
 				Singletons.floatstream.merge(ft);
 				Singletons.cromosomastream.deleteColumn(nomecolonna);
@@ -324,6 +373,35 @@ public class Main {
 			System.out.println(Singletons.pesistream.ricomponi().toString());				
 	}
 
+	/**
+	 * Esegue per 100 volte {@link #sfp_multi(Dataset, int,boolean) sfp_multi(Dataset
+	 * d, int generazioni, boolean mutante)} dal dataset completo, per ogni run evolve per 25
+	 * generazioni. produce in output due csv: uno con l'evoluzione delle
+	 * prestazioni e uno con l'evoluzione dei pesi
+	 * @see sfp_multi(Dataset, int,boolean)
+	 * @throws Exception
+	 */
+	public static void sfp_Multi_mutante_Benchmark(Integer generazioni) throws Exception {
+			
+			FileReader dataset_stream = new FileReader(Main.dataset_url);
+			Instances dataset = new Instances(dataset_stream);
+			//int generazioni = 25;
+			Dataset d;
+			for (int a = 0; a < 100; a++) {
+				String nomecolonna = "istanza_" + a;
+				d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+				Singletons.cromosomastream.createColumn(nomecolonna);
+				Singletons.cromosomastream.setColonna_corrente(nomecolonna);
+				Singletons.pesistream.createColumn(nomecolonna);
+				Singletons.pesistream.setColonna_corrente(nomecolonna);
+				sfp_multi(d, generazioni,true);
+				FloatStream ft=Singletons.cromosomastream.calcola(d.testset, d.nclassi);
+				Singletons.floatstream.merge(ft);
+				Singletons.cromosomastream.deleteColumn(nomecolonna);
+			}
+			System.out.println(Singletons.floatstream.ricomponi().toString());
+			System.out.println(Singletons.pesistream.ricomponi().toString());				
+	}
 
 
 	/**
@@ -336,18 +414,18 @@ public class Main {
 	 * @throws Exception
 	 * @see AlgoritmoEvolutivoCustomSPF
 	 */
-	public static void sfp_multi(Dataset d, Integer generazioni) throws Exception {
-		AlgoritmoEvolutivoCustomSPF gaitrunner = new AlgoritmoEvolutivoCustomSPF(d, generazioni, 50);
+	public static void sfp_multi(Dataset d, Integer generazioni, boolean mutante) throws Exception {
+		AlgoritmoEvolutivoCustomSPF gaitrunner = new AlgoritmoEvolutivoCustomSPF(d, generazioni, 50,mutante);
 		gaitrunner.begin();
 	}
 
 
 	private static void ranked_multi(Dataset d, Integer generazioni) throws Exception {
-		AlgoritmoEvolutivoCustomRanked gaitrunner = new AlgoritmoEvolutivoCustomRanked(d, generazioni, 50);
+		AlgoritmoEvolutivoCustomRanked gaitrunner = new AlgoritmoEvolutivoCustomRanked(d, generazioni, 50,false);
 		gaitrunner.begin();
 	}
 
-	private static void torneo_multi(Dataset d, Integer generazioni) throws Exception {
+	private static void torneo_multi_mutante(Dataset d, Integer generazioni) throws Exception {
 		AlgoritmoEvolutivoCustomTorneoMutante gaitrunner = new AlgoritmoEvolutivoCustomTorneoMutante(d, generazioni, 50);
 		gaitrunner.begin();
 	}
@@ -445,6 +523,36 @@ public class Main {
 
 	}
 
+	public static void gait_complete_mutante_benchmark(int generazioni) throws Exception {
+		// String
+		// dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/smalldataset.arff";
+		//String dataset_url = "/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
+		// String
+		// dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff";
+		System.out.println(SysUtil.getMethodName(1));
+		FileReader dataset_stream = new FileReader(dataset_url);
+		Instances dataset = new Instances(dataset_stream);
+		System.out.println(generazioni);
+		// int generazioni = 100;
+		Dataset d;
+		for (int a = 0; a < 25; a++) {
+			String nomecolonna = "istanza_" + a;
+			d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+			Singletons.cromosomastream.createColumn(nomecolonna);
+			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
+			Singletons.pesistream.createColumn(nomecolonna);
+			Singletons.pesistream.setColonna_corrente(nomecolonna);
+			gait_mutante_complete(d, generazioni);
+			FloatStream ft = Singletons.cromosomastream.calcola(d.testset, d.nclassi);
+			Singletons.floatstream.merge(ft);
+			Singletons.cromosomastream.deleteColumn(nomecolonna);
+		}
+		System.out.println(Singletons.floatstream.ricomponi().toString());
+		System.out.println(Singletons.pesistream.ricomponi().toString());
+
+	}
+
+	
 	/**
 	 * Avvia Gait sul dataset, utilizza
 	 * AlgoritmoEvolutivoCustomMultiobiettivo(Dataset d,int numerogenerazioni,
@@ -452,12 +560,13 @@ public class Main {
 	 * 
 	 * @param d
 	 * @param generazioni
+	 * @param mutante
 	 * @throws Exception
 	 * @see AlgoritmoEvolutivoCustomMultiobiettivo
 	 */
-	public static void gait_multi(Dataset d, int generazioni) throws Exception {
+	public static void gait_multi(Dataset d, int generazioni, boolean mutante) throws Exception {
 		AlgoritmoEvolutivoCustomMultiobiettivo gaitrunner = new AlgoritmoEvolutivoCustomMultiobiettivo(d, generazioni,
-				50);
+				50,mutante);
 		gaitrunner.begin();
 	}
 
@@ -495,10 +604,16 @@ public class Main {
 	 * @see AlgoritmoEvolutivoCustom
 	 */
 	public static void gait_complete(Dataset d, int generazioni) throws Exception {
-		AlgoritmoEvolutivoCustom gaitrunner = new AlgoritmoEvolutivoCustom(d, generazioni, 50);
+		AlgoritmoEvolutivoCustom gaitrunner = new AlgoritmoEvolutivoCustom(d, generazioni, 50,false);
 		gaitrunner.begin();
 	}
 
+	public static void gait_mutante_complete(Dataset d, int generazioni) throws Exception {
+		AlgoritmoEvolutivoCustom gaitrunner = new AlgoritmoEvolutivoCustom(d, generazioni, 50,true);
+		gaitrunner.begin();
+	}
+
+	
 	/**
 	 * Avvia {@link #gait_multi(String,int) gait_multi(dataset_url,
 	 * generazioni)} ottenendo i dati da una stringa JSON
@@ -536,6 +651,43 @@ public class Main {
 	}
 
 	/**
+	 * Esegue per 100 volte {@link #gait_multi(Dataset, int,boolean) gait_multi(Dataset
+	 * d, int generazioni, boolean mutante)} dal dataset completo, per ogni run evolve per 25
+	 * generazioni. produce in output due csv: uno con l'evoluzione delle
+	 * prestazioni e uno con l'evoluzione dei pesi
+	 * 
+	 * @see gait_multi(Dataset, int)
+	 * @throws Exception
+	 */
+	public static void gait_multi_mutante_benchmark(int generazioni) throws Exception {
+		// String
+		// dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/smalldataset.arff";
+		//String dataset_url = "/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
+		// String
+		// dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff";
+		System.out.println(SysUtil.getMethodName(1));
+		FileReader dataset_stream = new FileReader(Main.dataset_url);
+		Instances dataset = new Instances(dataset_stream);
+		//int generazioni = 25;
+		Dataset d;
+		for (int a = 0; a < 100; a++) {
+			String nomecolonna = "istanza_" + a;
+			d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+			Singletons.cromosomastream.createColumn(nomecolonna);
+			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
+			Singletons.pesistream.createColumn(nomecolonna);
+			Singletons.pesistream.setColonna_corrente(nomecolonna);
+			gait_multi(d, generazioni,true);
+			FloatStream ft=Singletons.cromosomastream.calcola(d.testset, d.nclassi);
+			Singletons.floatstream.merge(ft);
+			Singletons.cromosomastream.deleteColumn(nomecolonna);
+		}
+		System.out.println(Singletons.floatstream.ricomponi().toString());
+		System.out.println(Singletons.pesistream.ricomponi().toString());
+
+	}
+
+	/**
 	 * Esegue per 100 volte {@link #gait_multi(Dataset, int) gait_multi(Dataset
 	 * d, int generazioni)} dal dataset completo, per ogni run evolve per 25
 	 * generazioni. produce in output due csv: uno con l'evoluzione delle
@@ -562,7 +714,7 @@ public class Main {
 			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 			Singletons.pesistream.createColumn(nomecolonna);
 			Singletons.pesistream.setColonna_corrente(nomecolonna);
-			gait_multi(d, generazioni);
+			gait_multi(d, generazioni,false);
 			FloatStream ft=Singletons.cromosomastream.calcola(d.testset, d.nclassi);
 			Singletons.floatstream.merge(ft);
 			Singletons.cromosomastream.deleteColumn(nomecolonna);

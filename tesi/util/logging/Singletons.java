@@ -1,7 +1,5 @@
-package tesi.models;
+package tesi.util.logging;
 
-import tesi.util.logging.CromosomaStream;
-import tesi.util.logging.FloatStream;
 
 /**
  * Come suggerisce il nome questa classe è un ogetto Singleton, contiene due

@@ -11,7 +11,7 @@ import weka.core.Instances;
 public class AlgoritmoEvolutivoCustomTorneoMutante extends AlgoritmoEvolutivoCustom {
 
 	public AlgoritmoEvolutivoCustomTorneoMutante(Dataset d, int numerogenerazioni, int popolazione_iniziale) {
-		super(d, numerogenerazioni, popolazione_iniziale);
+		super(d, numerogenerazioni, popolazione_iniziale,true);
 	}
 	public void begin() throws Exception{
 		double prestazioni1;
@@ -42,7 +42,7 @@ public class AlgoritmoEvolutivoCustomTorneoMutante extends AlgoritmoEvolutivoCus
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex()+"\n"));
 		logger.info(sb.toString());
 		ecosistema= new Torneo_multiobietivo(scoringset, nclassi, this.popolazione_iniziale_size);
-		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,true);
+		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,mutante);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
 		cd=new CromosomaDecorator(esemplare);

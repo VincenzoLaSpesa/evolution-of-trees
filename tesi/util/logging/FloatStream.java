@@ -12,6 +12,7 @@ public class FloatStream {
 		public static int limit = 1024;
 		protected TreeMap<String, LinkedList<Double>> Colonne;
 		protected String colonna_corrente;
+		public boolean active=true;
 		
 		public FloatStream() {
 			colonna_corrente="default";
@@ -67,6 +68,7 @@ public class FloatStream {
 		};
 
 		public int append(Double e) {
+			if(!active)return -1;
 			Colonne.get(colonna_corrente).add(e);
 			if (Colonne.get(colonna_corrente).size() > limit)
 				Colonne.get(colonna_corrente).removeFirst();
@@ -74,6 +76,7 @@ public class FloatStream {
 		}
 		
 		public int appendDefault(Double e) {
+			if(!active)return -1;
 			Colonne.get("default").add(e);
 			if (Colonne.get("default").size() > limit)
 				Colonne.get("default").removeFirst();
@@ -81,6 +84,7 @@ public class FloatStream {
 		}
 
 		public int append(String colonna,Double e) {
+			if(!active)return -1;
 			Colonne.get(colonna).add(e);
 			if (Colonne.get(colonna).size() > limit)
 				Colonne.get(colonna).removeFirst();
