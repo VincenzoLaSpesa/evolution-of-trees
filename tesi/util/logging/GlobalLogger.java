@@ -15,6 +15,9 @@ public abstract class GlobalLogger {
 	  public static Level level;
 	  public static Handler console;
 	  
+	  //public static final Level level_verbose=Level.FINEST;
+	  //public static final Level level_quet=Level.WARNING;
+	  
 	  static{
 		  logger=Logger.getGlobal();
 		  console= new java.util.logging.ConsoleHandler();
@@ -28,6 +31,7 @@ public abstract class GlobalLogger {
 		  
 		  
 	  }
+	  
 	  public static void init_verbose(){
 		  level=Level.FINEST;//300
 		  do_init();		  

@@ -59,7 +59,8 @@ public class Main {
 		parser.accepts("alpha", "specifica un parametro per la formula del fitness multiobiettivo").withRequiredArg();
 		parser.accepts("beta", "specifica un parametro per la formula del fitness multiobiettivo").withRequiredArg();
 		parser.accepts("gamma", "specifica un parametro per la formula del fitness multiobiettivo").withRequiredArg();
-		//parser.accepts("mutante", "attiva la mutazione durante le generazioni stagnanti");
+		parser.accepts("quiet", "Disattiva il calcolo delel prestazioni sulle generazioni intermedie");
+		parser.accepts("verbose", "Attiva tutti i livelli del logger");
 		//
 		parser.accepts("iris", "Avvia i test su Iris con le impostazioni di default");
 		parser.accepts("gaitDefault", "Avvia i test su Gait con le impostazioni di default");
@@ -118,6 +119,13 @@ public class Main {
 			double gamma = Double.parseDouble((String) options.valueOf("gamma"));
 			GAIT_noFC_multiobiettivo.gamma=gamma;
 			System.out.printf("gamma -> %f \n",GAIT_noFC_multiobiettivo.gamma);
+		}
+		if (options.has("quiet")) {
+			Singletons.cromosomastream.active=false;
+		}
+		if (options.has("verbose")) {
+			Singletons.cromosomastream.active=true;
+			GlobalLogger.init_verbose();
 		}
 
 		
@@ -205,7 +213,7 @@ public class Main {
 			return;
 		}
 		if (options.has("gaitMultiBenchmark")) {
-			Singletons.cromosomastream.active=true;
+			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -215,7 +223,7 @@ public class Main {
 			return;
 		}
 		if (options.has("gaitMultiMutanteBenchmark")) {
-			Singletons.cromosomastream.active=true;
+			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -226,7 +234,7 @@ public class Main {
 		}
 
 		if (options.has("gaitCompleteBenchmark")) {
-			Singletons.cromosomastream.active=true;
+			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -236,7 +244,7 @@ public class Main {
 			return;
 		}
 		if (options.has("gaitCompleteMutanteBenchmark")) {
-			Singletons.cromosomastream.active=true;
+			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -249,7 +257,7 @@ public class Main {
 		
 		
 		if (options.has("SfpMultiBenchmark")) {
-			Singletons.cromosomastream.active=true;
+			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -260,7 +268,7 @@ public class Main {
 		}		
 		
 		if (options.has("RankedMultiBenchmark")) {
-			Singletons.cromosomastream.active=true;
+			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -271,7 +279,7 @@ public class Main {
 		}		
 		
 		if (options.has("TorneoMultiMutanteBenchmark")) {
-			Singletons.cromosomastream.active=true;
+			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
