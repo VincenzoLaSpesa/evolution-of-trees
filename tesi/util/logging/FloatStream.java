@@ -11,13 +11,14 @@ import java.util.TreeMap;
 public class FloatStream {
 		public static int limit = 1024;
 		protected TreeMap<String, LinkedList<Double>> Colonne;
+		protected double[] medie;
 		protected String colonna_corrente;
 		public boolean active=true;
 		
 		public FloatStream() {
 			colonna_corrente="default";
 			Colonne=new TreeMap<String, LinkedList<Double>>();
-			createColumn("default");
+			//createColumn("default");
 		}
 
 		/**
@@ -25,16 +26,20 @@ public class FloatStream {
 		 * @return
 		 */
 		public StringBuilder ricomponi() {
+			
+			this.calcolamedie();
 			StringBuilder sb = new StringBuilder();
 			Set<String> kset=Colonne.keySet();
 			Double v;
 			int a = 0;
 			//gli header
 			for(String k : kset){
-	            sb.append(k).append("\t");
+				//Evito di stampare la colonna di Default se è vuota
+	            if(Colonne.get(k).size()>0)sb.append(k).append("\t");
 	        }
-			sb.append("\n");
+			sb.append("medie\n");
 			//i dati
+			int j=0;
 			do{
 				a=0;
 				for(String k : kset){
@@ -44,7 +49,9 @@ public class FloatStream {
 						sb.append(v).append("\t");
 					}
 				}
+				if(j<medie.length)sb.append(medie[j]);
 				sb.append("\n");
+				j++;
 			}while(a>0);
 			return sb;
 
@@ -111,6 +118,30 @@ public class FloatStream {
 
 		public void deleteColumn(String k){
 			this.Colonne.remove(k);
+		}
+		
+		public void calcolamedie(){
+			int j=0;	
+			int J=Colonne.lastEntry().getValue().size();
+			int N=0;
+			medie= new double[J];
+			Set<String> kset=Colonne.keySet();
+			for(String k : kset){
+				LinkedList<Double> L=Colonne.get(k);
+				if(L.size() <1)continue;
+				N++;
+				j=0;
+				for(double v : L){
+					medie[j]+=+v;
+					//if(v>0)N++; 
+					j++;
+				}								
+			}
+			//N=N/J;
+			for(j=0;j<J;j++){
+				medie[j]=medie[j]/N;
+			}
+			
 		}
 		
 }

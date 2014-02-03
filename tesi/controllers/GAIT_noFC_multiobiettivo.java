@@ -23,30 +23,28 @@ public class GAIT_noFC_multiobiettivo extends GAIT_noFC_abstract {
 	 * 		Il limite massimo della popolazione
 	 */
 	
-	public double alpha;
-	public double beta;
-	public double gamma;
+	public static double alpha=5;
+	public static double beta=1;
+	public static double gamma=15;
 	
+
 	public GAIT_noFC_multiobiettivo(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi, limit);
-		alpha=5;
-		beta=1;
-		gamma=15;		
 	}
 	
 	
 
 	public GAIT_noFC_multiobiettivo(Instances testset, int nclassi, int limit, double alpha, double beta, double gamma) {
 		super(testset, nclassi, limit);
-		this.alpha = alpha;
-		this.beta = beta;
-		this.gamma = gamma;
+		GAIT_noFC_multiobiettivo.alpha = alpha;
+		GAIT_noFC_multiobiettivo.beta = beta;
+		GAIT_noFC_multiobiettivo.gamma = gamma;
 	}
 
 	public void reimpostaparametri(double alpha, double beta, double gamma) {
-		this.alpha = alpha;
-		this.beta = beta;
-		this.gamma = gamma;
+		GAIT_noFC_multiobiettivo.alpha = alpha;
+		GAIT_noFC_multiobiettivo.beta = beta;
+		GAIT_noFC_multiobiettivo.gamma = gamma;
 	}
 
 
@@ -61,7 +59,7 @@ public class GAIT_noFC_multiobiettivo extends GAIT_noFC_abstract {
 	 */
 	@Override
 	public double calcola_fitness_multiobiettivo(double prestazioni, Cromosoma c) {
-		return calcola_fitness_multiobiettivo_nonlineare(prestazioni, c, alpha, beta , gamma);
+		return GeneticOperators.calcola_fitness_multiobiettivo_nonlineare(prestazioni, c, alpha, beta , gamma);
 		//return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,2,5);
 		//return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,1,15,0.5);
 		//return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,2,5,0.5);

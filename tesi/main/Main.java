@@ -6,6 +6,7 @@ import java.util.Map;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import tesi.controllers.GAIT_noFC_multiobiettivo;
 import tesi.controllers.GeneticOperators;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
@@ -33,6 +34,9 @@ import weka.core.Range;
 import com.google.gson.Gson;
 
 public class Main {
+	/*public static double alpha=5;
+	public static double beta=1;
+	public static double gamma=15;*/
 	public static String dataset_url = "/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
 
 	/**
@@ -51,7 +55,11 @@ public class Main {
 		parser.accepts("dataset", "specifica la path del dataset unico").withRequiredArg();
 		parser.accepts("generazioni", "numero di generazioni").withRequiredArg();
 		parser.accepts("popolazione", "popolazione iniziale").withRequiredArg();
-
+		//
+		parser.accepts("alpha", "specifica un parametro per la formula del fitness multiobiettivo").withRequiredArg();
+		parser.accepts("beta", "specifica un parametro per la formula del fitness multiobiettivo").withRequiredArg();
+		parser.accepts("gamma", "specifica un parametro per la formula del fitness multiobiettivo").withRequiredArg();
+		//parser.accepts("mutante", "attiva la mutazione durante le generazioni stagnanti");
 		//
 		parser.accepts("iris", "Avvia i test su Iris con le impostazioni di default");
 		parser.accepts("gaitDefault", "Avvia i test su Gait con le impostazioni di default");
@@ -95,6 +103,24 @@ public class Main {
 		parser.accepts("gaitComplete", "Una esecuzione da 25 generazioni");
 
 		OptionSet options = parser.parse(args);
+		
+		if (options.hasArgument("alpha")) {
+			double alpha = Double.parseDouble((String) options.valueOf("alpha"));
+			GAIT_noFC_multiobiettivo.alpha=alpha;
+			System.out.printf("alpha -> %f \n",GAIT_noFC_multiobiettivo.alpha);
+		}
+		if (options.hasArgument("beta")) {
+			double beta = Double.parseDouble((String) options.valueOf("beta"));
+			GAIT_noFC_multiobiettivo.beta=beta;
+			System.out.printf("beta -> %f \n",GAIT_noFC_multiobiettivo.beta);
+		}
+		if (options.hasArgument("gamma")) {
+			double gamma = Double.parseDouble((String) options.valueOf("gamma"));
+			GAIT_noFC_multiobiettivo.gamma=gamma;
+			System.out.printf("gamma -> %f \n",GAIT_noFC_multiobiettivo.gamma);
+		}
+
+		
 		if (options.has("gait")) {
 			// --gait --trainingset=<trainingsetpath> --testset=<testsetpath>
 			// --scoringset=<scoringsetpath> --nclassi=<nclassi>
@@ -290,7 +316,7 @@ public class Main {
 		//sfp_Multi_Benchmark(25);
 		//gait_complete_benchmark(100);
 		//ranked_Multi_Benchmark(100);
-		torneo_Multi_Benchmark(100);
+		torneo_Multi_Benchmark(10);
 		// System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait-multi con le impostazioni di default");
 
 	}

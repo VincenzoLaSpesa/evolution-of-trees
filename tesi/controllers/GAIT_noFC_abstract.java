@@ -39,67 +39,6 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		return prestazioni;
 	}
 
-	/**
-	 * Una funzione di fitness multiobiettivo che tiene conto delle prestazioni
-	 * del'albero e della sua lunghezza, <br>
-	 * è definita come: <tt> p * 1/(alpha+beta*len) </tt><br>
-	 * Essendo p definita in [0 1] e len definita in [1 n] la funzione stessa è
-	 * definita in [0 1].<br>
-	 * I parametri alpha e beta permettono di modificare il peso della lunghezza
-	 * dell'albero
-	 * 
-	 * @param prestazioni
-	 * @param c
-	 * @param alpha
-	 * @param beta
-	 * @return
-	 */
-	public static double calcola_fitness_multiobiettivo_semplice(double prestazioni, Cromosoma c, double alpha,
-			double beta) {
-
-		return prestazioni * 1 / (alpha + beta * c.getComplessita());
-	}
-
-	/**
-	 * Una funzione di fitness multiobiettivo che tiene conto delle prestazioni
-	 * del'albero e della sua altezza, <br>
-	 * è definita come: <tt> alpha * p + beta / len </tt><br>
-	 * <b> non <b> è limitata in [0 1]
-	 * 
-	 * @param prestazioni
-	 * @param c
-	 * @param alpha
-	 * @param beta
-	 * @return
-	 */
-	public static double calcola_fitness_multiobiettivo_nonlineare(double prestazioni, Cromosoma c, double alpha,
-			double beta, double gamma) {
-		double p = prestazioni * alpha + beta*(Math.sqrt(1 / (gamma + c.getComplessita())));
-		//double p = Math.pow(prestazioni, epsilon) * alpha + (Math.sqrt(beta / (gamma + c.getComplessita())));
-		return p;
-	}
-
-	/**
-	 * Una funzione di fitness multiobiettivo che tiene conto delle prestazioni
-	 * del'albero e della sua altezza, <br>
-	 * è definita come: <tt> p * 1/(alpha+beta*len) </tt><br>
-	 * Essendo p definita in [0 1] e len definita in [1 n] la funzione stessa è
-	 * definita in [0 1].<br>
-	 * I parametri alpha e beta permettono di modificare il peso della lunghezza
-	 * dell'albero
-	 * 
-	 * @param prestazioni
-	 * @param c
-	 * @param alpha
-	 * @param beta
-	 * @return
-	 */
-	public static double calcola_fitness_multiobiettivo_lineare(double prestazioni, Cromosoma c, double alpha,
-			double beta) {
-
-		return prestazioni * alpha - beta * c.getComplessita();
-	}
-
 	public GAIT_noFC_abstract(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi);
 		this.limit = limit;
@@ -114,7 +53,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	protected double simple_fitness() {
 
 		TreeEvaluator te;
-		Iterator<Cromosoma> i = popolazione_nonvalutata.iterator();
+		Iterator<Cromosoma> i = figli.iterator();
 		double media = 0;
 		double a = 1;
 		boolean b;
@@ -124,7 +63,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 			te = new TreeEvaluator(c, testset, nclassi);
 			te.evaluate();
 			CromosomaMisurato cm = new CromosomaMisurato(te.prestazioni, c);
-			b = popolazione_valutata.add(cm);
+			b = padri_ordinati.add(cm);
 			i.remove();
 			media += te.prestazioni;
 			if (Double.isNaN(media)) {
@@ -152,7 +91,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	protected double multiobjective_fitness() {
 
 		TreeEvaluator te;
-		Iterator<Cromosoma> i = popolazione_nonvalutata.iterator();
+		Iterator<Cromosoma> i = figli.iterator();
 		double media = 0;
 		double a = 1;
 		double fitness;
@@ -163,7 +102,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 			te.evaluate();
 			fitness = calcola_fitness_multiobiettivo(te.prestazioni, c);
 			CromosomaMisurato cm = new CromosomaMisurato(fitness, c);
-			popolazione_valutata.add(cm);
+			padri_ordinati.add(cm);
 			i.remove();
 			media += te.prestazioni;
 			if (Double.isNaN(media)) {
@@ -190,7 +129,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		float f;
 		LinkedList<Cromosoma> coppie = new LinkedList<>();
 		// estraggo le coppie
-		Iterator<CromosomaMisurato> entries = popolazione_valutata.iterator();
+		Iterator<CromosomaMisurato> entries = padri_ordinati.iterator();
 		while (entries.hasNext()) {
 			f = SingletonGenerator.r.nextFloat();
 			CromosomaMisurato e = entries.next();
@@ -206,7 +145,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		while (n > 2) {
 			Cromosoma c = GeneticOperators.crossover(i.next(), i.next(), false);
 			n = n - 2;
-			popolazione_nonvalutata.add(c);
+			figli.add(c);
 		}
 		logger.fine(".");
 
@@ -225,13 +164,13 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		float f;
 		Cromosoma c;
 		//
-		Iterator<CromosomaMisurato> entries = popolazione_valutata.iterator();
+		Iterator<CromosomaMisurato> entries = padri_ordinati.iterator();
 		while (entries.hasNext()) {
 			f = SingletonGenerator.r.nextFloat();
 			CromosomaMisurato e = entries.next();
 			if (f <= probabilita) {
 				c = GeneticOperators.mutate(e.cromosoma, false);
-				popolazione_nonvalutata.add(c);
+				figli.add(c);
 			}
 		}
 
@@ -248,7 +187,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		float f;
 		Cromosoma c;
 		//
-		Iterator<Cromosoma> entries = popolazione_nonvalutata.iterator();
+		Iterator<Cromosoma> entries = figli.iterator();
 		LinkedList<Cromosoma> buffer = new LinkedList<>();
 		while (entries.hasNext()) {
 			f = SingletonGenerator.r.nextFloat();
@@ -259,7 +198,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 				// the accepted safe way to modify a collection during iteration
 				entries.remove();
 			}
-			popolazione_nonvalutata.addAll(buffer);
+			figli.addAll(buffer);
 		}
 
 	}
@@ -276,7 +215,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		Cromosoma e;
 		CromosomaMisurato cm;
 		//
-		Iterator<Cromosoma> entries = popolazione_nonvalutata.iterator();
+		Iterator<Cromosoma> entries = figli.iterator();
 		LinkedList<Cromosoma> buffer = new LinkedList<>();
 		while (entries.hasNext()) {
 			f = SingletonGenerator.r.nextFloat();
@@ -289,7 +228,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 			}
 		}
 		//
-		Iterator<CromosomaMisurato> entries2 = popolazione_valutata.iterator();
+		Iterator<CromosomaMisurato> entries2 = padri_ordinati.iterator();
 		while (entries.hasNext()) {
 			f = SingletonGenerator.r.nextFloat();
 			cm = entries2.next();
@@ -300,7 +239,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 				entries.remove();
 			}
 
-			popolazione_nonvalutata.addAll(buffer);
+			figli.addAll(buffer);
 		}
 
 	}
@@ -316,8 +255,8 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		Singletons.cromosomastream.append(this.bestcromosoma);
 		Singletons.pesistream.append(this.bestcromosoma.getComplessita());
 		logger.fine(String.format("\t Il Fitness dei nuovi individui è %f\n\t il massimo %f\n", f, m));
-		logger.fine(String.format("\t Ci sono %d = %d + %d elementi attivi\n", popolazione_nonvalutata.size()
-				+ popolazione_valutata.size(), popolazione_valutata.size(), popolazione_nonvalutata.size()));
+		logger.fine(String.format("\t Ci sono %d = %d + %d elementi attivi\n", figli.size()
+				+ padri_ordinati.size(), padri_ordinati.size(), figli.size()));
 		trimtosize(limit);
 
 		return m;
@@ -336,12 +275,12 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	 * @return
 	 */
 	public Cromosoma GAIT(LinkedList<Cromosoma> popolazione_iniziale, int numerogenerazioni, boolean mutante) {
-		this.popolazione_nonvalutata = popolazione_iniziale;
+		this.figli = popolazione_iniziale;
 		get_fitness();
 		double lastfitness = bestfitness;
 		for (int i = 0; i < numerogenerazioni; i++) {
 			logger.fine(String.format("Genero la generazione n %d, ci sono %d elementi\n", i,
-					popolazione_valutata.size()));
+					padri_ordinati.size()));
 			evolvi();
 			if (mutante) {
 				if (bestfitness == lastfitness) {

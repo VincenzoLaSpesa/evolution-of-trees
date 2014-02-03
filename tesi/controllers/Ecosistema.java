@@ -25,16 +25,16 @@ public abstract class Ecosistema {
 	protected Instances testset;
 	protected int nclassi;
 	protected final Logger logger;
-	protected TreeSet<CromosomaMisurato> popolazione_valutata;
-	protected LinkedList<Cromosoma> popolazione_nonvalutata;
+	protected TreeSet<CromosomaMisurato> padri_ordinati;
+	protected LinkedList<Cromosoma> figli;
 	public static double mutation_rate=0.01;
 	public static double crossover_rate=0.85;	
 	public static final double baserate=mutation_rate;
 	
 	public Ecosistema(Instances testset, int nclassi) {
 		super();
-		popolazione_nonvalutata = new LinkedList<>();
-		popolazione_valutata = new TreeSet<>();
+		figli = new LinkedList<>();
+		padri_ordinati = new TreeSet<>();
 		this.testset=testset;
 		this.nclassi=nclassi;
 		String path=this.getClass().getName();
@@ -45,8 +45,8 @@ public abstract class Ecosistema {
 	}
 
 	public int add(Cromosoma c) {
-		popolazione_nonvalutata.add(c);
-		return popolazione_nonvalutata.size();
+		figli.add(c);
+		return figli.size();
 	}
 
 	/**
@@ -84,7 +84,7 @@ public abstract class Ecosistema {
 		Roulette roulette;
 		LinkedList<Cromosoma> coppie = new LinkedList<>();
 		// estraggo le coppie
-		Iterator<CromosomaMisurato> entries = popolazione_valutata.iterator();
+		Iterator<CromosomaMisurato> entries = padri_ordinati.iterator();
 		ArrayList<Double> frequenze= new ArrayList<Double>();
 		while (entries.hasNext()) {
 			CromosomaMisurato e = entries.next();
@@ -92,7 +92,7 @@ public abstract class Ecosistema {
 		}
 		roulette= new Roulette(frequenze);
 		//spero vivamente che usi le reference e non copi i cromosomi
-		Object cromosomi[]=popolazione_valutata.toArray();		
+		Object cromosomi[]=padri_ordinati.toArray();		
 		int numerocoppie=(int)(roulette.vettore.length*probabilita);
 				
 		for(int n=0; n<numerocoppie;n++){
@@ -105,7 +105,7 @@ public abstract class Ecosistema {
 		while (n > 2) {
 			c = GeneticOperators.crossover(i.next(), i.next(), false);
 			n = n - 2;
-			popolazione_nonvalutata.add(c);
+			figli.add(c);
 		}
 		logger.fine(".");
 	}
@@ -114,7 +114,7 @@ public abstract class Ecosistema {
 		Cromosoma c;
 		LinkedList<Cromosoma> coppie = new LinkedList<>();
 		// estraggo le coppie
-		Iterator<CromosomaMisurato> entries = popolazione_valutata.iterator();
+		Iterator<CromosomaMisurato> entries = padri_ordinati.iterator();
 		ArrayList<Double> frequenze= new ArrayList<Double>();
 		while (entries.hasNext()) {
 			CromosomaMisurato e = entries.next();
@@ -122,13 +122,13 @@ public abstract class Ecosistema {
 		}
 
 		//spero vivamente che usi le reference e non copi i cromosomi
-		Object cromosomi[]=popolazione_valutata.toArray();		
+		Object cromosomi[]=padri_ordinati.toArray();		
 		
 		int N=cromosomi.length;
-		double k=crossover_rate/probabilita_rank_lineare(1,N,r);
+		double k=crossover_rate/GeneticOperators.probabilita_rank_lineare(1,N,r);
 		for(int n=0; n<N;n++){
 			double f=SingletonGenerator.r.nextDouble();
-			double p=k*probabilita_rank_lineare(n+1,cromosomi.length,r);
+			double p=k*GeneticOperators.probabilita_rank_lineare(n+1,cromosomi.length,r);
 			//System.out.printf("%f < %f ?? ",f,p);
 			if (f < p){
 				//System.out.print("Yep!");
@@ -146,7 +146,7 @@ public abstract class Ecosistema {
 		while (n > 2) {
 			c = GeneticOperators.crossover(i.next(), i.next(), false);
 			n = n - 2;
-			popolazione_nonvalutata.add(c);
+			figli.add(c);
 		}
 		logger.fine(".");
 		//System.out.println("Crossed");
@@ -158,14 +158,14 @@ public abstract class Ecosistema {
 		
 		LinkedList<Cromosoma> coppie = new LinkedList<>();
 		// estraggo le coppie
-		Iterator<CromosomaMisurato> entries = popolazione_valutata.iterator();
+		Iterator<CromosomaMisurato> entries = padri_ordinati.iterator();
 		ArrayList<Double> frequenze= new ArrayList<Double>();
 		while (entries.hasNext()) {
 			CromosomaMisurato e = entries.next();
 			frequenze.add(e.prestazioni);
 		}
 		//spero vivamente che usi le reference e non copi i cromosomi
-		Object cromosomi[]=popolazione_valutata.toArray();		
+		Object cromosomi[]=padri_ordinati.toArray();		
 		
 		int numerocoppie=(int)Math.round(cromosomi.length*probabilita);
 		
@@ -192,60 +192,13 @@ public abstract class Ecosistema {
 		while (n > 2) {
 			c = GeneticOperators.crossover(i.next(), i.next(), false);
 			n = n - 2;
-			popolazione_nonvalutata.add(c);
+			figli.add(c);
 		}
 		logger.fine(".");
 	}
 
 	
-	/**
-	 * Funzione di probabilità lineare legata al rank regolata sul parametro r che
-	 * influenza la pressione selettiva.
-	 * r=0 --> nessuna pressione selettiva 
-	 * r=1 --> massima pressione selettiva.
-	 * i valori in input variano tra [0..1] e verranno riscalati in  [0..2/(size*(size-1))]
-	 * per essere usati nella seguente formula:
-	 * prob(rank)=q-(rank-1)*r <br>
-	 * con q definito come <br>
-	 * q=r(size-1)/2+1/size<br>
-	 * La funzione è descritta in [Michalweicz] 4.1 (pagina 60)
-	 * @param i
-	 * @param size
-	 * @param q
-	 * @return
-	 */
-	public static double  probabilita_rank_lineare(int rank, double size, double r) {
-		if(rank<1 || rank>size){
-			System.err.println("Questo non dovrebbe succedere");
-			return -1;
-		}		
-		r=r*(2/(size*(size-1)));
-		double q=r*(size-1)/2+1/size;
-		double f=q-(rank-1)*r;
-		return f;
-	}
-	
-	/**
-	/**
-	 * Funzione di probabilità lineare legata al rank regolata sul parametro q che
-	 * influenza la pressione selettiva.
-	 * q=0 --> nessuna pressione selettiva 
-	 * q=1 --> massima pressione selettiva.
-	 * prob(rank)=c*q(1-q)^(rank-1) <br>
-	 * con c definito come <br>
-	 * c=1/( 1-(1-q)^size ) in modo da far in modo che la somma di tutte le probabilità sia 1<br>
-	 * 
-	 * La funzione è descritta in [Michalweicz] 4.1 (pagina 60)
-	 * @param i
-	 * @param size
-	 * @param q
-	 * @return
-	 */
-	public static double  probabilita_rank_nonlineare(int i, int size, double q) {
-		double c=1/(1-Math.pow(1-q, size));
-		double f=c*q*Math.pow(1-q, i);
-		return f;
-	}	
+		
 
 	//public abstract double  probabilita_rank(int i, int size);
 
@@ -264,9 +217,9 @@ public abstract class Ecosistema {
 	 * @return
 	 */
 	public void trimtosize(int size) {
-		int n = popolazione_valutata.size() - size;
+		int n = padri_ordinati.size() - size;
 		while (n > 0) {
-			popolazione_valutata.pollFirst();
+			padri_ordinati.pollFirst();
 			n--;
 		}
 	}
@@ -277,10 +230,10 @@ public abstract class Ecosistema {
 	public abstract double evolvi();
 
 	protected double estrai_migliore() {
-		double f = popolazione_valutata.last().prestazioni;
+		double f = padri_ordinati.last().prestazioni;
 		if (f > this.bestfitness) {
 			this.bestfitness = f;
-			this.bestcromosoma = popolazione_valutata.last().cromosoma;
+			this.bestcromosoma = padri_ordinati.last().cromosoma;
 		}
 		return f;
 	}

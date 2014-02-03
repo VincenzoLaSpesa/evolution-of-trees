@@ -159,4 +159,114 @@ public abstract class GeneticOperators {
 		return crossover(c1, c1, foglie);
 	}
 
+	/**
+	 * Una funzione di fitness multiobiettivo che tiene conto delle prestazioni
+	 * del'albero e della sua altezza, <br>
+	 * è definita come: <tt> prestazioni * alpha + beta*(Math.sqrt(1 / (gamma + c.getComplessita()))); </tt><br>
+	 * <b> non <b> è limitata in [0 1]
+	 * 
+	 * @param prestazioni
+	 * @param c
+	 * @param alpha
+	 * @param beta
+	 * @return
+	 */
+	public static double calcola_fitness_multiobiettivo_nonlineare(double prestazioni, Cromosoma c, double alpha,
+			double beta, double gamma) {
+		double p = prestazioni * alpha + beta*(Math.sqrt(1 / (gamma + c.getComplessita())));
+		//double p = Math.pow(prestazioni, epsilon) * alpha + (Math.sqrt(beta / (gamma + c.getComplessita())));
+		return p;
+	}
+
+	/**
+	 * Una funzione di fitness multiobiettivo che tiene conto delle prestazioni
+	 * del'albero e della sua altezza, <br>
+	 * è definita come: <tt> p * 1/(alpha+beta*len) </tt><br>
+	 * Essendo p definita in [0 1] e len definita in [1 n] la funzione stessa è
+	 * definita in [0 1].<br>
+	 * I parametri alpha e beta permettono di modificare il peso della lunghezza
+	 * dell'albero
+	 * 
+	 * @param prestazioni
+	 * @param c
+	 * @param alpha
+	 * @param beta
+	 * @return
+	 */
+	public static double calcola_fitness_multiobiettivo_lineare(double prestazioni, Cromosoma c, double alpha,
+			double beta) {
+	
+		return prestazioni * alpha - beta * c.getComplessita();
+	}
+
+	/**
+	 * Una funzione di fitness multiobiettivo che tiene conto delle prestazioni
+	 * del'albero e della sua lunghezza, <br>
+	 * è definita come: <tt> p * 1/(alpha+beta*len) </tt><br>
+	 * Essendo p definita in [0 1] e len definita in [1 n] la funzione stessa è
+	 * definita in [0 1].<br>
+	 * I parametri alpha e beta permettono di modificare il peso della lunghezza
+	 * dell'albero
+	 * 
+	 * @param prestazioni
+	 * @param c
+	 * @param alpha
+	 * @param beta
+	 * @return
+	 */
+	public static double calcola_fitness_multiobiettivo_semplice(double prestazioni, Cromosoma c, double alpha,
+			double beta) {
+	
+		return prestazioni * 1 / (alpha + beta * c.getComplessita());
+	}
+
+	/**
+	 * Funzione di probabilità lineare legata al rank regolata sul parametro r che
+	 * influenza la pressione selettiva.
+	 * r=0 --> nessuna pressione selettiva 
+	 * r=1 --> massima pressione selettiva.
+	 * i valori in input variano tra [0..1] e verranno riscalati in  [0..2/(size*(size-1))]
+	 * per essere usati nella seguente formula:
+	 * prob(rank)=q-(rank-1)*r <br>
+	 * con q definito come <br>
+	 * q=r(size-1)/2+1/size<br>
+	 * La funzione è descritta in [Michalweicz] 4.1 (pagina 60)
+	 * @param i
+	 * @param size
+	 * @param q
+	 * @return
+	 */
+	public static double  probabilita_rank_lineare(int rank, double size, double r) {
+		if(rank<1 || rank>size){
+			System.err.println("Questo non dovrebbe succedere");
+			return -1;
+		}		
+		r=r*(2/(size*(size-1)));
+		double q=r*(size-1)/2+1/size;
+		double f=q-(rank-1)*r;
+		return f;
+	}
+
+	/**
+	/**
+	 * Funzione di probabilità lineare legata al rank regolata sul parametro q che
+	 * influenza la pressione selettiva.
+	 * q=0 --> nessuna pressione selettiva 
+	 * q=1 --> massima pressione selettiva.
+	 * prob(rank)=c*q(1-q)^(rank-1) <br>
+	 * con c definito come <br>
+	 * c=1/( 1-(1-q)^size ) in modo da far in modo che la somma di tutte le probabilità sia 1<br>
+	 * 
+	 * La funzione è descritta in [Michalweicz] 4.1 (pagina 60)
+	 * @param i
+	 * @param size
+	 * @param q
+	 * @return
+	 */
+	public static double  probabilita_rank_nonlineare(int i, int size, double q) {
+		double c=1/(1-Math.pow(1-q, size));
+		double f=c*q*Math.pow(1-q, i);
+		return f;
+	}
+
 }
