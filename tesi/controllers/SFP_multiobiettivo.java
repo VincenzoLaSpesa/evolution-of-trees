@@ -1,11 +1,13 @@
 package tesi.controllers;
 
+import tesi.models.popolazione.PopolazioneRAM;
 import weka.core.Instances;
 
 public class SFP_multiobiettivo extends GAIT_noFC_multiobiettivo {
 
 	public SFP_multiobiettivo(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi, limit);
+		popolazione= new PopolazioneRAM();
 	}
 
 	@Override

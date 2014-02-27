@@ -8,10 +8,13 @@ import tesi.models.Dataset;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
-public class AlgoritmoEvolutivoCustomTorneoMutante extends AlgoritmoEvolutivoCustom {
+public class AlgoritmoEvolutivoCustomTorneo extends AlgoritmoEvolutivoCustom {
 
-	public AlgoritmoEvolutivoCustomTorneoMutante(Dataset d, int numerogenerazioni, int popolazione_iniziale) {
-		super(d, numerogenerazioni, popolazione_iniziale,true);
+	public AlgoritmoEvolutivoCustomTorneo(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante) {
+		super(d, numerogenerazioni, popolazione_iniziale,mutante);
+	}
+	public AlgoritmoEvolutivoCustomTorneo(Dataset d, int numerogenerazioni, int popolazione_iniziale,boolean mutante, int campioniperalbero){
+		super(d, numerogenerazioni, popolazione_iniziale, mutante, campioniperalbero);
 	}
 	public void begin() throws Exception{
 		double prestazioni1;

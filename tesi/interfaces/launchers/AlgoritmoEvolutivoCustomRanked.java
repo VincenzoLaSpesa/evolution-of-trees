@@ -13,7 +13,9 @@ public class AlgoritmoEvolutivoCustomRanked extends AlgoritmoEvolutivoCustom {
 	public AlgoritmoEvolutivoCustomRanked(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante) {
 		super(d, numerogenerazioni, popolazione_iniziale,mutante);
 	}
-	
+	public AlgoritmoEvolutivoCustomRanked(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante, int campioniperalbero){
+		super(d, numerogenerazioni, popolazione_iniziale, mutante, campioniperalbero);
+	}
 	public void begin() throws Exception{
 		double prestazioni1;
 		double prestazioni2;

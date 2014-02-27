@@ -20,11 +20,11 @@ import weka.core.Instances;
 
 /**
  * Permette di avviare una versione generalizzata della procedura descritta in
- * GAIT ( variante 1).
+ * GAIT ( variante 1) in cui viene applicato un controllo antibloat Tarpeian.
  * 
  * @author darshan
  */
-public class AlgoritmoEvolutivoCustom implements Runnable {
+public class AlgoritmoEvolutivoCustomTarpeian implements Runnable {
 	public boolean mutante = false;
 	int numerogenerazioni;
 	int popolazione_iniziale_size;
@@ -58,22 +58,22 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 	}
 
 	@Deprecated
-	public AlgoritmoEvolutivoCustom(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi,
+	public AlgoritmoEvolutivoCustomTarpeian(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi,
 			double percentualetrainingset, double percentualetestset, double percentualescoringset) {
 		init(dataset, numerogenerazioni, popolazione_iniziale, nclassi, percentualetrainingset, percentualetestset,
 				percentualescoringset);
 	}
 
 	@Deprecated
-	public AlgoritmoEvolutivoCustom(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi) {
+	public AlgoritmoEvolutivoCustomTarpeian(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi) {
 		init(dataset, numerogenerazioni, popolazione_iniziale, nclassi, 0.5454545454, 0.1818181818, 0.2727272727);
 	}
 
-	public AlgoritmoEvolutivoCustom(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante) {
+	public AlgoritmoEvolutivoCustomTarpeian(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante) {
 		init(d, numerogenerazioni, popolazione_iniziale, mutante, 0);
 	}
 
-	public AlgoritmoEvolutivoCustom(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante,
+	public AlgoritmoEvolutivoCustomTarpeian(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante,
 			int campioniperalbero) {
 		init(d, numerogenerazioni, popolazione_iniziale, mutante, campioniperalbero);
 	}
@@ -141,6 +141,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		double prestazioni_j48;
 		double peso_gait;
 		double peso_J48w;
+		double media=0;
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("Il training set è composto da \t%d elementi\n", trainingset.numInstances()));
@@ -158,14 +159,21 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 			j48.setBinarySplits(true);
 			j48.buildClassifier(data);
 			Cromosoma c = Cromosoma.loadFromJ48(j48);
+			media=media+c.altezza;
 			popolazione_iniziale.add(c);
 		}
+		media=2*media/popolazione_iniziale_size;
 		J48 j48 = new J48();
 		sb = new StringBuilder();
 		sb.append(String.format("La popolazione iniziale è generata con J48, un porting in Java di C4.5"));
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex() + "\n"));
 		logger.info(sb.toString());
 		ecosistema = new GAIT_noFC_simple(scoringset, nclassi, this.popolazione_iniziale_size);
+
+		ecosistema.tarpeian=true;
+		ecosistema.tarpean_soglia=media;
+		//System.out.printf("tarpeian->\t%f\n",media);
+
 		esemplare = ecosistema.GAIT(popolazione_iniziale, numerogenerazioni, mutante);
 		te = new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();

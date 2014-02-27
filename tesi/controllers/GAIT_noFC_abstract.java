@@ -25,6 +25,10 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	 * Il Numero massimo di elementi nella popolazione
 	 */
 	public int limit;
+	public boolean tarpeian = false;
+	public double tarpean_soglia = 9999999;
+	public double tarpean_probabilita_attivazione = 4.0f/5.0f;
+	public double tarpean_probabilita_selezione = 1.0f/2.0f;
 
 	/**
 	 * Per come è definito gait scelgo i cromosomi da crossare linearmente
@@ -53,26 +57,24 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	protected double simple_fitness() {
 
 		TreeEvaluator te;
-		Iterator<Cromosoma> i = figli.iterator();
+		Iterator<Cromosoma> i = popolazione.iteratorefigli();
 		double media = 0;
 		double a = 1;
-		boolean b;
 		while (i.hasNext()) {
 
 			Cromosoma c = i.next();
-			te = new TreeEvaluator(c, testset, nclassi);
-			te.evaluate();
-			CromosomaMisurato cm = new CromosomaMisurato(te.prestazioni, c);
-			b = padri_ordinati.add(cm);
-			i.remove();
-			media += te.prestazioni;
-			if (Double.isNaN(media)) {
-				logger.warning("no no no, questo non dovrebbe succedere!");
+			if (c.pinned < popolazione.idgenerazione) {
+				te = new TreeEvaluator(c, testset, nclassi);
+				te.evaluate();
+				CromosomaMisurato cm = new CromosomaMisurato(te.prestazioni, c);
+				popolazione.aggiungipadre(cm);
+				i.remove();
+				media += te.prestazioni;
+				if (Double.isNaN(media)) {
+					logger.warning("no no no, questo non dovrebbe succedere!");
+				}
+				a++;
 			}
-			if (!b) {
-				logger.warning("Un cromosoma duplicato è stato eliminato");
-			}
-			a++;
 			// System.out.printf("\t%d:\t%f\n",a,te.prestazioni);
 		}
 		media = media / a;
@@ -91,24 +93,27 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	protected double multiobjective_fitness() {
 
 		TreeEvaluator te;
-		Iterator<Cromosoma> i = figli.iterator();
+		Iterator<Cromosoma> i = popolazione.iteratorefigli();
 		double media = 0;
 		double a = 1;
 		double fitness;
 		while (i.hasNext()) {
 
 			Cromosoma c = i.next();
-			te = new TreeEvaluator(c, testset, nclassi);
-			te.evaluate();
-			fitness = calcola_fitness_multiobiettivo(te.prestazioni, c);
-			CromosomaMisurato cm = new CromosomaMisurato(fitness, c);
-			padri_ordinati.add(cm);
-			i.remove();
-			media += te.prestazioni;
-			if (Double.isNaN(media)) {
-				logger.warning("no no no, questo non dovrebbe succedere!");
+			if (c.pinned < popolazione.idgenerazione) {
+				te = new TreeEvaluator(c, testset, nclassi);
+				te.evaluate();
+				fitness = calcola_fitness_multiobiettivo(te.prestazioni, c);
+				CromosomaMisurato cm = new CromosomaMisurato(fitness, c);
+				popolazione.aggiungipadre(cm);
+				i.remove();
+				media += te.prestazioni;
+				if (Double.isNaN(media)) {
+					logger.warning("no no no, questo non dovrebbe succedere!");
+				}
+				a++;
 			}
-			a++;
+
 			// System.out.printf("\t%d:\t%f\n",a,te.prestazioni);
 		}
 		media = media / a;
@@ -129,11 +134,11 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		float f;
 		LinkedList<Cromosoma> coppie = new LinkedList<>();
 		// estraggo le coppie
-		Iterator<CromosomaMisurato> entries = padri_ordinati.iterator();
+		Iterator<CromosomaMisurato> entries = popolazione.iteratorepadri();
 		while (entries.hasNext()) {
 			f = SingletonGenerator.r.nextFloat();
 			CromosomaMisurato e = entries.next();
-			if (e.prestazioni >= f * fattorediscalatura) {
+			if (e.cromosoma.pinned< popolazione.idgenerazione && e.prestazioni >= f * fattorediscalatura) {
 				coppie.add(e.cromosoma);
 			}
 		}
@@ -145,7 +150,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		while (n > 2) {
 			Cromosoma c = GeneticOperators.crossover(i.next(), i.next(), false);
 			n = n - 2;
-			figli.add(c);
+			popolazione.aggiungifiglio(c);
 		}
 		logger.fine(".");
 
@@ -164,13 +169,13 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		float f;
 		Cromosoma c;
 		//
-		Iterator<CromosomaMisurato> entries = padri_ordinati.iterator();
+		Iterator<CromosomaMisurato> entries = popolazione.iteratorepadri();
 		while (entries.hasNext()) {
 			f = SingletonGenerator.r.nextFloat();
 			CromosomaMisurato e = entries.next();
 			if (f <= probabilita) {
 				c = GeneticOperators.mutate(e.cromosoma, false);
-				figli.add(c);
+				popolazione.aggiungifiglio(c);
 			}
 		}
 
@@ -187,7 +192,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		float f;
 		Cromosoma c;
 		//
-		Iterator<Cromosoma> entries = figli.iterator();
+		Iterator<Cromosoma> entries = popolazione.iteratorefigli();
 		LinkedList<Cromosoma> buffer = new LinkedList<>();
 		while (entries.hasNext()) {
 			f = SingletonGenerator.r.nextFloat();
@@ -198,7 +203,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 				// the accepted safe way to modify a collection during iteration
 				entries.remove();
 			}
-			figli.addAll(buffer);
+			popolazione.mergefigli(buffer);
 		}
 
 	}
@@ -215,12 +220,12 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		Cromosoma e;
 		CromosomaMisurato cm;
 		//
-		Iterator<Cromosoma> entries = figli.iterator();
+		Iterator<Cromosoma> entries = popolazione.iteratorefigli();
 		LinkedList<Cromosoma> buffer = new LinkedList<>();
 		while (entries.hasNext()) {
 			f = SingletonGenerator.r.nextFloat();
 			e = entries.next();
-			if (f <= probabilita) {
+			if (f <= probabilita && e.pinned<popolazione.idgenerazione) {
 				c = GeneticOperators.mutate(e, false);
 				buffer.add(c);
 				// the accepted safe way to modify a collection during iteration
@@ -228,7 +233,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 			}
 		}
 		//
-		Iterator<CromosomaMisurato> entries2 = padri_ordinati.iterator();
+		Iterator<CromosomaMisurato> entries2 = popolazione.iteratorepadri();
 		while (entries.hasNext()) {
 			f = SingletonGenerator.r.nextFloat();
 			cm = entries2.next();
@@ -239,24 +244,30 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 				entries.remove();
 			}
 
-			figli.addAll(buffer);
+			popolazione.mergefigli(buffer);
 		}
 
 	}
 
 	@Override
 	public double evolvi() {
+		popolazione.idgenerazione++;
 		double f, m;
 		crossover();
-		f = get_fitness();
+		f = SingletonGenerator.r.nextDouble();
+		if (tarpeian && f < tarpean_probabilita_attivazione) {
+			popolazione.tarpeian(tarpean_soglia, tarpean_probabilita_selezione);
+		}
+		f = valuta_figli();
 		mutate(mutation_rate);
-		get_fitness();
+		valuta_figli();
 		m = estrai_migliore();
 		Singletons.cromosomastream.append(this.bestcromosoma);
 		Singletons.pesistream.append(this.bestcromosoma.getComplessita());
+		int np = popolazione.padrisize();
+		int nf = popolazione.figli.size();
 		logger.fine(String.format("\t Il Fitness dei nuovi individui è %f\n\t il massimo %f\n", f, m));
-		logger.fine(String.format("\t Ci sono %d = %d + %d elementi attivi\n", figli.size()
-				+ padri_ordinati.size(), padri_ordinati.size(), figli.size()));
+		logger.fine(String.format("\t Ci sono %d = %d + %d elementi attivi\n", nf + np, np, nf));
 		trimtosize(limit);
 
 		return m;
@@ -275,12 +286,13 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 	 * @return
 	 */
 	public Cromosoma GAIT(LinkedList<Cromosoma> popolazione_iniziale, int numerogenerazioni, boolean mutante) {
-		this.figli = popolazione_iniziale;
-		get_fitness();
+		popolazione.figli = popolazione_iniziale;
+		// popolazione.init_figli(popolazione_iniziale);
+		valuta_figli();
 		double lastfitness = bestfitness;
 		for (int i = 0; i < numerogenerazioni; i++) {
-			logger.fine(String.format("Genero la generazione n %d, ci sono %d elementi\n", i,
-					padri_ordinati.size()));
+			popolazione.flush();
+			logger.fine(String.format("Genero la generazione n %d, ci sono %d elementi\n", i, popolazione.padrisize()));
 			evolvi();
 			if (mutante) {
 				if (bestfitness == lastfitness) {

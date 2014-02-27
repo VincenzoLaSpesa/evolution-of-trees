@@ -3,6 +3,7 @@
  */
 package tesi.controllers;
 
+import tesi.models.popolazione.PopolazioneOrdinata;
 import weka.core.Instances;
 
 /**
@@ -17,6 +18,7 @@ public class GAIT_noFC_simple extends GAIT_noFC_abstract {
 
 	public GAIT_noFC_simple(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi,limit);
+		popolazione= new PopolazioneOrdinata();
 	}
 
 	/**
@@ -24,7 +26,7 @@ public class GAIT_noFC_simple extends GAIT_noFC_abstract {
 	 * @see tesi.controllers.GAIT_noFC_abstract.simple_fitness()
 	 */
 	@Override
-	public double get_fitness() {
+	public double valuta_figli() {
 		return simple_fitness();
 	}
 

@@ -20,6 +20,10 @@ public class AlgoritmoEvolutivoCustomSPF extends AlgoritmoEvolutivoCustom {
 		super(d, numerogenerazioni, popolazione_iniziale,mutante);
 	}
 	
+	public AlgoritmoEvolutivoCustomSPF(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante, int campioniperalbero){
+		super(d, numerogenerazioni, popolazione_iniziale, mutante, campioniperalbero);
+	}
+	
 	@Deprecated
 	public AlgoritmoEvolutivoCustomSPF (Instances dataset, int numerogenerazioni, int popolazione_iniziale,
 			int nclassi, double percentualetrainingset, double percentualetestset, double percentualescoringset) {

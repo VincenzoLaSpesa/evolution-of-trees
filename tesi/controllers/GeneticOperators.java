@@ -178,6 +178,14 @@ public abstract class GeneticOperators {
 		return p;
 	}
 
+	public static double calcola_fitness_multiobiettivo_nonlineare_semplice(double prestazioni, Cromosoma c, double alpha,
+			double beta, double gamma) {
+		double h=gamma+c.getComplessita();
+		double p = prestazioni * alpha + beta* (0.118424-2.26211/h-h*0.000430673);
+		return p;
+	}
+
+	
 	/**
 	 * Una funzione di fitness multiobiettivo che tiene conto delle prestazioni
 	 * del'albero e della sua altezza, <br>

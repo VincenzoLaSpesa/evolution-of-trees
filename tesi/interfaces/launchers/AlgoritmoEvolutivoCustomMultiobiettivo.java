@@ -28,6 +28,11 @@ public class AlgoritmoEvolutivoCustomMultiobiettivo extends AlgoritmoEvolutivoCu
 	public AlgoritmoEvolutivoCustomMultiobiettivo(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante){
 		super(d, numerogenerazioni, popolazione_iniziale, mutante);
 	}
+
+	public AlgoritmoEvolutivoCustomMultiobiettivo(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante, int campioniperalbero){
+		super(d, numerogenerazioni, popolazione_iniziale, mutante, campioniperalbero);
+	}
+	
 	
 	@Deprecated
 	public AlgoritmoEvolutivoCustomMultiobiettivo(Instances dataset, int numerogenerazioni, int popolazione_iniziale,

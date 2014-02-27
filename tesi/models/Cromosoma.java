@@ -31,6 +31,7 @@ public class Cromosoma implements Serializable {
 	public int altezza=-1;
 	//protected double peso=-1;
 	public double fattore_di_sbilanciamento;
+	public long pinned=-1;
 	
 	/**
 	 * Deserializza da un weka.classifiers.trees.J48 generato da Weka, l'albero

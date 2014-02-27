@@ -1,6 +1,7 @@
 package tesi.controllers;
 
 import tesi.models.Cromosoma;
+import tesi.models.popolazione.PopolazioneOrdinata;
 import weka.core.Instances;
 
 /**
@@ -30,6 +31,7 @@ public class GAIT_noFC_multiobiettivo extends GAIT_noFC_abstract {
 
 	public GAIT_noFC_multiobiettivo(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi, limit);
+		popolazione= new PopolazioneOrdinata();
 	}
 	
 	
@@ -49,7 +51,7 @@ public class GAIT_noFC_multiobiettivo extends GAIT_noFC_abstract {
 
 
 	@Override
-	public double get_fitness() {
+	public double valuta_figli() {
 		return multiobjective_fitness();
 	}
 	
@@ -59,6 +61,7 @@ public class GAIT_noFC_multiobiettivo extends GAIT_noFC_abstract {
 	 */
 	@Override
 	public double calcola_fitness_multiobiettivo(double prestazioni, Cromosoma c) {
+		//return GeneticOperators.calcola_fitness_multiobiettivo_nonlineare_semplice(prestazioni, c, alpha, beta , gamma);
 		return GeneticOperators.calcola_fitness_multiobiettivo_nonlineare(prestazioni, c, alpha, beta , gamma);
 		//return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,2,5);
 		//return calcola_fitness_multiobiettivo_additiva(prestazioni, c,5,1,15,0.5);
