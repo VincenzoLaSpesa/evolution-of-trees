@@ -58,14 +58,15 @@ public class AlgoritmoEvolutivoCustomTarpeian implements Runnable {
 	}
 
 	@Deprecated
-	public AlgoritmoEvolutivoCustomTarpeian(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi,
-			double percentualetrainingset, double percentualetestset, double percentualescoringset) {
+	public AlgoritmoEvolutivoCustomTarpeian(Instances dataset, int numerogenerazioni, int popolazione_iniziale,
+			int nclassi, double percentualetrainingset, double percentualetestset, double percentualescoringset) {
 		init(dataset, numerogenerazioni, popolazione_iniziale, nclassi, percentualetrainingset, percentualetestset,
 				percentualescoringset);
 	}
 
 	@Deprecated
-	public AlgoritmoEvolutivoCustomTarpeian(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi) {
+	public AlgoritmoEvolutivoCustomTarpeian(Instances dataset, int numerogenerazioni, int popolazione_iniziale,
+			int nclassi) {
 		init(dataset, numerogenerazioni, popolazione_iniziale, nclassi, 0.5454545454, 0.1818181818, 0.2727272727);
 	}
 
@@ -73,8 +74,8 @@ public class AlgoritmoEvolutivoCustomTarpeian implements Runnable {
 		init(d, numerogenerazioni, popolazione_iniziale, mutante, 0);
 	}
 
-	public AlgoritmoEvolutivoCustomTarpeian(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante,
-			int campioniperalbero) {
+	public AlgoritmoEvolutivoCustomTarpeian(Dataset d, int numerogenerazioni, int popolazione_iniziale,
+			boolean mutante, int campioniperalbero) {
 		init(d, numerogenerazioni, popolazione_iniziale, mutante, campioniperalbero);
 	}
 
@@ -93,11 +94,21 @@ public class AlgoritmoEvolutivoCustomTarpeian implements Runnable {
 		this.testset = d.testset;
 		this.mutante = mutante;
 		campioni_per_albero = campioniperalbero;
+		if (popolazione_iniziale_size < 0) {
+			logger.info("Non è stata fornita la dimenzione della popolazione nell'ecosistema\n provo a dedurla");
+			popolazione_iniziale_size = (int) (datasetsize * percentualetrainingset / campioniperalbero);
+			if (campioniperalbero < 1) {
+				logger.info("Non sono stati forniti ne la dimenzione della popolazione ne quella degli alberi!");
+			}
+		}
 		if (campioniperalbero < 1)
-			campioni_per_albero = (int) (datasetsize * percentualetrainingset / popolazione_iniziale);
-		if (campioni_per_albero > (datasetsize * percentualetrainingset / popolazione_iniziale))
+			campioni_per_albero = (int) (datasetsize * percentualetrainingset / popolazione_iniziale_size);		
+		if (campioni_per_albero > (datasetsize * percentualetrainingset / popolazione_iniziale_size))
 			logger.warning("Gli alberi sono troppo grandi, preparati a un 'out of bound error'");
+		if(campioni_per_albero < 5)
+			logger.warning("Gli alberi sono troppo piccoli, le cose andranno male...");
 	}
+
 
 	@Deprecated
 	protected void init(Instances dataset, int numerogenerazioni, int popolazione_iniziale, int nclassi,
@@ -136,12 +147,12 @@ public class AlgoritmoEvolutivoCustomTarpeian implements Runnable {
 	 * 
 	 * @throws Exception
 	 */
-	public void begin() throws Exception {
+	public CromosomaDecorator begin() throws Exception {
 		double prestazioni_gait;
 		double prestazioni_j48;
 		double peso_gait;
 		double peso_J48w;
-		double media=0;
+		double media = 0;
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("Il training set è composto da \t%d elementi\n", trainingset.numInstances()));
@@ -159,20 +170,20 @@ public class AlgoritmoEvolutivoCustomTarpeian implements Runnable {
 			j48.setBinarySplits(true);
 			j48.buildClassifier(data);
 			Cromosoma c = Cromosoma.loadFromJ48(j48);
-			media=media+c.altezza;
+			media = media + c.altezza;
 			popolazione_iniziale.add(c);
 		}
-		media=2*media/popolazione_iniziale_size;
+		media = 2 * media / popolazione_iniziale_size;
 		J48 j48 = new J48();
 		sb = new StringBuilder();
 		sb.append(String.format("La popolazione iniziale è generata con J48, un porting in Java di C4.5"));
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex() + "\n"));
-		logger.info(sb.toString());
+		logger.fine(sb.toString());
 		ecosistema = new GAIT_noFC_simple(scoringset, nclassi, this.popolazione_iniziale_size);
 
-		ecosistema.tarpeian=true;
-		ecosistema.tarpean_soglia=media;
-		//System.out.printf("tarpeian->\t%f\n",media);
+		ecosistema.tarpeian = true;
+		ecosistema.tarpean_soglia = media;
+		// System.out.printf("tarpeian->\t%f\n",media);
 
 		esemplare = ecosistema.GAIT(popolazione_iniziale, numerogenerazioni, mutante);
 		te = new TreeEvaluator(esemplare, testset, nclassi);
@@ -207,6 +218,7 @@ public class AlgoritmoEvolutivoCustomTarpeian implements Runnable {
 		sb.append(te.getConfusionasFloatString());
 		logger.info(sb.toString());
 		System.out.printf("§§\t%f\t%f\t%.1f\t%.1f\n", prestazioni_gait, prestazioni_j48, peso_gait, peso_J48w);
+		return cd;
 	}
 
 	/**

@@ -16,7 +16,7 @@ public class AlgoritmoEvolutivoCustomRanked extends AlgoritmoEvolutivoCustom {
 	public AlgoritmoEvolutivoCustomRanked(Dataset d, int numerogenerazioni, int popolazione_iniziale, boolean mutante, int campioniperalbero){
 		super(d, numerogenerazioni, popolazione_iniziale, mutante, campioniperalbero);
 	}
-	public void begin() throws Exception{
+	public CromosomaDecorator begin() throws Exception{
 		double prestazioni1;
 		double prestazioni2;
 		double peso;
@@ -43,7 +43,7 @@ public class AlgoritmoEvolutivoCustomRanked extends AlgoritmoEvolutivoCustom {
 		sb= new StringBuilder();
 		sb.append(String.format("La popolazione iniziale è generata con J48, un porting in Java di C4.5"));
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex()+"\n"));
-		logger.info(sb.toString());
+		logger.fine(sb.toString());
 		ecosistema= new Ranked_multiobiettivo(scoringset, nclassi, this.popolazione_iniziale_size);
 		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,mutante);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
@@ -78,6 +78,7 @@ public class AlgoritmoEvolutivoCustomRanked extends AlgoritmoEvolutivoCustom {
 		sb.append(te.getConfusionasFloatString());
 		logger.info(sb.toString());		
 		System.out.printf("§§\t%f\t%f\t%.1f\n",prestazioni1,prestazioni2, peso);
+		return cd;
 	}	
 
 }

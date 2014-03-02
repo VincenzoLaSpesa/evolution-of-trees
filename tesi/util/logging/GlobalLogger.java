@@ -36,6 +36,13 @@ public abstract class GlobalLogger {
 		  level=Level.FINEST;//300
 		  do_init();		  
 	  }
+
+	  public static void init_middle(){
+		  level=Level.INFO;
+		  do_init();		  
+	  }	  
+
+	  
 	  public static void init_quiet(){
 		  level=Level.WARNING;//900
 		  do_init();		  

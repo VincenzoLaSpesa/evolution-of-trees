@@ -31,7 +31,7 @@ public class AlgoritmoEvolutivoCustomSPF extends AlgoritmoEvolutivoCustom {
 				percentualescoringset);
 	}
 
-	public void begin() throws Exception{
+	public CromosomaDecorator begin() throws Exception{
 		double prestazioni1;
 		double prestazioni2;
 		double peso;
@@ -58,7 +58,7 @@ public class AlgoritmoEvolutivoCustomSPF extends AlgoritmoEvolutivoCustom {
 		sb= new StringBuilder();
 		sb.append(String.format("La popolazione iniziale è generata con J48, un porting in Java di C4.5"));
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex()+"\n"));
-		logger.info(sb.toString());
+		logger.fine(sb.toString());
 		ecosistema= new SFP_multiobiettivo(scoringset, nclassi, this.popolazione_iniziale_size);
 		esemplare=ecosistema.GAIT(popolazione_iniziale, numerogenerazioni,mutante);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
@@ -93,6 +93,7 @@ public class AlgoritmoEvolutivoCustomSPF extends AlgoritmoEvolutivoCustom {
 		sb.append(te.getConfusionasFloatString());
 		logger.info(sb.toString());		
 		System.out.printf("§§\t%f\t%f\t%.1f\n",prestazioni1,prestazioni2, peso);
+		return cd;
 	}
 
 }

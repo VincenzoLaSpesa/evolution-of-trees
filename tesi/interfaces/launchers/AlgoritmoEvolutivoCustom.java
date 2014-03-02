@@ -92,11 +92,21 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		this.scoringset = d.scoringset;
 		this.testset = d.testset;
 		this.mutante = mutante;
+		
 		campioni_per_albero = campioniperalbero;
+		if (popolazione_iniziale_size < 0) {
+			logger.info("Non è stata fornita la dimenzione della popolazione nell'ecosistema\n provo a dedurla");
+			popolazione_iniziale_size = (int) (datasetsize * percentualetrainingset / campioni_per_albero);
+			if (campioniperalbero < 1) {
+				logger.info("Non sono stati forniti ne la dimenzione della popolazione ne quella degli alberi!");
+			}
+		}
 		if (campioniperalbero < 1)
-			campioni_per_albero = (int) (datasetsize * percentualetrainingset / popolazione_iniziale);
-		if (campioni_per_albero > (datasetsize * percentualetrainingset / popolazione_iniziale))
+			campioni_per_albero = (int) (datasetsize * percentualetrainingset / popolazione_iniziale_size);		
+		if (campioni_per_albero > (datasetsize * percentualetrainingset / popolazione_iniziale_size))
 			logger.warning("Gli alberi sono troppo grandi, preparati a un 'out of bound error'");
+		if(campioni_per_albero < 5)
+			logger.warning("Gli alberi sono troppo piccoli, le cose andranno male...");
 	}
 
 	@Deprecated
@@ -136,7 +146,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 	 * 
 	 * @throws Exception
 	 */
-	public void begin() throws Exception {
+	public CromosomaDecorator begin() throws Exception {
 		double prestazioni_gait;
 		double prestazioni_j48;
 		double peso_gait;
@@ -164,7 +174,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		sb = new StringBuilder();
 		sb.append(String.format("La popolazione iniziale è generata con J48, un porting in Java di C4.5"));
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex() + "\n"));
-		logger.info(sb.toString());
+		logger.fine(sb.toString());
 		ecosistema = new GAIT_noFC_simple(scoringset, nclassi, this.popolazione_iniziale_size);
 		esemplare = ecosistema.GAIT(popolazione_iniziale, numerogenerazioni, mutante);
 		te = new TreeEvaluator(esemplare, testset, nclassi);
@@ -199,6 +209,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		sb.append(te.getConfusionasFloatString());
 		logger.info(sb.toString());
 		System.out.printf("§§\t%f\t%f\t%.1f\t%.1f\n", prestazioni_gait, prestazioni_j48, peso_gait, peso_J48w);
+		return cd;
 	}
 
 	/**

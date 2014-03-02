@@ -22,6 +22,12 @@ public class J48Wholetraining implements Runnable{
 	Instances dataset;
 	int istanze;
 	int nclassi;
+	int trainingsetsize;
+	int testsetsize;
+	
+	public J48Wholetraining(Instances dataset, int nclassi,int istanze, int testsetsize, int datasetsize){
+		init(dataset,nclassi,istanze,testsetsize,datasetsize);
+	}
 	
 	/**
 	 * A partire dal dataset si produce il trainingset estraendo a caso 3000 elementi e il testset altri 1000
@@ -29,14 +35,22 @@ public class J48Wholetraining implements Runnable{
 	 * @param numero
 	 */
 	public J48Wholetraining(Instances dataset, int nclassi,int istanze){
+		init(dataset,nclassi,istanze,3000,1000);
+	}
+
+	public void init(Instances dataset, int nclassi,int istanze, int trainingsetsize, int testsetsize){
 		this.dataset=dataset;
 		this.istanze=istanze;
 		this.nclassi=nclassi;
 		altezze=new LinkedList<Double>();
 		prestazioni=new LinkedList<Double>();
 		sbilanciamento=new LinkedList<Double>();
+		this.trainingsetsize=trainingsetsize;
+		this.testsetsize=testsetsize;
 		
 	}
+
+	
 	
 	/**
 	 * Avvia la classificazione
@@ -47,8 +61,8 @@ public class J48Wholetraining implements Runnable{
 		
 		for(int n=0;n<istanze;n++){
 			dataset.randomize(SingletonGenerator.r);
-			trainingset=new Instances(dataset, 0, 3000);
-			testset=new Instances(dataset, 1+3000,1+3000+1000);
+			trainingset=new Instances(dataset, 0, trainingsetsize);
+			testset=new Instances(dataset, 1+trainingsetsize,1+trainingsetsize+testsetsize);
 			trainingset.setClassIndex(dataset.numAttributes() - 1);
 			testset.setClassIndex(dataset.numAttributes() - 1);
 			J48 j48 = new J48();

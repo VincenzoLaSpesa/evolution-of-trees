@@ -23,6 +23,10 @@ public class CromosomaDecorator {
 	Vector<String> nomicolonne;
 	Cromosoma cromosoma;
 
+	public Cromosoma getCromosoma() {
+		return cromosoma;
+	}
+
 	public CromosomaDecorator(Cromosoma cromosoma, Vector<String> nomicolonne) {
 		super();
 		this.nomicolonne = nomicolonne;

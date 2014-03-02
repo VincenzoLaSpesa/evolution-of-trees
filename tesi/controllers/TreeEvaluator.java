@@ -1,9 +1,12 @@
 package tesi.controllers;
 
+import java.util.Enumeration;
+
 import tesi.models.Cromosoma;
 import tesi.models.Gene;
 import tesi.models.Taglio;
 import tesi.util.ArrayUtil;
+import weka.core.Instance;
 import weka.core.Instances;
 
 /**
@@ -22,6 +25,7 @@ public class TreeEvaluator {
 
 	int[][] confusion;
 	double[][] confusion_f;
+	int[] lut;//una lookuptable, nel caso gli id delle classi non comincino da 0
 
 	double prestazioni = 0;
 
@@ -85,6 +89,17 @@ public class TreeEvaluator {
 		this.nclassi = nclassi;
 		this.confusion = new int[nclassi][nclassi];
 		this.confusion_f= new double[nclassi][nclassi];
+		this.lut= new int[64];
+		//
+		int i=testset.classIndex();
+		int j=0;
+		int n;
+		Enumeration<String> e=testset.attribute(i).enumerateValues();
+		while(e.hasMoreElements()){
+			n=Integer.parseInt(e.nextElement());
+			lut[n]=j;
+			j++;
+		}
 	}
 
 	public double evaluate() {
@@ -93,11 +108,13 @@ public class TreeEvaluator {
 		int classe;
 		double[] istanza;
 		double[] sommarighe=new double[nclassi];
-
+		Instance in;
 		for (int i = 0; i < nIstanze; i++) {
-			istanza = testset.instance(i).toDoubleArray();
-			responso = TreeEvaluator.evaluate_one(cromosoma, istanza);
-			classe = (int) istanza[istanza.length - 1];
+			in=testset.instance(i);
+			istanza = in.toDoubleArray();
+			responso = TreeEvaluator.evaluate_one(cromosoma, istanza);			
+			classe=(int)testset.instance(i).classValue();
+			responso=lut[responso];
 			confusion[classe][responso]++;
 		}
 		

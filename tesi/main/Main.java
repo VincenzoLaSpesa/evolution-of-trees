@@ -1,7 +1,14 @@
 package tesi.main;
 
+import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.FileSystems;
+import java.nio.file.PathMatcher;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 
 import joptsimple.OptionParser;
@@ -35,14 +42,22 @@ import weka.core.Range;
 import com.google.gson.Gson;
 
 public class Main {
-	/*public static double alpha=5;
-	public static double beta=1;
-	public static double gamma=15;*/
+	//
+	public static final String parkingson="/home/darshan/Uni/Tesi/tesi/Tesi/dataset/parkingsons/parkinsons.arff";
+	public static final String adult = "/home/darshan/Uni/Tesi/tesi/Tesi/dataset/completedataset.arff";
+	public static final String breast = "/home/darshan/Uni/Tesi/tesi/Tesi/dataset/breast-cancer/breast-cancer-wisconsin.arff";
+	public static final String heart = "/home/darshan/Uni/Tesi/tesi/Tesi/dataset/Statlog (Heart) Data Set /heart.arff";	
+	//
+
 	public static String dataset_url = "../dataset/completedataset.arff";
-	public static String dataset_url_fallback = "/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
-	public static int popolazione_size=246;
+	public static String dataset_url_fallback = adult;
+
+	public static int popolazione_size=-1;//se negativo lo autodimensiona 
 	public static int istanze=30;
-	public static int albero_size=-1; // se negativo lo autodimensiona
+	public static int albero_size=100; // se negativo lo autodimensiona
+	public static String base;
+	public static String pattern;
+	public static String albero;
 
 	/**
 	 * @param args
@@ -70,6 +85,9 @@ public class Main {
 		parser.accepts("quiet", "Disattiva il calcolo delel prestazioni sulle generazioni intermedie");
 		parser.accepts("verbose", "Attiva tutti i livelli del logger");
 		parser.accepts("stat", "Attiva le statistiche");
+		parser.accepts("base", "specifica il prefisso che dovranno avere eventuali files generati").withRequiredArg();
+		parser.accepts("pattern", "permette di caricare dei files attraverso dei pattern espressi nel formato glob di java").withRequiredArg();
+		parser.accepts("albero", "specifica un albero da caricare").withRequiredArg();
 
 		//
 		parser.accepts("iris", "Avvia i test su Iris con le impostazioni di default");
@@ -117,12 +135,40 @@ public class Main {
 				"TorneoMultiBenchmark", 
 				"Avvia il benchmark su RankedMulti con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni, il mutation rate viene mantenuto costante");		
 		
+		parser.accepts(
+				"ProduciAlberi", 
+				"Crea tanti file yaml con tutti gli algoritmi principali");		
+		
+		parser.accepts(
+				"MisuraTempi", 
+				"Produce files di log con le misurazioni dei tempi");		
+		
 		
 		parser.accepts("WholeTrainingBenchmark3000", "Calcola 100 alberi j48 su trainingset di 3000 elementi");
 		parser.accepts("gaitComplete", "Una esecuzione da 25 generazioni");
 		OptionSet options = parser.parse(args);
-				
 		
+		
+		if (options.hasArgument("albero")) {
+			String s = (String) options.valueOf("albero");
+			albero=s;
+		}else{
+			albero="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dist/piccolomostro_breast.yaml";
+		}
+
+		
+		if (options.hasArgument("pattern")) {
+			String s = (String) options.valueOf("pattern");
+			pattern=s;
+		}
+		
+		if (options.hasArgument("base")) {
+			String s = (String) options.valueOf("base");
+			base=s;
+		}else{
+			SimpleDateFormat sdf = new SimpleDateFormat("ddhhmmss_");
+			base=sdf.format(new Date());
+		}
 		
 		if (options.hasArgument("dataset")) {
 			String s = (String) options.valueOf("dataset");
@@ -184,7 +230,15 @@ public class Main {
 		
 		
 		
-
+		if (options.has("ProduciAlberi")) {
+			producialberi();
+			return;
+		}
+		
+		if (options.has("MisuraTempi")) {
+			misuratempi();
+			return;
+		}
 		
 		if (options.has("gait")) {
 			// --gait --trainingset=<trainingsetpath> --testset=<testsetpath>
@@ -266,7 +320,7 @@ public class Main {
 		}
 		if (options.has("testaalbero")) {
 			Singletons.cromosomastream.active=false;
-			testaalbero();
+			testaalbero(albero);
 			return;
 		}
 		if (options.has("gaitMultiBenchmark")) {
@@ -399,17 +453,25 @@ public class Main {
 		System.out.println("\nAltri comandi possibili sono:");
 		parser.printHelpOn(System.out);
 
-		System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait con le impostazioni di default");
+		System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n");
+		System.out.println("\tavvio con le impostazioni di default");
 		System.out.printf("il Jar è stato compilato il %s\n", SysUtil.jarBuildTime());
+		//gait_multi();
 		//gait_multi_benchmark(100);
 		//sfp_Multi_Benchmark(25);
-		//gait_complete_benchmark(100);
+		gait_complete_benchmark(100);
 		//ranked_Multi_Benchmark(100);
 		//torneo_Multi_Benchmark(500);
 		//System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait-multi con le impostazioni di default");
-		gait_complete_benchmark_tarpeian(100);
+		//gait_complete_benchmark_tarpeian(100);
+		//testaalbero(albero);
 	}
 
+	/**
+	 * Esegue un benchmark su Gait-tarpeian (obiettivo singolo)
+	 * @param generazioni
+	 * @throws Exception
+	 */
 	private static void gait_complete_benchmark_tarpeian(Integer generazioni) throws Exception {
 			System.out.println(SysUtil.getMethodName(1));
 			FileReader dataset_stream = new FileReader(dataset_url);
@@ -643,6 +705,7 @@ public class Main {
 	 * @throws Exception
 	 * @see gait_complete(String,int)
 	 */
+	@Deprecated
 	public static void gait_complete(String settings_content) throws Exception {
 		Gson gson = new Gson();
 		@SuppressWarnings("unchecked")
@@ -660,6 +723,7 @@ public class Main {
 	 * @see gait_complete(String,int)
 	 */
 
+	@Deprecated
 	public static void gait_complete() throws Exception {
 		// String
 		// dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/smalldataset.arff";
@@ -682,11 +746,6 @@ public class Main {
 	 * @throws Exception
 	 */
 	public static void gait_complete_benchmark(int generazioni) throws Exception {
-		// String
-		// dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/smalldataset.arff";
-		//String dataset_url = "/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
-		// String
-		// dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff";
 		System.out.println(SysUtil.getMethodName(1));
 		FileReader dataset_stream = new FileReader(dataset_url);
 		Instances dataset = new Instances(dataset_stream);
@@ -829,7 +888,7 @@ public class Main {
 	public static void gait_multi() throws Exception {
 		// String
 		// dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/smalldataset.arff";
-		String dataset_url = "/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
+		//String dataset_url = "/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
 		// String
 		// dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff"
 		int generazioni = 25;
@@ -1153,4 +1212,175 @@ public class Main {
 		System.out.println("Done");
 
 	}
+	
+	/**
+	 * Crea un albero, lo serializza e poi lo deserializza.<br>
+	 * serve per testare la serializzazione.
+	 * 
+	 * @throws Exception
+	 */
+	public static void testaalbero(String alberourl) throws Exception {
+		System.out.println("Avvio le routine per testare la struttura dati del Cromosoma.");
+		// creo l'albero completo del dataset
+		FileReader dataset_stream = new FileReader(dataset_url);
+		Instances dataset = new Instances(dataset_stream);
+		dataset.setClassIndex(dataset.numAttributes() - 1);
+
+		String Yaml_str = StringUtil.readFileAsString(alberourl);
+
+		Cromosoma c = Cromosoma.loadFromYaml(Yaml_str);
+
+		TreeEvaluator te = new TreeEvaluator(c, dataset, dataset.numClasses());
+		te.evaluate();
+		System.out.println(String.format("%f;%d", te.getPrestazioni(), c.cromosoma.size()));
+		System.out.println(ArrayUtil.dump(te.getConfusion()));
+		System.out.println(c.toYaml());
+		CromosomaDecorator cd = new CromosomaDecorator(c);
+		cd.caricaColonne(dataset);
+		System.out.println(cd.getGraph().toString());
+		System.out.println("Done");
+
+	}
+
+	
+	
+	public static void misuratempi() throws IOException{
+		//http://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
+		
+		//variabili 
+		long tic, tac;
+	    String filename=base+".log";
+	    PrintWriter writer = new PrintWriter(filename, "UTF-8");
+
+		//FloatStream fstream= new FloatStream();
+		//configuro il dataset
+	    
+		FileReader dataset_stream = new FileReader(dataset_url);
+		Instances dataset = new Instances(dataset_stream);
+		dataset.setClassIndex(dataset.numAttributes() - 1);
+		//ottengo i files
+		ArrayList<File> codafiles= new ArrayList<>();
+		ArrayList<Cromosoma> codacromosomi= new ArrayList<>();
+		PathMatcher matcher =  FileSystems.getDefault().getPathMatcher(pattern);
+		System.out.printf("Ottengo la lista dei files applicando il pattern '%s'\n",pattern);
+		File f = new File("."); // current directory
+
+	    File[] files = f.listFiles();
+	    for (File file : files) {
+	    	//System.out.println(file.toPath());
+	        if (!file.isDirectory() && matcher.matches(file.toPath())) {
+		        System.out.println(file.getCanonicalPath());
+		        codafiles.add(file);
+	        }
+	    }
+	    //ottengo i cromosomi
+	    System.out.println("Carico i cromosomi");
+	    for (File file : codafiles) {
+			String Yaml_str = StringUtil.readFileAsString(file);
+			Cromosoma c = Cromosoma.loadFromYaml(Yaml_str);	  
+			codacromosomi.add(c);
+	        //fstream.createColumn(file.getName());		        
+	    }
+	    //misuro
+	    System.out.println("Calcolo i tempi di esecuzione SUL DATASET SPECIFICATO COME ARGOMENTO DELLA LINEA DI COMANDO");
+	    System.out.printf("produco il files di log:		%s\n",filename);
+	    int colonna=0;
+	    //warm up
+	    int M=codacromosomi.size()/3;
+	    if(M>5)M=5;
+	    for (int a=0;a<M;a++) {
+	    	TreeEvaluator te = new TreeEvaluator(codacromosomi.get(a), dataset, dataset.numClasses());
+	    	tic=System.nanoTime();
+	    	te.evaluate();
+			tac=System.nanoTime();
+	    }
+	    //misurazioni vere.	 
+	    writer.append("0000Nomefile\tTempi\tPrestazioni\tAltezze\tLunghezze\n\n");
+	    for (Cromosoma c : codacromosomi) {
+	    	//fstream.setColonna_corrente(codafiles.get(colonna).getName());
+	    	TreeEvaluator te = new TreeEvaluator(c, dataset, dataset.numClasses());
+	    	tic=System.nanoTime();
+	    	te.evaluate();
+			tac=System.nanoTime();
+			//converto in millisecondi.
+			double tempo=(0.0f+ tac-tic)/1000000.0f;
+			//fstream.append(tempo);
+			
+			String linea=String.format("%s\t%f\t%f\t%d\t%d\n", codafiles.get(colonna).getName(),tempo,te.getPrestazioni(),c.altezza,c.cromosoma.size());
+			writer.append(linea);
+			colonna++;
+	    }
+	    //produco il file di log
+	    //writer.append(fstream.ricomponi());
+	    writer.close();
+}
+	
+	public static void producialberi() throws Exception{
+		String formato="%s03%d%s_%s_.yaml";
+		System.out.println(SysUtil.getMethodName(1));
+		Singletons.cromosomastream.active=false;
+		Singletons.floatstream.active=false;
+		Singletons.pesistream.active=false;
+		
+		GlobalLogger.init_middle();
+		FileReader dataset_stream = new FileReader(Main.dataset_url);
+		Instances dataset = new Instances(dataset_stream);
+		final int alberi = 30, generazioni=100;
+		Dataset d;
+		String filename,datasetstr;
+		CromosomaDecorator cm;
+		PrintWriter writer;
+		for (int a = 0; a < alberi; a++) {			
+			d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+			//gaitMulti 15-1-5			
+			GAIT_noFC_multiobiettivo.alpha=15;
+			GAIT_noFC_multiobiettivo.beta=1;
+			GAIT_noFC_multiobiettivo.gamma=15;
+			datasetstr=d.testset.relationName();
+			filename=String.format(formato, base,a,datasetstr,"gaitMulti_15_1_15antibloat");
+			System.out.printf("Scrivo un dump in : %s\n",filename);
+
+			AlgoritmoEvolutivoCustomMultiobiettivo gaitrunner = new AlgoritmoEvolutivoCustomMultiobiettivo(d, generazioni,popolazione_size,false,albero_size);
+			cm=gaitrunner.begin();
+			writer = new PrintWriter(filename, "UTF-8");
+			writer.append(cm.getCromosoma().toYaml());
+			writer.close();
+			//gaitMulti 5-1-15
+			GAIT_noFC_multiobiettivo.alpha=5;
+			GAIT_noFC_multiobiettivo.beta=1;
+			GAIT_noFC_multiobiettivo.gamma=15;
+			datasetstr=d.testset.relationName();
+			filename=String.format(formato, base,a,datasetstr,"gaitMulti_5_1_15");
+			System.out.printf("\nScrivo un dump in : %s\n",filename);
+
+			gaitrunner = new AlgoritmoEvolutivoCustomMultiobiettivo(d, 100,popolazione_size,false,albero_size);
+			cm=gaitrunner.begin();
+			writer = new PrintWriter(filename, "UTF-8");
+			writer.append(cm.getCromosoma().toYaml());
+			writer.close();
+			//tarpeian
+			datasetstr=d.testset.relationName();
+			filename=String.format(formato, base,a,datasetstr,"gaitTarpeian");
+			System.out.printf("\nScrivo un dump in : %s\n",filename);
+			AlgoritmoEvolutivoCustomTarpeian gaitrunner2 = new AlgoritmoEvolutivoCustomTarpeian(d, generazioni,	popolazione_size, false, albero_size);
+			cm=gaitrunner2.begin();
+			writer = new PrintWriter(filename, "UTF-8");
+			writer.append(cm.getCromosoma().toYaml());
+			writer.close();
+			gaitrunner2=null;
+			//gaitComplete
+			datasetstr=d.testset.relationName();
+			filename=String.format("%s03%d%s_%s_.yaml", base,a,datasetstr,"gait");
+			System.out.printf("\nScrivo un dump in : %s\n",filename);
+			AlgoritmoEvolutivoCustom gaitrunner3 = new AlgoritmoEvolutivoCustom(d, generazioni, popolazione_size,false,albero_size);
+			gaitrunner3.begin();
+			writer = new PrintWriter(filename, "UTF-8");
+			writer.append(cm.getCromosoma().toYaml());
+			writer.close();
+			gaitrunner3=null;
+
+		}
+		
+	}
+	
 }
