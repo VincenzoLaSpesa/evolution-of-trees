@@ -26,6 +26,7 @@ import weka.core.Instances;
  */
 public class AlgoritmoEvolutivoCustomTarpeian implements Runnable {
 	public boolean mutante = false;
+	public boolean eseguiwhole = false;
 	int numerogenerazioni;
 	int popolazione_iniziale_size;
 	int datasetsize;
@@ -149,9 +150,9 @@ public class AlgoritmoEvolutivoCustomTarpeian implements Runnable {
 	 */
 	public CromosomaDecorator begin() throws Exception {
 		double prestazioni_gait;
-		double prestazioni_j48;
+		double prestazioni_j48 = -1;
 		double peso_gait;
-		double peso_J48w;
+		double peso_J48w=-1;
 		double media = 0;
 
 		StringBuilder sb = new StringBuilder();
@@ -204,6 +205,7 @@ public class AlgoritmoEvolutivoCustomTarpeian implements Runnable {
 		sb.append("\n");
 		logger.info(sb.toString());
 		//
+		if(eseguiwhole){
 		j48.setBinarySplits(true);
 		j48.buildClassifier(trainingset);
 		Cromosoma whole = Cromosoma.loadFromJ48(j48);
@@ -216,7 +218,7 @@ public class AlgoritmoEvolutivoCustomTarpeian implements Runnable {
 		sb.append(String.format("%f\n", prestazioni_j48));
 		sb.append("\n");
 		sb.append(te.getConfusionasFloatString());
-		logger.info(sb.toString());
+		logger.info(sb.toString());}
 		System.out.printf("§§\t%f\t%f\t%.1f\t%.1f\n", prestazioni_gait, prestazioni_j48, peso_gait, peso_J48w);
 		return cd;
 	}

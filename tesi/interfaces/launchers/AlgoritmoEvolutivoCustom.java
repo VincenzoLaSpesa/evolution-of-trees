@@ -26,6 +26,7 @@ import weka.core.Instances;
  */
 public class AlgoritmoEvolutivoCustom implements Runnable {
 	public boolean mutante = false;
+	public static boolean eseguiwhole = false;
 	int numerogenerazioni;
 	int popolazione_iniziale_size;
 	int datasetsize;
@@ -92,7 +93,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		this.scoringset = d.scoringset;
 		this.testset = d.testset;
 		this.mutante = mutante;
-		
+
 		campioni_per_albero = campioniperalbero;
 		if (popolazione_iniziale_size < 0) {
 			logger.info("Non è stata fornita la dimenzione della popolazione nell'ecosistema\n provo a dedurla");
@@ -102,10 +103,10 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 			}
 		}
 		if (campioniperalbero < 1)
-			campioni_per_albero = (int) (datasetsize * percentualetrainingset / popolazione_iniziale_size);		
+			campioni_per_albero = (int) (datasetsize * percentualetrainingset / popolazione_iniziale_size);
 		if (campioni_per_albero > (datasetsize * percentualetrainingset / popolazione_iniziale_size))
 			logger.warning("Gli alberi sono troppo grandi, preparati a un 'out of bound error'");
-		if(campioni_per_albero < 5)
+		if (campioni_per_albero < 5)
 			logger.warning("Gli alberi sono troppo piccoli, le cose andranno male...");
 	}
 
@@ -122,7 +123,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		this.nclassi = nclassi;
 		if (percentualetrainingset + percentualescoringset + percentualetestset < 0.9) {
 			System.err.println("Parte del dataset non verrà utilizzato con le percentuali correnti.");
-			System.err.println(Thread.currentThread().getStackTrace()[0].toString());
+			//System.err.println(Thread.currentThread().getStackTrace()[0].toString());
 		}
 
 		dataset.setClassIndex(dataset.numAttributes() - 1);
@@ -148,9 +149,9 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 	 */
 	public CromosomaDecorator begin() throws Exception {
 		double prestazioni_gait;
-		double prestazioni_j48;
+		double prestazioni_j48 = -1;
 		double peso_gait;
-		double peso_J48w;
+		double peso_J48w = -1;
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("Il training set è composto da \t%d elementi\n", trainingset.numInstances()));
@@ -195,19 +196,21 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		sb.append("\n");
 		logger.info(sb.toString());
 		//
-		j48.setBinarySplits(true);
-		j48.buildClassifier(trainingset);
-		Cromosoma whole = Cromosoma.loadFromJ48(j48);
-		te = new TreeEvaluator(whole, testset, nclassi);
-		te.evaluate();
-		sb = new StringBuilder();
-		sb.append("Le prestazioni dell'albero generato sull'intero trainingset e calcolate sul testset (wholetraining) sono:");
-		prestazioni_j48 = te.getPrestazioni();
-		peso_J48w = whole.getComplessita();
-		sb.append(String.format("%f\n", prestazioni_j48));
-		sb.append("\n");
-		sb.append(te.getConfusionasFloatString());
-		logger.info(sb.toString());
+		if (eseguiwhole) {
+			j48.setBinarySplits(true);
+			j48.buildClassifier(trainingset);
+			Cromosoma whole = Cromosoma.loadFromJ48(j48);
+			te = new TreeEvaluator(whole, testset, nclassi);
+			te.evaluate();
+			sb = new StringBuilder();
+			sb.append("Le prestazioni dell'albero generato sull'intero trainingset e calcolate sul testset (wholetraining) sono:");
+			prestazioni_j48 = te.getPrestazioni();
+			peso_J48w = whole.getComplessita();
+			sb.append(String.format("%f\n", prestazioni_j48));
+			sb.append("\n");
+			sb.append(te.getConfusionasFloatString());
+			logger.info(sb.toString());
+		}
 		System.out.printf("§§\t%f\t%f\t%.1f\t%.1f\n", prestazioni_gait, prestazioni_j48, peso_gait, peso_J48w);
 		return cd;
 	}

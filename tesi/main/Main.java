@@ -47,10 +47,11 @@ public class Main {
 	public static final String adult = "/home/darshan/Uni/Tesi/tesi/Tesi/dataset/completedataset.arff";
 	public static final String breast = "/home/darshan/Uni/Tesi/tesi/Tesi/dataset/breast-cancer/breast-cancer-wisconsin.arff";
 	public static final String heart = "/home/darshan/Uni/Tesi/tesi/Tesi/dataset/Statlog (Heart) Data Set /heart.arff";	
+	public static final String covtype = "/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/covtype/covtype.data.arff";
 	//
 
 	public static String dataset_url = "../dataset/completedataset.arff";
-	public static String dataset_url_fallback = adult;
+	public static String dataset_url_fallback = covtype;
 
 	public static int popolazione_size=-1;//se negativo lo autodimensiona 
 	public static int istanze=30;
@@ -58,6 +59,9 @@ public class Main {
 	public static String base;
 	public static String pattern;
 	public static String albero;
+	public static double percentualetrainingset=0.5454545454;
+	public static double percentualescoringset=0.1818181818;
+	public static double percentualetestset= 0.2727272727;
 
 	/**
 	 * @param args
@@ -78,6 +82,10 @@ public class Main {
 		parser.accepts("popolazione", "numerosità della popolazione durante l'algoritmo evolutivo").withRequiredArg();
 		parser.accepts("istanze", "Numero di ecosistemi avviati durante un benchmark").withRequiredArg();
 		parser.accepts("campioniperalbero", "numero di campioni utilizzati per costruire un singolo albero").withRequiredArg();
+		//
+		parser.accepts("percentualetrainingset", "percentuale di dataset che diventerà trainingset").withRequiredArg();
+		parser.accepts("percentualescoringset", "percentuale di dataset che diventerà scoringset").withRequiredArg();
+		parser.accepts("percentualetestset", "percentuale di dataset che diventerà testset").withRequiredArg();
 		//
 		parser.accepts("alpha", "specifica un parametro per la formula del fitness multiobiettivo").withRequiredArg();
 		parser.accepts("beta", "specifica un parametro per la formula del fitness multiobiettivo").withRequiredArg();
@@ -148,7 +156,22 @@ public class Main {
 		parser.accepts("gaitComplete", "Una esecuzione da 25 generazioni");
 		OptionSet options = parser.parse(args);
 		
-		
+		if (options.hasArgument("percentualetrainingset")) {
+			double d = Double.parseDouble((String) options.valueOf("percentualetrainingset"));
+			percentualetrainingset=d;
+			System.out.printf("percentualetrainingset -> %f \n",percentualetrainingset);
+		}
+
+		if (options.hasArgument("percentualescoringset")) {
+			double d = Double.parseDouble((String) options.valueOf("percentualescoringset"));
+			percentualescoringset=d;
+			System.out.printf("percentualescoringset -> %f \n",percentualescoringset);
+		}
+		if (options.hasArgument("percentualetestset")) {
+			double d = Double.parseDouble((String) options.valueOf("percentualetestset"));
+			percentualetestset=d;
+			System.out.printf("percentualetestset -> %f \n",percentualetestset);
+		}
 		if (options.hasArgument("albero")) {
 			String s = (String) options.valueOf("albero");
 			albero=s;
@@ -459,7 +482,7 @@ public class Main {
 		//gait_multi();
 		//gait_multi_benchmark(100);
 		//sfp_Multi_Benchmark(25);
-		gait_complete_benchmark(100);
+		//gait_complete_benchmark(100);
 		//ranked_Multi_Benchmark(100);
 		//torneo_Multi_Benchmark(500);
 		//System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait-multi con le impostazioni di default");
@@ -481,7 +504,7 @@ public class Main {
 			Dataset d;
 			for (int a = 0; a < istanze; a++) {
 				String nomecolonna = "istanza_" + a;
-				d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+				d = new Dataset(dataset, percentualetrainingset, percentualescoringset, percentualetestset);
 				Singletons.cromosomastream.createColumn(nomecolonna);
 				Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 				Singletons.pesistream.createColumn(nomecolonna);
@@ -525,7 +548,7 @@ public class Main {
 		Dataset d;
 		for (int a = 0; a < istanze; a++) {
 			String nomecolonna = "istanza_" + a;
-			d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+			d = new Dataset(dataset, percentualetrainingset, percentualescoringset, percentualetestset);
 			Singletons.cromosomastream.createColumn(nomecolonna);
 			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 			Singletons.pesistream.createColumn(nomecolonna);
@@ -550,7 +573,7 @@ public class Main {
 		Dataset d;
 		for (int a = 0; a < istanze; a++) {
 			String nomecolonna = "istanza_" + a;
-			d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+			d = new Dataset(dataset, percentualetrainingset, percentualescoringset, percentualetestset);
 			Singletons.cromosomastream.createColumn(nomecolonna);
 			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 			Singletons.pesistream.createColumn(nomecolonna);
@@ -573,7 +596,7 @@ public class Main {
 		Dataset d;
 		for (int a = 0; a < istanze; a++) {
 			String nomecolonna = "istanza_" + a;
-			d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+			d = new Dataset(dataset, percentualetrainingset, percentualescoringset, percentualetestset);
 			Singletons.cromosomastream.createColumn(nomecolonna);
 			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 			Singletons.pesistream.createColumn(nomecolonna);
@@ -604,7 +627,7 @@ public class Main {
 			Dataset d;
 			for (int a = 0; a < istanze; a++) {
 				String nomecolonna = "istanza_" + a;
-				d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+				d = new Dataset(dataset, percentualetrainingset, percentualescoringset, percentualetestset);
 				Singletons.cromosomastream.createColumn(nomecolonna);
 				Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 				Singletons.pesistream.createColumn(nomecolonna);
@@ -634,7 +657,7 @@ public class Main {
 			Dataset d;
 			for (int a = 0; a < istanze; a++) {
 				String nomecolonna = "istanza_" + a;
-				d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+				d = new Dataset(dataset, percentualetrainingset, percentualescoringset, percentualetestset);
 				Singletons.cromosomastream.createColumn(nomecolonna);
 				Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 				Singletons.pesistream.createColumn(nomecolonna);
@@ -754,7 +777,7 @@ public class Main {
 		Dataset d;
 		for (int a = 0; a < istanze; a++) {
 			String nomecolonna = "istanza_" + a;
-			d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+			d = new Dataset(dataset, percentualetrainingset, percentualescoringset, percentualetestset);
 			Singletons.cromosomastream.createColumn(nomecolonna);
 			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 			Singletons.pesistream.createColumn(nomecolonna);
@@ -783,7 +806,7 @@ public class Main {
 		Dataset d;
 		for (int a = 0; a < istanze; a++) {
 			String nomecolonna = "istanza_" + a;
-			d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+			d = new Dataset(dataset, percentualetrainingset, percentualescoringset, percentualetestset);
 			Singletons.cromosomastream.createColumn(nomecolonna);
 			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 			Singletons.pesistream.createColumn(nomecolonna);
@@ -818,7 +841,7 @@ public class Main {
 
 	/**
 	 * Avvia Gait sul dataset, utilizza AlgoritmoEvolutivoCustom(dataset,
-	 * generazioni, popolazione_size, nclassi,0.5454545454, 0.1818181818, 0.2727272727); con
+	 * generazioni, popolazione_size, nclassi,percentualetrainingset, percentualescoringset, percentualetestset); con
 	 * popolazioni iniziali di popolazione_size elementi. <strong>è deprecato</strong>
 	 * 
 	 * 
@@ -834,7 +857,7 @@ public class Main {
 		dataset.setClassIndex(dataset.numAttributes() - 1);
 		int nclassi = dataset.numClasses();
 		AlgoritmoEvolutivoCustom gaitrunner = new AlgoritmoEvolutivoCustom(dataset, generazioni, popolazione_size, nclassi,
-				0.5454545454, 0.1818181818, 0.2727272727);
+				percentualetrainingset, percentualescoringset, percentualetestset);
 		// gaitrunner.begin_compact();
 		gaitrunner.begin();
 	}
@@ -918,7 +941,7 @@ public class Main {
 		Dataset d;
 		for (int a = 0; a < istanze; a++) {
 			String nomecolonna = "istanza_" + a;
-			d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+			d = new Dataset(dataset, percentualetrainingset, percentualescoringset, percentualetestset);
 			Singletons.cromosomastream.createColumn(nomecolonna);
 			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 			Singletons.pesistream.createColumn(nomecolonna);
@@ -955,7 +978,7 @@ public class Main {
 		Dataset d;
 		for (int a = 0; a < istanze; a++) {
 			String nomecolonna = "istanza_" + a;
-			d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+			d = new Dataset(dataset, percentualetrainingset, percentualescoringset, percentualetestset);
 			Singletons.cromosomastream.createColumn(nomecolonna);
 			Singletons.cromosomastream.setColonna_corrente(nomecolonna);
 			Singletons.pesistream.createColumn(nomecolonna);
@@ -973,7 +996,7 @@ public class Main {
 	/**
 	 * Esegue gait_multi con i parametri in ingresso utilizzando
 	 * AlgoritmoEvolutivoCustomMultiobiettivo(dataset, generazioni, popolazione_size, nclassi,
-	 * 0.5454545454, 0.1818181818, 0.2727272727);
+	 * percentualetrainingset, percentualescoringset, percentualetestset);
 	 * 
 	 * @param dataset_url
 	 * @param generazioni
@@ -990,7 +1013,7 @@ public class Main {
 		// percentualetrainingset, float percentualetestset, float
 		// percentualescoringset)
 		AlgoritmoEvolutivoCustomMultiobiettivo gaitrunner = new AlgoritmoEvolutivoCustomMultiobiettivo(dataset,
-				generazioni, popolazione_size, nclassi, 0.5454545454, 0.1818181818, 0.2727272727);
+				generazioni, popolazione_size, nclassi, percentualetrainingset, percentualescoringset, percentualetestset);
 		gaitrunner.begin();
 	}
 
@@ -1331,7 +1354,7 @@ public class Main {
 		CromosomaDecorator cm;
 		PrintWriter writer;
 		for (int a = 0; a < alberi; a++) {			
-			d = new Dataset(dataset, 0.5454545454, 0.1818181818, 0.2727272727);
+			d = new Dataset(dataset, percentualetrainingset ,percentualescoringset, percentualetestset);
 			//gaitMulti 15-1-5			
 			GAIT_noFC_multiobiettivo.alpha=15;
 			GAIT_noFC_multiobiettivo.beta=1;
