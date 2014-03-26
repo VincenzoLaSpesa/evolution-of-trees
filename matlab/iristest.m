@@ -17,3 +17,15 @@ x = x(:);
 y = y(:);
 j = classify([x y],meas(:,1:2),species);
 gscatter(x,y,j,'grb')
+
+figure;
+gscatter(meas(:,3), meas(:,4), species,'rgb','osd');
+xlabel('Petal length');
+ylabel('Petal width');
+
+
+
+figure;
+gscatter(meas(:,4), meas(:,3), species,'rgb','osd');
+xlabel('1Petal width');
+ylabel('1Petal length');

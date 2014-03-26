@@ -41,6 +41,11 @@ import weka.core.Range;
 
 import com.google.gson.Gson;
 
+/**
+ * TODO: Questa classe è diventata un puttanaio, ci sono dentro 1500 righe di codice per implementare tutti vari parametri della riga di comando, probabilmente dovrei farne un package
+ * @author darshan
+ *
+ */
 public class Main {
 	//
 	public static final String parkingson="/home/darshan/Uni/Tesi/tesi/Tesi/dataset/parkingsons/parkinsons.arff";
@@ -62,6 +67,7 @@ public class Main {
 	public static double percentualetrainingset=0.5454545454;
 	public static double percentualescoringset=0.1818181818;
 	public static double percentualetestset= 0.2727272727;
+	public static boolean albericolorati=false;//gestisce l'output degli alberi di bloat
 
 	/**
 	 * @param args
@@ -96,7 +102,8 @@ public class Main {
 		parser.accepts("base", "specifica il prefisso che dovranno avere eventuali files generati").withRequiredArg();
 		parser.accepts("pattern", "permette di caricare dei files attraverso dei pattern espressi nel formato glob di java").withRequiredArg();
 		parser.accepts("albero", "specifica un albero da caricare").withRequiredArg();
-
+		parser.accepts("albericolorati", "gestisce l'output degli alberi di bloat");
+		
 		//
 		parser.accepts("iris", "Avvia i test su Iris con le impostazioni di default");
 		parser.accepts("gaitDefault", "Avvia i test su Gait con le impostazioni di default");
@@ -155,6 +162,14 @@ public class Main {
 		parser.accepts("WholeTrainingBenchmark3000", "Calcola 100 alberi j48 su trainingset di 3000 elementi");
 		parser.accepts("gaitComplete", "Una esecuzione da 25 generazioni");
 		OptionSet options = parser.parse(args);
+		
+		
+		
+		
+		if (options.has("albericolorati")) {
+			albericolorati=true;
+			System.out.printf("albericolorati -> %b \n",albericolorati);
+		}
 		
 		if (options.hasArgument("percentualetrainingset")) {
 			double d = Double.parseDouble((String) options.valueOf("percentualetrainingset"));
@@ -259,7 +274,7 @@ public class Main {
 		}
 		
 		if (options.has("MisuraTempi")) {
-			misuratempi();
+			misuratempi(albericolorati);
 			return;
 		}
 		
@@ -1267,20 +1282,16 @@ public class Main {
 
 	
 	
-	public static void misuratempi() throws IOException{
+	public static void misuratempi(boolean albericolorati) throws IOException{
 		//http://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
 		
 		//variabili 
 		long tic, tac;
 	    String filename=base+".log";
 	    PrintWriter writer = new PrintWriter(filename, "UTF-8");
-
+	    FileReader dataset_stream;
+	    Instances dataset;
 		//FloatStream fstream= new FloatStream();
-		//configuro il dataset
-	    
-		FileReader dataset_stream = new FileReader(dataset_url);
-		Instances dataset = new Instances(dataset_stream);
-		dataset.setClassIndex(dataset.numAttributes() - 1);
 		//ottengo i files
 		ArrayList<File> codafiles= new ArrayList<>();
 		ArrayList<Cromosoma> codacromosomi= new ArrayList<>();
@@ -1288,7 +1299,12 @@ public class Main {
 		System.out.printf("Ottengo la lista dei files applicando il pattern '%s'\n",pattern);
 		File f = new File("."); // current directory
 
+		
+		
 	    File[] files = f.listFiles();
+	    	    
+	    
+	    
 	    for (File file : files) {
 	    	//System.out.println(file.toPath());
 	        if (!file.isDirectory() && matcher.matches(file.toPath())) {
@@ -1296,6 +1312,18 @@ public class Main {
 		        codafiles.add(file);
 	        }
 	    }
+	    
+		//configuro il dataset
+	    if(codafiles.size()>0){
+			dataset_stream = new FileReader(dataset_url);
+			dataset = new Instances(dataset_stream);
+			dataset.setClassIndex(dataset.numAttributes() - 1);
+	    }else{
+	    	writer.close();
+	    	return;
+	    }
+
+	    
 	    //ottengo i cromosomi
 	    System.out.println("Carico i cromosomi");
 	    for (File file : codafiles) {
@@ -1319,6 +1347,7 @@ public class Main {
 	    }
 	    //misurazioni vere.	 
 	    writer.append("0000Nomefile\tTempi\tPrestazioni\tAltezze\tLunghezze\n\n");
+	    int k=0;
 	    for (Cromosoma c : codacromosomi) {
 	    	//fstream.setColonna_corrente(codafiles.get(colonna).getName());
 	    	TreeEvaluator te = new TreeEvaluator(c, dataset, dataset.numClasses());
@@ -1332,6 +1361,21 @@ public class Main {
 			String linea=String.format("%s\t%f\t%f\t%d\t%d\n", codafiles.get(colonna).getName(),tempo,te.getPrestazioni(),c.altezza,c.cromosoma.size());
 			writer.append(linea);
 			colonna++;
+		    if(albericolorati){
+		    	CromosomaDecorator cd = new CromosomaDecorator(c);
+		    	cd.caricaColonne(dataset);		    	
+		    	String filename2=c.altezza+"_"+k+"_bloatcolorato_"+codafiles.get(colonna-1).getName()+".dot";
+		    	System.out.printf("Produco l'albero di bloat in :%s 	\n",filename2);
+			    PrintWriter writer2 = new PrintWriter(filename2, "UTF-8");
+			    writer2.append(cd.getGraph_bloat(te.utilizzo));
+			    writer2.append("//");
+			    writer2.append("//Lunghezza: "+c.cromosoma.size()+"\n");//magie del preprocessore
+			    writer2.append("//Altezza: "+c.altezza+"\n");
+			    writer2.append("//Prestazioni: "+te.getPrestazioni()+"\n");
+			    writer2.close();
+			    k++;
+		    }
+		    
 	    }
 	    //produco il file di log
 	    //writer.append(fstream.ricomponi());

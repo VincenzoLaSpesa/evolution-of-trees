@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import tesi.models.Cromosoma;
 import tesi.models.Gene;
+import tesi.util.Colormap;
 import weka.core.Attribute;
 import weka.core.Instances;
 
@@ -93,5 +94,32 @@ public class CromosomaDecorator {
 		sb.append("}");
 		return sb;
 	};	
+
+	/**
+	 * Esporta in formato dot, analizzando il livello di utilizzo dei singoli nodi
+	 * @return
+	 */
+	public StringBuilder getGraph_bloat(double utilizzo[]) {
+		int n = 0;
+		StringBuilder sb = new StringBuilder();
+		String nome=cromosoma.getClass().getName().replace('.', '_');
+		sb.append(String.format("digraph %s_numeric_%d {\n", nome, cromosoma.hashCode()));
+		for (Gene g : cromosoma.cromosoma) {
+			if (Double.isNaN(g.punto)) {
+				sb.append(String.format("N%d [label=\"%d\" shape=box style=filled ]\n", n, g.attributo));
+			} else {
+				long u=Math.round(utilizzo[n]);
+				//String colore=Colormap.toHTMLColor(Colormap.hot[(int)(255-u)]);
+				String colore=Colormap.hotcolor((int)u);
+				sb.append(String.format("N%d [label=\"%.2f\" style=filled fillcolor=\"%s\"]\n", n, utilizzo[n]/256,colore));
+				sb.append(String.format("N%d -> N%d \n", n, n + 1));
+				sb.append(String.format("N%d -> N%d \n", n, g.fine));
+			}
+			n++;
+		}
+		sb.append("}");
+		return sb;
+	};	
+
 
 }

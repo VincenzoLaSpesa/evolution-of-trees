@@ -28,6 +28,9 @@ public class TreeEvaluator {
 	int[] lut;//una lookuptable, nel caso gli id delle classi non comincino da 0
 
 	double prestazioni = 0;
+	
+	public double[] utilizzo;
+	double delta;
 
 	
 	/**
@@ -44,12 +47,9 @@ public class TreeEvaluator {
 	 * @return
 	 */
 	public static int evaluate_one(Cromosoma c, double[] istanza) {
-		// System.out.println("    "+Gene.csvHead);
 		int cursore = 0;
 		boolean flag;
 		Gene g = c.cromosoma.elementAt(cursore);
-		// System.out.println(String.format("%d -> %s - (%f)", cursore ,
-		// g.toCsv() , istanza[g.attributo]));
 		while (g.fine > 0) {
 			if (g.taglio == Taglio.Continuo) {
 				flag = (istanza[g.attributo] <= g.punto);
@@ -62,8 +62,6 @@ public class TreeEvaluator {
 				cursore = g.fine;
 			}
 			g = c.cromosoma.elementAt(cursore);
-			// System.out.println(String.format("%d -> %s - (%f)", cursore ,
-			// g.toCsv() , istanza[g.attributo]));
 
 		}
 		return g.attributo;
@@ -89,7 +87,7 @@ public class TreeEvaluator {
 		this.nclassi = nclassi;
 		this.confusion = new int[nclassi][nclassi];
 		this.confusion_f= new double[nclassi][nclassi];
-		this.lut= new int[64];
+		this.lut= new int[testset.numAttributes()];
 		//
 		int i=testset.classIndex();
 		int j=0;
@@ -102,6 +100,48 @@ public class TreeEvaluator {
 		}
 	}
 
+
+	/**
+	 * Valuta il Cromosoma sull'istanza, supponendo che tutte le caratteristiche
+	 * dell'istanza siano numeri reali e che l'ultima contenga la classe di
+	 * appartenenza.
+	 * 
+	 * La valutazione di un albero serializzato può essere effettuata
+	 * semplicemente in modo iterativo visto che nell'esplorazione di un albero
+	 * di scelta non si torna mai indietro di livello.
+	 * 
+	 * Questa versione della funzione analizza inoltre l'uso di ogni nodo decisionale.
+	 * 
+	 * @param c
+	 * @param istanza
+	 * @param vettoreutilizzo
+	 * @return
+	 */
+	private int evaluate_one_bloatcheck(double[] istanza) {
+		int cursore = 0;
+		boolean flag;
+		Gene g = cromosoma.cromosoma.elementAt(cursore);
+		while (g.fine > 0) {
+			//System.out.println(cursore);
+			if(cursore<utilizzo.length)
+				utilizzo[cursore]+=delta;
+			if (g.taglio == Taglio.Continuo) {
+				flag = (istanza[g.attributo] <= g.punto);
+			} else {
+				flag = (istanza[g.attributo] == g.punto);
+			}
+			if (flag) {
+				cursore++;
+			} else {
+				cursore = g.fine;
+			}
+			g = cromosoma.cromosoma.elementAt(cursore);
+
+		}
+		return g.attributo;
+	}
+	
+	
 	public double evaluate() {
 		int nIstanze = testset.numInstances();
 		int responso;
@@ -109,10 +149,12 @@ public class TreeEvaluator {
 		double[] istanza;
 		double[] sommarighe=new double[nclassi];
 		Instance in;
+		utilizzo= new double[cromosoma.cromosoma.size()+1];
+		delta=255.0/nIstanze;
 		for (int i = 0; i < nIstanze; i++) {
 			in=testset.instance(i);
 			istanza = in.toDoubleArray();
-			responso = TreeEvaluator.evaluate_one(cromosoma, istanza);			
+			responso = evaluate_one_bloatcheck(istanza);			
 			classe=(int)testset.instance(i).classValue();
 			responso=lut[responso];
 			confusion[classe][responso]++;

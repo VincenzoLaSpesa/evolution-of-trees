@@ -11,4 +11,4 @@ IO.popen("dot -Tsvg -o #{fname}", "w+") do |pipe|
 end
 puts fname
 `kde-open #{fname}`
-`rm #{fname}`
+#`rm #{fname}`
