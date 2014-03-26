@@ -81,6 +81,7 @@ public class TreeEvaluator {
 		return evaluate_one(c, istanza) == istanza[istanza.length - 1];
 	}
 
+	@SuppressWarnings("unchecked")
 	public TreeEvaluator(Cromosoma cromosoma, Instances testset, int nclassi) {
 		this.cromosoma = cromosoma;
 		this.testset = testset;
