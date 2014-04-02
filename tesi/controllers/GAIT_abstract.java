@@ -19,7 +19,7 @@ import weka.core.Instances;
  * @author darshan
  * 
  */
-public abstract class GAIT_noFC_abstract extends Ecosistema {
+public abstract class GAIT_abstract extends Ecosistema {
 
 	/**
 	 * Il Numero massimo di elementi nella popolazione
@@ -43,7 +43,7 @@ public abstract class GAIT_noFC_abstract extends Ecosistema {
 		return prestazioni;
 	}
 
-	public GAIT_noFC_abstract(Instances testset, int nclassi, int limit) {
+	public GAIT_abstract(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi);
 		this.limit = limit;
 	}

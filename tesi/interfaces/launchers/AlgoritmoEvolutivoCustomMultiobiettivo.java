@@ -3,7 +3,7 @@
  */
 package tesi.interfaces.launchers;
 
-import tesi.controllers.GAIT_noFC_multiobiettivo;
+import tesi.controllers.GAIT_multiobiettivo;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
 import tesi.models.Cromosoma;
@@ -71,7 +71,7 @@ public class AlgoritmoEvolutivoCustomMultiobiettivo extends AlgoritmoEvolutivoCu
 		sb.append(String.format("La popolazione iniziale è generata con J48, un porting in Java di C4.5"));
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex() + "\n"));
 		logger.fine(sb.toString());
-		ecosistema = new GAIT_noFC_multiobiettivo(scoringset, nclassi, this.popolazione_iniziale_size);
+		ecosistema = new GAIT_multiobiettivo(scoringset, nclassi, this.popolazione_iniziale_size);
 		esemplare = ecosistema.GAIT(popolazione_iniziale, numerogenerazioni, mutante);
 		te = new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();

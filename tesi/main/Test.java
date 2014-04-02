@@ -8,7 +8,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 
-import tesi.controllers.GAIT_noFC_multiobiettivo;
+import tesi.controllers.GAIT_multiobiettivo;
 import tesi.controllers.GeneticOperators;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
@@ -187,9 +187,9 @@ public abstract class Test {
 		for (int a = 0; a < alberi; a++) {			
 			d = new Dataset(dataset, Settings.percentualetrainingset ,Settings.percentualescoringset, Settings.percentualetestset);
 			//gaitMulti 15-1-5			
-			GAIT_noFC_multiobiettivo.alpha=15;
-			GAIT_noFC_multiobiettivo.beta=1;
-			GAIT_noFC_multiobiettivo.gamma=15;
+			GAIT_multiobiettivo.alpha=15;
+			GAIT_multiobiettivo.beta=1;
+			GAIT_multiobiettivo.gamma=15;
 			datasetstr=d.testset.relationName();
 			filename=String.format(formato, Settings.base,a,datasetstr,"gaitMulti_15_1_15antibloat");
 			System.out.printf("Scrivo un dump in : %s\n",filename);
@@ -200,9 +200,9 @@ public abstract class Test {
 			writer.append(cm.getCromosoma().toYaml());
 			writer.close();
 			//gaitMulti 5-1-15
-			GAIT_noFC_multiobiettivo.alpha=5;
-			GAIT_noFC_multiobiettivo.beta=1;
-			GAIT_noFC_multiobiettivo.gamma=15;
+			GAIT_multiobiettivo.alpha=5;
+			GAIT_multiobiettivo.beta=1;
+			GAIT_multiobiettivo.gamma=15;
 			datasetstr=d.testset.relationName();
 			filename=String.format(formato, Settings.base,a,datasetstr,"gaitMulti_5_1_15");
 			System.out.printf("\nScrivo un dump in : %s\n",filename);

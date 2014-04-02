@@ -2,7 +2,7 @@ package tesi.interfaces.launchers;
 
 import java.util.LinkedList;
 
-import tesi.controllers.GAIT_noFC_simple;
+import tesi.controllers.GAIT_simple;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
 import tesi.models.Cromosoma;
@@ -23,7 +23,7 @@ public class GAIT_noFC_run implements Runnable{
 	Instances testset;
 	Instances scoringset;
 	LinkedList<Cromosoma> popolazione_iniziale;
-	GAIT_noFC_simple gait;
+	GAIT_simple gait;
 	Cromosoma esemplare;
 	CromosomaDecorator cd;
 	TreeEvaluator te;
@@ -81,7 +81,7 @@ public class GAIT_noFC_run implements Runnable{
 		J48 j48 = new J48();
 		System.out.println("La popolazione iniziale è generata con J48, un porting in Java di C4.5");
 		System.out.println(j48.getTechnicalInformation().toBibTex()+"\n");
-		gait= new GAIT_noFC_simple(scoringset, nclassi, maxelementi);
+		gait= new GAIT_simple(scoringset, nclassi, maxelementi);
 		esemplare=gait.GAIT(popolazione_iniziale,10,false);
 		te= new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();

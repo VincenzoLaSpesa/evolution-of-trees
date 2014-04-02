@@ -14,9 +14,9 @@ import weka.core.Instances;
  * @author darshan
  * 
  */
-public class GAIT_noFC_simple extends GAIT_noFC_abstract {
+public class GAIT_simple extends GAIT_abstract {
 
-	public GAIT_noFC_simple(Instances testset, int nclassi, int limit) {
+	public GAIT_simple(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi,limit);
 		popolazione= new PopolazioneOrdinata();
 	}

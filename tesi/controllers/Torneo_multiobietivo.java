@@ -3,7 +3,7 @@ package tesi.controllers;
 import tesi.models.popolazione.PopolazioneRAM;
 import weka.core.Instances;
 
-public class Torneo_multiobietivo extends GAIT_noFC_multiobiettivo {
+public class Torneo_multiobietivo extends GAIT_multiobiettivo {
 
 
 	public Torneo_multiobietivo(Instances testset, int nclassi, int limit) {

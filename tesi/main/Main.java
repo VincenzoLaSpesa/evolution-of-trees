@@ -6,7 +6,7 @@ import java.util.Date;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import tesi.controllers.GAIT_noFC_multiobiettivo;
+import tesi.controllers.GAIT_multiobiettivo;
 import tesi.models.Dataset;
 import tesi.util.StringUtil;
 import tesi.util.SysUtil;
@@ -548,18 +548,18 @@ public class Main {
 		}		
 		if (options.hasArgument("alpha")) {
 			double alpha = Double.parseDouble((String) options.valueOf("alpha"));
-			GAIT_noFC_multiobiettivo.alpha=alpha;
-			System.out.printf("alpha -> %f \n",GAIT_noFC_multiobiettivo.alpha);
+			GAIT_multiobiettivo.alpha=alpha;
+			System.out.printf("alpha -> %f \n",GAIT_multiobiettivo.alpha);
 		}
 		if (options.hasArgument("beta")) {
 			double beta = Double.parseDouble((String) options.valueOf("beta"));
-			GAIT_noFC_multiobiettivo.beta=beta;
-			System.out.printf("beta -> %f \n",GAIT_noFC_multiobiettivo.beta);
+			GAIT_multiobiettivo.beta=beta;
+			System.out.printf("beta -> %f \n",GAIT_multiobiettivo.beta);
 		}
 		if (options.hasArgument("gamma")) {
 			double gamma = Double.parseDouble((String) options.valueOf("gamma"));
-			GAIT_noFC_multiobiettivo.gamma=gamma;
-			System.out.printf("gamma -> %f \n",GAIT_noFC_multiobiettivo.gamma);
+			GAIT_multiobiettivo.gamma=gamma;
+			System.out.printf("gamma -> %f \n",GAIT_multiobiettivo.gamma);
 		}
 		if (options.has("quiet")) {
 			Singletons.cromosomastream.active=false;

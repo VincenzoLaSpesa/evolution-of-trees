@@ -6,8 +6,8 @@ package tesi.interfaces.launchers;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
-import tesi.controllers.GAIT_noFC_abstract;
-import tesi.controllers.GAIT_noFC_simple;
+import tesi.controllers.GAIT_abstract;
+import tesi.controllers.GAIT_simple;
 import tesi.controllers.GeneticOperators;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
@@ -42,7 +42,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 	//
 	int nclassi;
 	LinkedList<Cromosoma> popolazione_iniziale;
-	protected GAIT_noFC_abstract ecosistema;
+	protected GAIT_abstract ecosistema;
 	Cromosoma esemplare;
 	CromosomaDecorator cd;
 	TreeEvaluator te;
@@ -176,7 +176,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 		sb.append(String.format("La popolazione iniziale è generata con J48, un porting in Java di C4.5"));
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex() + "\n"));
 		logger.fine(sb.toString());
-		ecosistema = new GAIT_noFC_simple(scoringset, nclassi, this.popolazione_iniziale_size);
+		ecosistema = new GAIT_simple(scoringset, nclassi, this.popolazione_iniziale_size);
 		esemplare = ecosistema.GAIT(popolazione_iniziale, numerogenerazioni, mutante);
 		te = new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();
@@ -247,7 +247,7 @@ public class AlgoritmoEvolutivoCustom implements Runnable {
 			popolazione_iniziale.add(c);
 		}
 		J48 j48 = new J48();
-		ecosistema = new GAIT_noFC_simple(scoringset, nclassi, this.popolazione_iniziale_size);
+		ecosistema = new GAIT_simple(scoringset, nclassi, this.popolazione_iniziale_size);
 		esemplare = ecosistema.GAIT(popolazione_iniziale, numerogenerazioni, mutante);
 		te = new TreeEvaluator(esemplare, testset, nclassi);
 		te.evaluate();

@@ -12,7 +12,7 @@ import weka.core.Instances;
  * @author darshan
  * 
  */
-public class GAIT_noFC_multiobiettivo extends GAIT_noFC_abstract {
+public class GAIT_multiobiettivo extends GAIT_abstract {
 
 	/**
 	 * 
@@ -29,24 +29,24 @@ public class GAIT_noFC_multiobiettivo extends GAIT_noFC_abstract {
 	public static double gamma=15;
 	
 
-	public GAIT_noFC_multiobiettivo(Instances testset, int nclassi, int limit) {
+	public GAIT_multiobiettivo(Instances testset, int nclassi, int limit) {
 		super(testset, nclassi, limit);
 		popolazione= new PopolazioneOrdinata();
 	}
 	
 	
 
-	public GAIT_noFC_multiobiettivo(Instances testset, int nclassi, int limit, double alpha, double beta, double gamma) {
+	public GAIT_multiobiettivo(Instances testset, int nclassi, int limit, double alpha, double beta, double gamma) {
 		super(testset, nclassi, limit);
-		GAIT_noFC_multiobiettivo.alpha = alpha;
-		GAIT_noFC_multiobiettivo.beta = beta;
-		GAIT_noFC_multiobiettivo.gamma = gamma;
+		GAIT_multiobiettivo.alpha = alpha;
+		GAIT_multiobiettivo.beta = beta;
+		GAIT_multiobiettivo.gamma = gamma;
 	}
 
 	public void reimpostaparametri(double alpha, double beta, double gamma) {
-		GAIT_noFC_multiobiettivo.alpha = alpha;
-		GAIT_noFC_multiobiettivo.beta = beta;
-		GAIT_noFC_multiobiettivo.gamma = gamma;
+		GAIT_multiobiettivo.alpha = alpha;
+		GAIT_multiobiettivo.beta = beta;
+		GAIT_multiobiettivo.gamma = gamma;
 	}
 
 
