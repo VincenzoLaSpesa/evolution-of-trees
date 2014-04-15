@@ -1,11 +1,11 @@
 package tesi.main;
 
-import tesi.interfaces.launchers.AlgoritmoEvolutivoCustom;
-import tesi.interfaces.launchers.AlgoritmoEvolutivoCustomMultiobiettivo;
-import tesi.interfaces.launchers.AlgoritmoEvolutivoCustomRanked;
-import tesi.interfaces.launchers.AlgoritmoEvolutivoCustomSPF;
-import tesi.interfaces.launchers.AlgoritmoEvolutivoCustomTarpeian;
-import tesi.interfaces.launchers.AlgoritmoEvolutivoCustomTorneo;
+import tesi.launcher.AlgoritmoEvolutivoCustomSimple;
+import tesi.launcher.AlgoritmoEvolutivoCustomMultiobiettivo;
+import tesi.launcher.AlgoritmoEvolutivoCustomRanked;
+import tesi.launcher.AlgoritmoEvolutivoCustomSPF;
+import tesi.launcher.AlgoritmoEvolutivoCustomTarpeian;
+import tesi.launcher.AlgoritmoEvolutivoCustomTorneo;
 import tesi.models.Dataset;
 
 public abstract class Algoritmi {
@@ -35,15 +35,15 @@ public abstract class Algoritmi {
 	 * @param d
 	 * @param generazioni
 	 * @throws Exception
-	 * @see AlgoritmoEvolutivoCustom
+	 * @see AlgoritmoEvolutivoCustomSimple
 	 */
 	public static void gait_classic(Dataset d, int generazioni) throws Exception {
-		AlgoritmoEvolutivoCustom gaitrunner = new AlgoritmoEvolutivoCustom(d, generazioni, Settings.popolazione_size,false,Settings.albero_size);
+		AlgoritmoEvolutivoCustomSimple gaitrunner = new AlgoritmoEvolutivoCustomSimple(d, generazioni, Settings.popolazione_size,false,Settings.albero_size);
 		gaitrunner.begin();
 	}
 
 	public static void gait_mutante_complete(Dataset d, int generazioni) throws Exception {
-		AlgoritmoEvolutivoCustom gaitrunner = new AlgoritmoEvolutivoCustom(d, generazioni, Settings.popolazione_size,true,Settings.albero_size);
+		AlgoritmoEvolutivoCustomSimple gaitrunner = new AlgoritmoEvolutivoCustomSimple(d, generazioni, Settings.popolazione_size,true,Settings.albero_size);
 		gaitrunner.begin();
 	}
 

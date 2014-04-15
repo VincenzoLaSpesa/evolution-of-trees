@@ -8,7 +8,6 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import tesi.controllers.GAIT_multiobiettivo;
 import tesi.models.Dataset;
-import tesi.util.StringUtil;
 import tesi.util.SysUtil;
 import tesi.util.logging.FloatStream;
 import tesi.util.logging.GlobalLogger;
@@ -27,8 +26,8 @@ public class Main {
 	
 	private static OptionParser inizializzaOptionParser(){
 		OptionParser parser = new OptionParser();
-		parser.accepts("gait").withOptionalArg();
-		parser.accepts("gait-multi").withOptionalArg();
+		//parser.accepts("gait").withOptionalArg();
+		//parser.accepts("gait-multi").withOptionalArg();
 		parser.accepts("trainingset", "specifica la path del trainingset").withRequiredArg();
 		parser.accepts("settings", "carica i settaggi da un file json").withRequiredArg();
 		parser.accepts("testset", "specifica la path del testset").withRequiredArg();
@@ -56,7 +55,7 @@ public class Main {
 		
 		//
 		parser.accepts("iris", "Avvia i test su Iris con le impostazioni di default");
-		parser.accepts("gaitDefault", "Avvia i test su Gait con le impostazioni di default");
+		//parser.accepts("gaitDefault", "Avvia i test su Gait con le impostazioni di default");
 		// parser.accepts("gaitMultiDefault",
 		// "Avvia i test su GaitMulti con le impostazioni di default");
 		parser.accepts("testaalbero", "Avvia i test sulla creazione/serializzazione degli alberi");
@@ -167,7 +166,7 @@ public class Main {
 			return;
 		}
 		
-		if (options.has("gait")) {
+		/*if (options.has("gait")) {
 			// --gait --trainingset=<trainingsetpath> --testset=<testsetpath>
 			// --scoringset=<scoringsetpath> --nclassi=<nclassi>
 			// --gait --settings=<JsonSettingsPath>
@@ -203,9 +202,9 @@ public class Main {
 			System.err.println("\t oppure");
 			System.err.println(" --gait --settings=<JsonSettingsPath>");
 			return;
-		}
+		}*/
 
-		if (options.has("gait-multi")) {
+		/*if (options.has("gait-multi")) {
 			// --gait --trainingset=<trainingsetpath> --testset=<testsetpath>
 			// --scoringset=<scoringsetpath> --nclassi=<nclassi>
 			// --gait --settings=<JsonSettingsPath>
@@ -233,18 +232,20 @@ public class Main {
 			}
 
 			return;
-		}
+		}*/
 
 		if (options.has("iris")) {
 			Singletons.cromosomastream.active=false;
 			Test.iris();
 			return;
 		}
-		if (options.has("gaitDefault")) {
+		
+		/*if (options.has("gaitDefault")) {
 			Singletons.cromosomastream.active=false;
 			Deprecati.gait();
 			return;
-		}
+		}*/
+		
 		if (options.has("testaalbero")) {
 			Singletons.cromosomastream.active=false;
 			Test.testaalbero(Settings.albero);
@@ -460,12 +461,12 @@ public class Main {
 		}		
 
 		
-		if (options.has("gaitComplete")) {
+		/*if (options.has("gaitComplete")) {
 			Singletons.cromosomastream.active=false;
 			GlobalLogger.init_verbose();
 			Deprecati.gait_complete();
 			return;
-		}
+		}*/
 
 		if (options.has("WholeTrainingBenchmark3000")) {
 			Singletons.cromosomastream.active=false;

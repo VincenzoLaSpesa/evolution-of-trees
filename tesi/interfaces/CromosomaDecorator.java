@@ -12,9 +12,7 @@ import weka.core.Instances;
 /**
  * Questa classe serve per produrre dei grafi Graphviz dai cromosomi utilizzando
  * invece che il numero delle colonne il nome delle colonne, per fare questo
- * servono informazioni che non sono contenute del Cromosoma stesso ( da qui il
- * nome che è anche un gioco di parole col fatto che vengono fuori dei grafi
- * "decorati")
+ * servono informazioni che non sono contenute del Cromosoma stesso 
  * 
  * @author darshan
  * 
