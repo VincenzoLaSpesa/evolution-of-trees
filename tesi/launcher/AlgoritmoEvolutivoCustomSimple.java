@@ -4,12 +4,8 @@
 package tesi.launcher;
 
 import tesi.controllers.GAIT_simple;
-import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
-import tesi.models.Cromosoma;
 import tesi.models.Dataset;
-import weka.classifiers.trees.J48;
-import weka.core.Instances;
 
 
 public class AlgoritmoEvolutivoCustomSimple extends AlgoritmoEvolutivo implements Runnable {
@@ -29,7 +25,9 @@ public class AlgoritmoEvolutivoCustomSimple extends AlgoritmoEvolutivo implement
 	 * @throws Exception
 	 */
 	public CromosomaDecorator begin() throws Exception {
-		double prestazioni_gait;
+		return startevolution(new GAIT_simple(scoringset, nclassi, this.popolazione_iniziale_size));
+		
+		/*		double prestazioni_gait;
 		double prestazioni_j48 = -1;
 		double peso_gait;
 		double peso_J48w = -1;
@@ -52,6 +50,7 @@ public class AlgoritmoEvolutivoCustomSimple extends AlgoritmoEvolutivo implement
 			Cromosoma c = Cromosoma.loadFromJ48(j48);
 			popolazione_iniziale.add(c);
 		}
+		
 		J48 j48 = new J48();
 		sb = new StringBuilder();
 		sb.append(String.format("La popolazione iniziale è generata con J48, un porting in Java di C4.5"));
@@ -93,6 +92,6 @@ public class AlgoritmoEvolutivoCustomSimple extends AlgoritmoEvolutivo implement
 			logger.info(sb.toString());
 		}
 		System.out.printf("§§\t%f\t%f\t%.1f\t%.1f\n", prestazioni_gait, prestazioni_j48, peso_gait, peso_J48w);
-		return cd;
+		return cd;*/
 	}
 }

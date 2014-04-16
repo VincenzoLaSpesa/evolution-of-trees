@@ -23,6 +23,7 @@ public class Main {
 	
 	static OptionParser parser;
 	static OptionSet options;
+	static boolean debugMode=true;
 	
 	private static OptionParser inizializzaOptionParser(){
 		OptionParser parser = new OptionParser();
@@ -88,10 +89,6 @@ public class Main {
 				"RankedMultiBenchmark", 
 				"Avvia il benchmark su RankedMulti con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni");		
 		
-		/*parser.accepts(
-				"TorneoMultiBenchmark", 
-				"Avvia il benchmark su RankedMulti con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni");		
-		*/
 		parser.accepts(
 				"TorneoMultiMutanteBenchmark", 
 				"Avvia il benchmark su RankedMulti con le impostazioni di default utilizzando il dataset per intero, è possibile specificare il numero di generazioni con l'apposito flag --generazioni, il mutation rate viene incrementato linearmente durante le generazioni di stallo");		
@@ -118,6 +115,7 @@ public class Main {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
+		boolean fatto=false;
 		Singletons.cromosomastream.active=true;
 		GlobalLogger.init_quiet();
 		parser= inizializzaOptionParser();
@@ -125,8 +123,9 @@ public class Main {
 		//inizializza le variabili globali
 		parsaSettaggi();
 		//esegue le operazioni
-		eseguiComandi();
+		fatto=eseguiComandi();
 		
+		if(fatto)return;
 
 		System.out.println("Le sintassi possibili di gait sono:");
 		System.out
@@ -141,115 +140,42 @@ public class Main {
 		System.out.println("\nAltri comandi possibili sono:");
 		parser.printHelpOn(System.out);
 
-		System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n");
-		System.out.println("\tavvio con le impostazioni di default");
+		System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sono stati forniti argomenti non validi,\n");
 		System.out.printf("il Jar è stato compilato il %s\n", SysUtil.jarBuildTime());
-		//gait_multi();
-		//gait_multi_benchmark(100);
-		//sfp_Multi_Benchmark(25);
-		//gait_complete_benchmark(100);
-		//ranked_Multi_Benchmark(100);
-		//torneo_Multi_Benchmark(500);
-		//System.err.println("Non è stato fornito nessun argomento dalla linea di comando o sonos tati forniti argomenti non validi,\n\tavvio gait-multi con le impostazioni di default");
-		//gait_complete_benchmark_tarpeian(100);
-		//testaalbero(albero);
+
+		if(debugMode){
+			System.out.println("\tavvio con le impostazioni di default");
+			String fakecmd="--stat --gaitMultiMutanteBenchmark --alpha 5 --beta 1 --gamma 15 --campioniperalbero 16 --istanze 10 --generazioni 100";
+			String[] fakeargs=fakecmd.split(" ");
+			options = parser.parse(fakeargs);
+			//inizializza le variabili globali
+			parsaSettaggi();
+			//esegue le operazioni
+			eseguiComandi();
+		}
 	}
 
-	private static void eseguiComandi() throws Exception {
+	private static boolean eseguiComandi() throws Exception {
 		if (options.has("ProduciAlberi")) {
 			Test.producialberi();
-			return;
+			return true;
 		}
 		
 		if (options.has("MisuraTempi")) {
 			Test.misuratempi(Settings.albericolorati);
-			return;
+			return true;
 		}
 		
-		/*if (options.has("gait")) {
-			// --gait --trainingset=<trainingsetpath> --testset=<testsetpath>
-			// --scoringset=<scoringsetpath> --nclassi=<nclassi>
-			// --gait --settings=<JsonSettingsPath>
-			if (options.hasArgument("trainingset") && options.hasArgument("testset")
-					&& options.hasArgument("scoringset") && options.hasArgument("nclassi")) {
-				String trainingset = (String) options.valueOf("trainingset");
-				String testset = (String) options.valueOf("testset");
-				String scoringset = (String) options.valueOf("scoringset");
-				//
-				System.out.printf("trainingset -> '%s'\n", trainingset);
-				System.out.printf("testset -> '%s'\n", testset);
-				System.out.printf("scoringset -> '%s'\n", scoringset);
-				//
-				Singletons.cromosomastream.active=false;
-				Deprecati.gait(trainingset, testset, scoringset);
-				return;
-
-			}
-			if (options.hasArgument("settings")) {
-				String settings_content = (String) options.valueOf("settings");
-				System.out.printf("setting -> '%s'\n", settings_content);
-				System.out.printf("settings info\n");
-				settings_content = StringUtil.readFileAsString(settings_content);
-				System.out.println(settings_content);
-				Singletons.cromosomastream.active=false;
-				Deprecati.gait(settings_content);
-				return;
-
-			}
-			System.err.println("Le sintassi possibili di gait sono:");
-			System.err
-					.println(" --gait --trainingset=<trainingsetpath> --testset=<testsetpath>  --scoringset=<scoringsetpath> --nclassi=<nclassi>");
-			System.err.println("\t oppure");
-			System.err.println(" --gait --settings=<JsonSettingsPath>");
-			return;
-		}*/
-
-		/*if (options.has("gait-multi")) {
-			// --gait --trainingset=<trainingsetpath> --testset=<testsetpath>
-			// --scoringset=<scoringsetpath> --nclassi=<nclassi>
-			// --gait --settings=<JsonSettingsPath>
-			Singletons.cromosomastream.active=false;
-			if (options.hasArgument("dataset") && options.hasArgument("generazioni")) {
-				Settings.dataset_url = (String) options.valueOf("dataset");
-				int generazioni = Integer.parseInt((String) options.valueOf("generazioni"));
-				//
-				System.out.printf("dataset -> '%s'\n", Settings.dataset_url);
-				System.out.printf("generazioni -> %d\n", generazioni);
-				//
-				Deprecati.gait_multi(Settings.dataset_url, generazioni);
-				return;
-
-			}
-			if (options.hasArgument("settings")) {
-				String settings_content = (String) options.valueOf("settings");
-				System.out.printf("setting -> '%s'\n", settings_content);
-				System.out.printf("settings info\n");
-				settings_content = StringUtil.readFileAsString(settings_content);
-				System.out.println(settings_content);
-				Deprecati.gait_multi(settings_content);
-				return;
-
-			}
-
-			return;
-		}*/
-
 		if (options.has("iris")) {
 			Singletons.cromosomastream.active=false;
 			Test.iris();
-			return;
+			return true;
 		}
-		
-		/*if (options.has("gaitDefault")) {
-			Singletons.cromosomastream.active=false;
-			Deprecati.gait();
-			return;
-		}*/
-		
+				
 		if (options.has("testaalbero")) {
 			Singletons.cromosomastream.active=false;
 			Test.testaalbero(Settings.albero);
-			return;
+			return true;
 		}
 		if (options.has("gaitMultiBenchmark")) {
 			//Singletons.cromosomastream.active=true;
@@ -266,15 +192,13 @@ public class Main {
 				}
 				@Override
 				public void call(Dataset d, int generazioni) throws Exception {
-					//GaitMulti.gait_multi(Dataset d, int generazioni, boolean mutante)
 					Algoritmi.gait_multi(d, generazioni,false);					
 				}
 			});
 			
-			return;
+			return true;
 		}
 		if (options.has("gaitMultiMutanteBenchmark")) {
-			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -292,14 +216,13 @@ public class Main {
 					Algoritmi.gait_multi(d, generazioni,true);					
 				}
 			});
-			return;
+			return true;
 		}
 
 		
 		
 		
 		if (options.has("gaitCompleteTarpeianBenchmark")) {
-			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -313,20 +236,14 @@ public class Main {
 				}
 				@Override
 				public void call(Dataset d, int generazioni) throws Exception {
-					//GaitMulti.gait_multi(Dataset d, int generazioni, boolean mutante)
 					Algoritmi.gait_tarpeian(d, generazioni);
 				}
 			});
-			
-			
-			
-			
-			return;
+			return true;
 		}
 		
 		
 		if (options.has("gaitCompleteBenchmark")) {
-			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -344,10 +261,9 @@ public class Main {
 					Algoritmi.gait_classic(d, generazioni);
 				}
 			});			
-			return;
+			return true;
 		}
 		if (options.has("gaitCompleteMutanteBenchmark")) {
-			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -361,17 +277,15 @@ public class Main {
 				}
 				@Override
 				public void call(Dataset d, int generazioni) throws Exception {
-					//GaitMulti.gait_multi(Dataset d, int generazioni, boolean mutante)
 					Algoritmi.gait_mutante_complete(d, generazioni);					
 				}
 			});
-			return;
+			return true;
 		}		
 		
 		
 		
 		if (options.has("SfpMultiBenchmark")) {
-			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -389,7 +303,7 @@ public class Main {
 					Algoritmi.sfp_multi(d, generazioni, false);
 				}
 			});						
-			return;
+			return true;
 		}		
 		
 		if (options.has("RankedMultiBenchmark")) {
@@ -407,16 +321,14 @@ public class Main {
 				}
 				@Override
 				public void call(Dataset d, int generazioni) throws Exception {
-					//GaitMulti.gait_multi(Dataset d, int generazioni, boolean mutante)					
 					Algoritmi.ranked_multi(d, generazioni);
 				}
 			});
 			
-			return;
+			return true;
 		}		
 		
 		if (options.has("TorneoMultiMutanteBenchmark")) {
-			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
@@ -430,11 +342,10 @@ public class Main {
 				}
 				@Override
 				public void call(Dataset d, int generazioni) throws Exception {
-					//GaitMulti.gait_multi(Dataset d, int generazioni, boolean mutante)
 					Algoritmi.torneo_multi_mutante(d, generazioni);
 				}
 			});
-			return;
+			return true;
 		}		
 		
 		if (options.has("TorneoMultiBenchmark")) {
@@ -453,26 +364,18 @@ public class Main {
 				}
 				@Override
 				public void call(Dataset d, int generazioni) throws Exception {
-					//GaitMulti.gait_multi(Dataset d, int generazioni, boolean mutante)
 					Algoritmi.torneo_multi(d, generazioni);
 				}
 			});			
-			return;
+			return true;
 		}		
-
-		
-		/*if (options.has("gaitComplete")) {
-			Singletons.cromosomastream.active=false;
-			GlobalLogger.init_verbose();
-			Deprecati.gait_complete();
-			return;
-		}*/
 
 		if (options.has("WholeTrainingBenchmark3000")) {
 			Singletons.cromosomastream.active=false;
 			Test.WholeTrainingBenchmark(100);
-			return;
+			return true;
 		}
+		return false;
 	}
 
 	private static void parsaSettaggi() {
@@ -584,11 +487,6 @@ public class Main {
 	 * (Devo ammettere che in Java8 sarebbe venuto tutto più pulito...)
 	 */
 	public static void startBenchmark(int generazioni, Funzione funzione) throws Exception{
-		// String
-		// dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/smalldataset.arff";
-		//String dataset_url = "/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/completedataset.arff";
-		// String
-		// dataset_url="/home/darshan/Desktop/Università/Tesi/tesi/Tesi/dataset/wine/winequality-all.arff";
 		System.out.println("Benchmark di "+funzione.toString());
 		FileReader dataset_stream = new FileReader(Settings.dataset_url);
 		Instances dataset = new Instances(dataset_stream);

@@ -1,12 +1,8 @@
 package tesi.launcher;
 
 import tesi.controllers.Ranked_multiobiettivo;
-import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
-import tesi.models.Cromosoma;
 import tesi.models.Dataset;
-import weka.classifiers.trees.J48;
-import weka.core.Instances;
 
 public class AlgoritmoEvolutivoCustomRanked extends AlgoritmoEvolutivo {
 
@@ -17,7 +13,8 @@ public class AlgoritmoEvolutivoCustomRanked extends AlgoritmoEvolutivo {
 		super(d, numerogenerazioni, popolazione_iniziale, mutante, campioniperalbero);
 	}
 	public CromosomaDecorator begin() throws Exception{
-		double prestazioni1;
+		return startevolution(new Ranked_multiobiettivo(scoringset, nclassi, this.popolazione_iniziale_size));
+		/*double prestazioni1;
 		double prestazioni2;
 		double peso;
 
@@ -78,7 +75,7 @@ public class AlgoritmoEvolutivoCustomRanked extends AlgoritmoEvolutivo {
 		sb.append(te.getConfusionasFloatString());
 		logger.info(sb.toString());		
 		System.out.printf("§§\t%f\t%f\t%.1f\n",prestazioni1,prestazioni2, peso);
-		return cd;
+		return cd;*/
 	}	
 
 }

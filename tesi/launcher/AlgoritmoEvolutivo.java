@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.logging.Logger;
 
 import tesi.controllers.GAIT_abstract;
-import tesi.controllers.GAIT_simple;
 import tesi.controllers.GeneticOperators;
 import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
@@ -31,6 +30,7 @@ public abstract class AlgoritmoEvolutivo {
 	double percentualetrainingset;
 	double percentualetestset;
 	double percentualescoringset;
+	double media=0;
 	int campioni_per_albero;
 	//
 	Instances trainingset;
@@ -43,7 +43,6 @@ public abstract class AlgoritmoEvolutivo {
 	Cromosoma esemplare;
 	CromosomaDecorator cd;
 	TreeEvaluator te;
-
 	static final Logger logger;
 
 	static {
@@ -164,8 +163,11 @@ public abstract class AlgoritmoEvolutivo {
 			j48.setBinarySplits(true);
 			j48.buildClassifier(data);
 			Cromosoma c = Cromosoma.loadFromJ48(j48);
+			media = media + c.altezza;
 			popolazione_iniziale.add(c);
 		}
+		media = 2 * media / popolazione_iniziale_size;
+
 		
 		J48 j48 = new J48();
 		sb = new StringBuilder();

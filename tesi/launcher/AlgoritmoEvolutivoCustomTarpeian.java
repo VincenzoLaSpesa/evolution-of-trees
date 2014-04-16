@@ -4,12 +4,8 @@
 package tesi.launcher;
 
 import tesi.controllers.GAIT_simple;
-import tesi.controllers.TreeEvaluator;
 import tesi.interfaces.CromosomaDecorator;
-import tesi.models.Cromosoma;
 import tesi.models.Dataset;
-import weka.classifiers.trees.J48;
-import weka.core.Instances;
 
 /**
  * Permette di avviare una versione generalizzata della procedura descritta in
@@ -35,7 +31,13 @@ public class AlgoritmoEvolutivoCustomTarpeian extends AlgoritmoEvolutivo impleme
 	 * @throws Exception
 	 */
 	public CromosomaDecorator begin() throws Exception {
-		double prestazioni_gait;
+		ecosistema = new GAIT_simple(scoringset, nclassi, this.popolazione_iniziale_size);
+		ecosistema.tarpeian = true;
+		ecosistema.tarpean_soglia = media;
+		return startevolution(ecosistema);
+		
+		
+/*		double prestazioni_gait;
 		double prestazioni_j48 = -1;
 		double peso_gait;
 		double peso_J48w=-1;
@@ -61,15 +63,17 @@ public class AlgoritmoEvolutivoCustomTarpeian extends AlgoritmoEvolutivo impleme
 			popolazione_iniziale.add(c);
 		}
 		media = 2 * media / popolazione_iniziale_size;
+		
 		J48 j48 = new J48();
 		sb = new StringBuilder();
 		sb.append(String.format("La popolazione iniziale è generata con J48, un porting in Java di C4.5"));
 		sb.append(String.format(j48.getTechnicalInformation().toBibTex() + "\n"));
 		logger.fine(sb.toString());
-		ecosistema = new GAIT_simple(scoringset, nclassi, this.popolazione_iniziale_size);
 
+		ecosistema = new GAIT_simple(scoringset, nclassi, this.popolazione_iniziale_size);
 		ecosistema.tarpeian = true;
 		ecosistema.tarpean_soglia = media;
+		
 		// System.out.printf("tarpeian->\t%f\n",media);
 
 		esemplare = ecosistema.GAIT(popolazione_iniziale, numerogenerazioni, mutante);
@@ -106,6 +110,6 @@ public class AlgoritmoEvolutivoCustomTarpeian extends AlgoritmoEvolutivo impleme
 		sb.append(te.getConfusionasFloatString());
 		logger.info(sb.toString());}
 		System.out.printf("§§\t%f\t%f\t%.1f\t%.1f\n", prestazioni_gait, prestazioni_j48, peso_gait, peso_J48w);
-		return cd;
+		return cd;*/
 	}
 }
