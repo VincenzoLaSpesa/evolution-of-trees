@@ -27,8 +27,6 @@ public class Main {
 	
 	private static OptionParser inizializzaOptionParser(){
 		OptionParser parser = new OptionParser();
-		//parser.accepts("gait").withOptionalArg();
-		//parser.accepts("gait-multi").withOptionalArg();
 		parser.accepts("trainingset", "specifica la path del trainingset").withRequiredArg();
 		parser.accepts("settings", "carica i settaggi da un file json").withRequiredArg();
 		parser.accepts("testset", "specifica la path del testset").withRequiredArg();
@@ -56,9 +54,7 @@ public class Main {
 		
 		//
 		parser.accepts("iris", "Avvia i test su Iris con le impostazioni di default");
-		//parser.accepts("gaitDefault", "Avvia i test su Gait con le impostazioni di default");
-		// parser.accepts("gaitMultiDefault",
-		// "Avvia i test su GaitMulti con le impostazioni di default");
+
 		parser.accepts("testaalbero", "Avvia i test sulla creazione/serializzazione degli alberi");
 
 		parser.accepts(
@@ -178,7 +174,6 @@ public class Main {
 			return true;
 		}
 		if (options.has("gaitMultiBenchmark")) {
-			//Singletons.cromosomastream.active=true;
 			Integer generazioni = 25;
 			if (options.hasArgument("generazioni")) {
 				generazioni = Integer.parseInt((String)options.valueOf("generazioni"));
