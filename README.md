@@ -8,6 +8,9 @@ Il progetto è in fase di reingegnerizzazione, attualmente è (direttamente) imp
 Completata la reingegnerizzazione, e in particolare rimosse le dipendenze dal framework Weka provvedendo a riscrivere J48, verrà prodotta la documentazione e incluse
 le informazioni sulla compilazione e il deploy.
 
+#### La tesi di laurea per cui è stato scritto questo codice
+Questo progetto è il codice scritto per la mia tesi di laurea in Informatica, il testo della tesi si trova  [qui](http://www.thedarshan.com/tesi/)
+
 ### Mappa dei sorgenti
 
     .
